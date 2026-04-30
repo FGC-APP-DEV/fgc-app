@@ -1,0 +1,46 @@
+{
+  "name": "fgc-web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/fgc-web/src",
+  "projectType": "application",
+  "tags": ["scope:app", "type:web"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/fgc-web",
+        "main": "apps/fgc-web/src/index.tsx",
+        "tsConfig": "apps/fgc-web/tsconfig.app.json",
+        "webpackConfig": "apps/fgc-web/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "options": {
+        "buildTarget": "fgc-web:build",
+        "port": 3000
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/fgc-web/**/*.{ts,tsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

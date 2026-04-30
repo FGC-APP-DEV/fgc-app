@@ -1,0 +1,10 @@
+{
+  "name": "@fgc/fgc-api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@fgc/database": "*",
+    "@fgc/graphql": "*",
+    "@fgc/shared": "*"
+  }
+}

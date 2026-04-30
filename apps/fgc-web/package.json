@@ -1,0 +1,12 @@
+{
+  "name": "@fgc/fgc-web",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@fgc/auth": "*",
+    "@fgc/graphql": "*",
+    "@fgc/judging": "*",
+    "@fgc/shared": "*",
+    "@fgc/ui": "*"
+  }
+}

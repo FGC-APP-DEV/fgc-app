@@ -1,0 +1,44 @@
+{
+  "name": "fgc-mobile",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/fgc-mobile/src",
+  "projectType": "application",
+  "tags": ["scope:app", "type:mobile"],
+  "targets": {
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx react-native start",
+        "cwd": "apps/fgc-mobile"
+      }
+    },
+    "run-ios": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx react-native run-ios",
+        "cwd": "apps/fgc-mobile"
+      }
+    },
+    "run-android": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx react-native run-android",
+        "cwd": "apps/fgc-mobile"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/fgc-mobile/**/*.{ts,tsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

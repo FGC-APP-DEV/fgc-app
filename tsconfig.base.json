@@ -1,0 +1,35 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@fgc/shared": ["libs/shared/src/index.ts"],
+      "@fgc/graphql": ["libs/graphql/src/index.ts"],
+      "@fgc/ui": ["libs/ui/src/index.ts"],
+      "@fgc/auth": ["libs/auth/src/index.ts"],
+      "@fgc/judging": ["libs/judging/src/index.ts"],
+      "@fgc/database": ["libs/database/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
