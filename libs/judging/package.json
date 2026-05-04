@@ -7,10 +7,18 @@
   "dependencies": {
     "@fgc/graphql": "*",
     "@fgc/shared": "*",
-    "@fgc/ui": "*"
+    "@fgc/ui": "*",
+    "@nx/eslint": "22.7.1",
+    "@nx/jest": "22.7.1",
+    "@nx/node": "22.7.1",
+    "@nx/react": "22.7.1",
+    "@nx/react-native": "22.7.1",
+    "@nx/web": "22.7.1",
+    "@nx/webpack": "22.7.1",
+    "drizzle-kit": "0.31.10"
   },
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-native": "^0.73.0"
+    "react-native": "^0.85.2"
   }
 }
