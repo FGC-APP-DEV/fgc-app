@@ -6,6 +6,10 @@ import {
   GET_INTERVIEWS,
   GET_JUDGES,
   GET_TEAMS,
+  type GetAnnouncementsQueryData,
+  type GetInterviewsQueryData,
+  type GetJudgesQueryData,
+  type GetTeamsQueryData,
 } from '@fgc/graphql'
 import type { TranslationDict } from '@fgc/shared'
 import { ProgressBar, SectionHeader, StatusChip, useTheme } from '@fgc/ui'
@@ -16,10 +20,10 @@ export interface JudgeDashboardProps {
 
 export function JudgeDashboard({ t }: JudgeDashboardProps) {
   const { colors } = useTheme()
-  const teamsQ = useQuery(GET_TEAMS)
-  const interviewsQ = useQuery(GET_INTERVIEWS)
-  const judgesQ = useQuery(GET_JUDGES)
-  const annQ = useQuery(GET_ANNOUNCEMENTS)
+  const teamsQ = useQuery<GetTeamsQueryData>(GET_TEAMS)
+  const interviewsQ = useQuery<GetInterviewsQueryData>(GET_INTERVIEWS)
+  const judgesQ = useQuery<GetJudgesQueryData>(GET_JUDGES)
+  const annQ = useQuery<GetAnnouncementsQueryData>(GET_ANNOUNCEMENTS)
 
   const loading =
     teamsQ.loading || interviewsQ.loading || judgesQ.loading || annQ.loading
@@ -27,8 +31,8 @@ export function JudgeDashboard({ t }: JudgeDashboardProps) {
     teamsQ.error || interviewsQ.error || judgesQ.error || annQ.error
 
   const teams = teamsQ.data?.teams ?? []
-  const completed = useMemo(() => teams.filter((x: { status: string }) => x.status === 'complete').length, [teams])
-  const pending = useMemo(() => teams.filter((x: { status: string }) => x.status === 'pending').length, [teams])
+  const completed = useMemo(() => teams.filter(x => x.status === 'complete').length, [teams])
+  const pending = useMemo(() => teams.filter(x => x.status === 'pending').length, [teams])
 
   if (loading) {
     return (
@@ -61,7 +65,7 @@ export function JudgeDashboard({ t }: JudgeDashboardProps) {
       </View>
 
       <SectionHeader title={t.assignedTeams} icon="▣" />
-      {teams.map((team: { id: string; name: string; status: string; panel: string }) => (
+      {teams.map(team => (
         <View
           key={team.id}
           style={[
@@ -77,66 +81,53 @@ export function JudgeDashboard({ t }: JudgeDashboardProps) {
       ))}
 
       <SectionHeader title={t.interviewNotices} icon="◷" />
-      {(interviewsQ.data?.interviews ?? []).map(
-        (it: { id: string; teamName: string; scheduleTime: string; room: string; status: string }) => (
-          <View
-            key={it.id}
-            style={[
-              styles.teamRow,
-              { borderColor: colors.border, backgroundColor: colors.bgElevated },
-            ]}
-          >
-            <Text style={{ color: colors.text, flex: 1 }}>{it.teamName}</Text>
-            <Text style={{ color: colors.textMuted }}>{it.scheduleTime}</Text>
-            <Text style={{ color: colors.textMuted, marginLeft: 8 }}>{it.room}</Text>
-            <StatusChip status={it.status} label={it.status} />
-          </View>
-        ),
-      )}
+      {(interviewsQ.data?.interviews ?? []).map(it => (
+        <View
+          key={it.id}
+          style={[
+            styles.teamRow,
+            { borderColor: colors.border, backgroundColor: colors.bgElevated },
+          ]}
+        >
+          <Text style={{ color: colors.text, flex: 1 }}>{it.teamName}</Text>
+          <Text style={{ color: colors.textMuted }}>{it.scheduleTime}</Text>
+          <Text style={{ color: colors.textMuted, marginLeft: 8 }}>{it.room}</Text>
+          <StatusChip status={it.status} label={it.status} />
+        </View>
+      ))}
 
       <SectionHeader title={t.evaluations} icon="◎" />
-      {(judgesQ.data?.judges ?? []).map(
-        (j: {
-          id: string
-          name: string
-          panel: string | null
-          completed: number
-          total: number
-          status: string
-        }) => (
-          <View
-            key={j.id}
-            style={[
-              styles.teamRow,
-              { borderColor: colors.border, backgroundColor: colors.bgElevated },
-            ]}
-          >
-            <Text style={{ color: colors.text, flex: 1 }}>{j.name}</Text>
-            <Text style={{ color: colors.textMuted }}>{j.panel}</Text>
-            <View style={{ width: 120, marginLeft: 12 }}>
-              <ProgressBar value={j.completed} max={Math.max(j.total, 1)} />
-            </View>
-            <StatusChip status={j.status} label={j.status} />
+      {(judgesQ.data?.judges ?? []).map(j => (
+        <View
+          key={j.id}
+          style={[
+            styles.teamRow,
+            { borderColor: colors.border, backgroundColor: colors.bgElevated },
+          ]}
+        >
+          <Text style={{ color: colors.text, flex: 1 }}>{j.name}</Text>
+          <Text style={{ color: colors.textMuted }}>{j.panel}</Text>
+          <View style={{ width: 120, marginLeft: 12 }}>
+            <ProgressBar value={j.completed} max={Math.max(j.total, 1)} />
           </View>
-        ),
-      )}
+          <StatusChip status={j.status} label={j.status} />
+        </View>
+      ))}
 
       <SectionHeader title={t.announcements} icon="!" />
-      {(annQ.data?.announcements ?? []).map(
-        (a: { id: string; type: string; text: string; timeDisplay: string }) => (
-          <View
-            key={a.id}
-            style={[
-              styles.teamRow,
-              { borderColor: colors.border, backgroundColor: colors.bgElevated },
-            ]}
-          >
-            <Text style={{ color: colors.textMuted, width: 48 }}>{a.timeDisplay}</Text>
-            <Text style={{ color: colors.text, flex: 1 }}>{a.text}</Text>
-            <StatusChip status={a.type} label={a.type} />
-          </View>
-        ),
-      )}
+      {(annQ.data?.announcements ?? []).map(a => (
+        <View
+          key={a.id}
+          style={[
+            styles.teamRow,
+            { borderColor: colors.border, backgroundColor: colors.bgElevated },
+          ]}
+        >
+          <Text style={{ color: colors.textMuted, width: 48 }}>{a.timeDisplay}</Text>
+          <Text style={{ color: colors.text, flex: 1 }}>{a.text}</Text>
+          <StatusChip status={a.type} label={a.type} />
+        </View>
+      ))}
     </ScrollView>
   )
 }

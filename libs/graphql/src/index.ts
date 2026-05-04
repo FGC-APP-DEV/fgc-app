@@ -1,4 +1,5 @@
 export * from './schema'
 export * from './client'
 export * from './hooks'
+export * from './hooks/operation-types'
 export * from './generated/types'

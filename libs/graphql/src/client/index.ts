@@ -4,6 +4,7 @@ import {
   createHttpLink,
   ApolloLink,
 } from '@apollo/client/core'
+import { CombinedGraphQLErrors } from '@apollo/client/errors'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
 
@@ -29,22 +30,19 @@ export function createApolloClient(
     }
   })
 
-  const errorLink = onError((errorResponse: {
-    graphQLErrors?: { message: string; extensions?: { code?: string } }[]
-    networkError?: Error
-  }) => {
-    const { graphQLErrors, networkError } = errorResponse
-    if (graphQLErrors) {
-      for (const err of graphQLErrors) {
+  const errorLink = onError(({ error }) => {
+    if (CombinedGraphQLErrors.is(error)) {
+      for (const err of error.errors) {
         console.error(`[GraphQL error]: ${err.message}`)
         if (err.extensions?.code === 'UNAUTHENTICATED') {
           config.onAuthError?.()
         }
       }
+      return
     }
-    if (networkError) {
-      console.error(`[Network error]: ${networkError}`)
-      config.onNetworkError?.(networkError)
+    console.error(`[Network error]: ${error}`)
+    if (error instanceof Error) {
+      config.onNetworkError?.(error)
     }
   })
 

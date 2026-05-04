@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { useMutation } from '@apollo/client/react'
-import { LOGIN } from '@fgc/graphql'
+import { LOGIN, type LoginMutationData, type LoginMutationVariables } from '@fgc/graphql'
 import type { AppRole } from '@fgc/shared'
 import type { AuthUser } from './types'
 
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
   const [user, setUser] = useState<AuthUser | null>(null)
 
-  const [loginMutation] = useMutation(LOGIN)
+  const [loginMutation] = useMutation<LoginMutationData, LoginMutationVariables>(LOGIN)
 
   const loginWithEmail = useCallback(
     async (email: string) => {
