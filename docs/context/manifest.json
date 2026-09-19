@@ -1,0 +1,208 @@
+{
+  "snapshot_date": "2026-09-19",
+  "canonical_source": "workspace/contexts",
+  "algorithm": "SHA-256",
+  "scope": "Copied source files only; excludes manifest.json and README.snapshot.md",
+  "files": [
+    {
+      "path": "APP-FGC-TODOS-AND-CONCEPTS.md",
+      "bytes": 2610,
+      "sha256": "3c518f376c10cb6c01ca4f894642753f58b8a57c7396283035b6de9b65c6d575"
+    },
+    {
+      "path": "fgc-mvp/.memlog.md",
+      "bytes": 4456,
+      "sha256": "8b7ae262d2e956334fdb340b32478ccbaa2628625a9c4f1373b6a0ad12dc3edd"
+    },
+    {
+      "path": "fgc-mvp/ARCHITECTURE-SPINE.md",
+      "bytes": 7522,
+      "sha256": "8aa8097c6bf79a76c339a2e036a076038f900f49e897d72be88bfe02b6181c20"
+    },
+    {
+      "path": "fgc-mvp/architecture.md",
+      "bytes": 7980,
+      "sha256": "4b6b50ebb64bf41d38e3b0827a79e62fc84c626351a0f822c7278451b3660a2b"
+    },
+    {
+      "path": "fgc-mvp/arquitetura-browser.json",
+      "bytes": 17000,
+      "sha256": "12b928752b9363c3477d15244ae5985c88b3f0bb5f2c12225029061654a40f92"
+    },
+    {
+      "path": "fgc-mvp/arquitetura-recibo.json",
+      "bytes": 768,
+      "sha256": "53a1e595a6d005e3e5f673ab29d9f76a347e2f6df31745967dbbf600c823da38"
+    },
+    {
+      "path": "fgc-mvp/arquitetura-validacao.md",
+      "bytes": 788,
+      "sha256": "8e0b66f9de1113d2c9a713d8138b53bbcbf26b0485a4cfeb26c6047b16e572be"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.archify.json",
+      "bytes": 3769,
+      "sha256": "9b4436c89a2a74ec22d0151a93b2dca73fa3fc7595fb2e6cd2c4b5e605302b99"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.html",
+      "bytes": 807754,
+      "sha256": "c4b8761f1b3098caf602fe8df688222390893e79ebd7cb674ea0dae6b62189d6"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.visual-check.1440x900.dark.png",
+      "bytes": 98719,
+      "sha256": "7b1c92fd0bfabc2807a865b393f3fb7d579775a223326700bd32efc3efd7b01a"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.visual-check.1440x900.light.png",
+      "bytes": 97536,
+      "sha256": "01625493af3073a36b24f9328bd65b09cb4ffa2731d3d5d17cc856b8ad33a857"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.visual-check.2048x1320.dark.png",
+      "bytes": 127570,
+      "sha256": "f92ee461c1866c5b101e78c2ec6e9838f0c10584fae2f62df2ab91cf51f797d0"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.visual-check.2048x1320.light.png",
+      "bytes": 126371,
+      "sha256": "6d3e7618738cd9ac74841d576e0500fe5f71c5123586486f8fa5e7df87f819bb"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.visual-check.html",
+      "bytes": 1910,
+      "sha256": "a11893a2d8dbff830032638b78ddd36b3ab4070fc28fe3afc645dc439babfb15"
+    },
+    {
+      "path": "fgc-mvp/arquitetura.visual-check.json",
+      "bytes": 17000,
+      "sha256": "12b928752b9363c3477d15244ae5985c88b3f0bb5f2c12225029061654a40f92"
+    },
+    {
+      "path": "fgc-mvp/arquiteture-diagram.html",
+      "bytes": 810287,
+      "sha256": "f87973d92a3577881074648f0e233d11776ffdf955cdd8cc213725ca0395cc2d"
+    },
+    {
+      "path": "fgc-mvp/contratos-tecnicos.md",
+      "bytes": 30867,
+      "sha256": "48131dc051524e7044a177fca191a39863c700616b933293e24654b36ad559ff"
+    },
+    {
+      "path": "fgc-mvp/expo-desenvolvimento.md",
+      "bytes": 9009,
+      "sha256": "5d5148661467920715e6c0c68c5cbe1ecdd6ee2ab29a6aa75e8caea1d3cdadf9"
+    },
+    {
+      "path": "fgc-mvp/fechamento.md",
+      "bytes": 4969,
+      "sha256": "9899eddef2baa63ad8c08738fc36fd6940ef5ac9e5fb75c8f9d59104a7e0d99d"
+    },
+    {
+      "path": "fgc-mvp/inventariar-legado.cjs",
+      "bytes": 9632,
+      "sha256": "8c253f47511ff528e5bea05c65a95d43dd87880cc60600c6e462d9df363a7bd3"
+    },
+    {
+      "path": "fgc-mvp/inventario.md",
+      "bytes": 5914,
+      "sha256": "9e03af33c3107edcddf1a940d71637577164e7b83f334df707757463e7eed94c"
+    },
+    {
+      "path": "fgc-mvp/mapa-arquivos.json",
+      "bytes": 46651,
+      "sha256": "61331e146ae6ad55bc835a6d3190b3860564ad6f913988fcbffae5d9c993cffd"
+    },
+    {
+      "path": "fgc-mvp/mapa-arquivos.md",
+      "bytes": 31008,
+      "sha256": "9ff9f0a34288bd8507e3b00190b1fc81ca65c8fc44660c1df69246b77c3f3bfb"
+    },
+    {
+      "path": "fgc-mvp/migracao-escopo-paridade.md",
+      "bytes": 9987,
+      "sha256": "ab597e4b9a0a66f7d2988555f9be69847776d66f0e3cf57e987a19892bb02fea"
+    },
+    {
+      "path": "fgc-mvp/modelos-legado.md",
+      "bytes": 24171,
+      "sha256": "2c20a1be62ccb599d600ffa2230b3c3bc62daeddddad0e81808bbb9bf026d554"
+    },
+    {
+      "path": "fgc-mvp/pendencias.md",
+      "bytes": 8708,
+      "sha256": "973707fe9d70d2f62ee8b086a5a66c0b04b7ae1775f4d60e528e158fdeda2ee2"
+    },
+    {
+      "path": "fgc-mvp/permissoes.md",
+      "bytes": 3775,
+      "sha256": "9c948ea384cd5a26c9c3662a0900fcf3f8f0b270ca2077536cbd37c0c204df2e"
+    },
+    {
+      "path": "fgc-mvp/PRD.md",
+      "bytes": 7619,
+      "sha256": "49c09c6f4c6ac9f8f00aa57cdd77d64f6d4ca5841e881d366978386f45556c6b"
+    },
+    {
+      "path": "fgc-mvp/project-brief.md",
+      "bytes": 3069,
+      "sha256": "48fd7eeffd75238fc856ac79bc851df108fee1721700afd9eb7e1ad63a8302f6"
+    },
+    {
+      "path": "fgc-mvp/prontidao-operacional.md",
+      "bytes": 7066,
+      "sha256": "dc1501e257e01822e3389f60de0cbba4021e66a58f43a42da7f257cfea71a354"
+    },
+    {
+      "path": "fgc-mvp/README.md",
+      "bytes": 2965,
+      "sha256": "38d8236b4be4abee9c2f904de1a5b2aed4224a250e0c14f54b1d9a07bac93511"
+    },
+    {
+      "path": "fgc-mvp/reviews/review-boundaries.md",
+      "bytes": 9657,
+      "sha256": "27a73c86048b4002ae12bfb5a2d2a6a721ae28b1eb081567b558e653c000fd4b"
+    },
+    {
+      "path": "fgc-mvp/reviews/review-consistency.md",
+      "bytes": 9240,
+      "sha256": "c2a323e8db859cc30f7de819220da0b2f34c95544bfe0ac7d88415ee7ba682a9"
+    },
+    {
+      "path": "fgc-mvp/reviews/review-tech-sources.md",
+      "bytes": 6714,
+      "sha256": "ddbaf2f2dbe1669716e7b6c4dc0e39642e4832a9dfc2716129a5f397fd0cfc86"
+    },
+    {
+      "path": "fgc-mvp/simbolos-legado.md",
+      "bytes": 21262,
+      "sha256": "e2e8cbc74dec20f3596a275e56ae285ac90d5129f72e0c69ca81a8ce0a06249f"
+    },
+    {
+      "path": "fgc-mvp/SPEC.md",
+      "bytes": 4792,
+      "sha256": "9a64eb6cece3624322525ae756b7b93b98a021ff35bcc2d1df5afc2bfe0c1d34"
+    },
+    {
+      "path": "fgc-mvp/supabase-dados-migracao.md",
+      "bytes": 10544,
+      "sha256": "e744a250f70026de781094b2e4599a5bf1099460969a0990fed18dae258f649d"
+    },
+    {
+      "path": "FGC-MVP-DECISOES.md",
+      "bytes": 23478,
+      "sha256": "d3e258c9312e9fc37c20abff2eb75bd2597ee121e136f4af7bba1cb469ac5fee"
+    },
+    {
+      "path": "FGC_Operations_App_Meeting_Summary_Aug31.md",
+      "bytes": 17984,
+      "sha256": "a2504b3f90345f4defe94af57184527ce26fa583762da9a558965842080b67d7"
+    },
+    {
+      "path": "JUDGES-MODULE.md",
+      "bytes": 7896,
+      "sha256": "5d28d56a7ba84b0c7223ce5684a7aaa5cdbb65c80846b72a31cbfe0005f220a7"
+    }
+  ]
+}

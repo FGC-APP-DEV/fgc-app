@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "FGC App · arquitetura proposta",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "clients",
+      "type": "frontend",
+      "label": "Web · Android · iOS",
+      "sublabel": "Nx / React Native",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        225,
+        76
+      ]
+    },
+    {
+      "id": "modules",
+      "type": "backend",
+      "label": "Filming · Judging",
+      "sublabel": "Regras e UI compartilhadas",
+      "pos": [
+        360,
+        260
+      ],
+      "size": [
+        225,
+        76
+      ]
+    },
+    {
+      "id": "access",
+      "type": "security",
+      "label": "Acesso autorizado",
+      "sublabel": "Contratos de API: TODO",
+      "pos": [
+        680,
+        260
+      ],
+      "size": [
+        225,
+        76
+      ]
+    },
+    {
+      "id": "data",
+      "type": "database",
+      "label": "Supabase novo",
+      "sublabel": "PostgreSQL · RLS",
+      "pos": [
+        1000,
+        260
+      ],
+      "size": [
+        225,
+        76
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "Supabase Auth",
+      "sublabel": "Sessões web/mobile: TODO",
+      "pos": [
+        680,
+        65
+      ],
+      "size": [
+        225,
+        76
+      ]
+    },
+    {
+      "id": "agenda",
+      "type": "external",
+      "label": "Programação oficial",
+      "sublabel": "URL pendente · API futura",
+      "pos": [
+        40,
+        470
+      ],
+      "size": [
+        225,
+        76
+      ]
+    },
+    {
+      "id": "native",
+      "type": "messagebus",
+      "label": "Pager para mentores",
+      "sublabel": "Push e agendamento",
+      "pos": [
+        360,
+        470
+      ],
+      "size": [
+        225,
+        76
+      ]
+    },
+    {
+      "id": "purge",
+      "type": "backend",
+      "label": "Encerramento pelo JA",
+      "sublabel": "Auditoria e descarte ≤ 24h",
+      "pos": [
+        1000,
+        470
+      ],
+      "size": [
+        225,
+        76
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "clients",
+      "to": "modules",
+      "label": "fluxos"
+    },
+    {
+      "from": "modules",
+      "to": "access",
+      "label": "operações"
+    },
+    {
+      "from": "access",
+      "to": "data",
+      "label": "políticas"
+    },
+    {
+      "from": "auth",
+      "to": "access",
+      "label": "identidade",
+      "labelAt": [
+        793,
+        190
+      ]
+    },
+    {
+      "from": "clients",
+      "to": "agenda",
+      "label": "link",
+      "labelAt": [
+        153,
+        399
+      ]
+    },
+    {
+      "from": "modules",
+      "to": "native",
+      "label": "alertas",
+      "labelAt": [
+        473,
+        399
+      ]
+    },
+    {
+      "from": "data",
+      "to": "purge",
+      "label": "ciclo",
+      "labelAt": [
+        1113,
+        399
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Migração delimitada",
+      "items": [
+        "Filming, Judging e dependências necessárias",
+        "Schemas do legado como referência; dados a definir"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Permissões e retenção",
+      "items": [
+        "Administrador sem acesso a Judging",
+        "Somente JA audita; cópias devem expirar em 24h"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "A comprovar na implementação",
+      "items": [
+        "Backups, push e publicação nas lojas",
+        "API, sessões e pacotes permanecem TODO"
+      ]
+    }
+  ]
+}
