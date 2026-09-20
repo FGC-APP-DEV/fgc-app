@@ -1,26 +1,8 @@
-# Inventário inicial e diferenças do legado
+# Inventário e referências da migração
 
-Inspeção estática em 17/09/2026; nenhum servidor ou banco iniciado.
-Base `firstglobal-ops`: commit `70d3355014ffa27963455a589a24ff48ad151900`.
-Base `fgc-app`: commit `963ba4fd7b3df58e296f5d08f4e8412222a7df7e`, com alterações
-preexistentes em `AGENTS.md` e `package-lock.json`, não modificadas nesta tarefa.
+Base do legado: `70d3355014ffa27963455a589a24ff48ad151900`. Inventário completo: 150 arquivos, 30 modelos, 2 enums e 7 migrations; mapas estruturais não comprovam execução.
 
-## Documentos e precedência
-
-| Fonte | Uso |
-| --- | --- |
-| `contexts/FGC-MVP-DECISOES.md` | Regras atuais aprovadas; precedência sobre as demais fontes. |
-| `contexts/APP-FGC-TODOS-AND-CONCEPTS.md` | Origem do card, restrições e backlog. |
-| `contexts/FGC_Operations_App_Meeting_Summary_Aug31.md` | Contexto do MVP e responsabilidades históricas. |
-| `contexts/JUDGES-MODULE.md` | Visão ampla histórica; funcionalidades excluídas não entram automaticamente. |
-| `fgc-app/README.md`, `package.json`, `nx.json`, `tsconfig.base.json` | Estrutura real de destino, stack e aliases. |
-| `firstglobal-ops/README.md`, `docs/OVERVIEW.md` | Visão funcional do legado, confrontada com código. Há diferenças históricas: README diz sem deploy, overview diz publicado; estado remoto não verificado. |
-| `firstglobal-ops/CLAUDE.md`, `LEARNING.md` | Referências adicionais identificadas; não tratadas como requisitos aprovados e ainda não revisadas integralmente nesta consolidação. |
-| `docs/codex-setup.md` | Referência de configuração de agentes identificada, não fonte de regras de produto. |
-
-Não havia brief/PRD/arquitetura formal nos arquivos Markdown visíveis da busca
-em `contexts/`, `fgc-app/` e `firstglobal-ops/`. Os artefatos desta pasta são a
-primeira consolidação desta tarefa; isso não afirma inexistência de materiais externos.
+Referências vigentes: [decisões](../FGC-MVP-DECISOES.md), [PRD](PRD.md), [contratos](contratos-tecnicos.md), [paridade](migracao-escopo-paridade.md) e [design system](../design-system.md). O código legado documenta comportamento de origem; o destino segue esses contratos.
 
 ## Filming — escopo de paridade identificado
 
@@ -36,8 +18,7 @@ Caminhos abaixo relativos a `firstglobal-ops/`.
 
 Filming exige role `filmmaker` no legado. O acesso de admin global é uma exceção
 do legado, não autorização para ignorar restrições explícitas de Judging.
-Inventário é funcional inicial: ainda falta mapear todos os artefatos, modelos,
-assets e verificações de paridade antes de executar a transposição integral.
+Mapeamento disponível em mapa-arquivos.md, modelos-legado.md e simbolos-legado.md; critérios de verificação em M01–M30.
 
 ## Autenticação e alertas
 

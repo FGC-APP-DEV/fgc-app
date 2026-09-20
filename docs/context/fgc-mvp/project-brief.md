@@ -51,3 +51,7 @@ montagem de painel, observação, conclusão/reabertura e encerramento nas plata
 previstas, sem acesso indevido nem perda silenciosa de texto. Filming preserva seus
 fluxos inventariados. A entrega móvel comprova os alertas nativos em aparelhos.
 Critérios detalhados no [PRD](PRD.md); nenhuma validação de execução foi declarada nesta consolidação.
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

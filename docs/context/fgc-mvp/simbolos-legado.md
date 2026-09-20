@@ -1,6 +1,6 @@
 # Símbolos e validações extraídos do legado
 
-Índice estrutural complementar ao catálogo funcional; não substitui revisão semântica de cada implementação.
+Índice da origem para rastreabilidade; símbolos não aprovam funcionalidades. Implementar apenas M01–M30 conforme T01–T04.
 
 ## src/app/(auth)/sign-in/actions.ts
 

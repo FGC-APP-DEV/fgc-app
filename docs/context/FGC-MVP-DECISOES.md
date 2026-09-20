@@ -1,8 +1,7 @@
 # FGC App — decisões de consolidação do MVP
 
-Documento de trabalho. Registra confirmações do usuário na conversa vinculada ao
-[card de consolidação](https://trello.com/c/0bqU0KV7). Não representa conclusão do
-card, aprovação integral dos documentos ou implementação das funcionalidades.
+Contrato de decisões vigente. Registra confirmações do usuário na conversa vinculada ao
+[card de consolidação](https://trello.com/c/0bqU0KV7). As decisões abaixo governam a migração; não comprovam implementação das funcionalidades.
 
 ## Fontes iniciais lidas
 
@@ -10,8 +9,7 @@ card, aprovação integral dos documentos ou implementação das funcionalidades
 - [Reunião com Greg](FGC_Operations_App_Meeting_Summary_Aug31.md): MVP, responsabilidades e riscos operacionais.
 - [Módulo de juízes](JUDGES-MODULE.md): visão ampla de funcionalidades e permissões; não equivale ao escopo aprovado do MVP.
 
-O inventário de documentos do restante do workspace ainda precisa ser concluído.
-As confirmações abaixo refinam as fontes históricas para o MVP atual.
+O índice vigente está em [fgc-mvp/README.md](fgc-mvp/README.md). A interface final segue [design-system.md](design-system.md), aprovado como referência obrigatória em 19/09/2026.
 
 ## Decisões confirmadas pelo usuário
 
@@ -38,9 +36,9 @@ As confirmações abaixo refinam as fontes históricas para o MVP atual.
 | D19 | Ao ser transferido, o juiz perde acesso ao painel original e passa a acessar somente o novo painel. Suas observações permanecem no painel original. A autoria não preserva acesso para consultar, editar ou excluir essas observações após a transferência. |
 | D20 | No MVP, somente o JA pode transferir equipes entre painéis. A transferência é permitida apenas enquanto a equipe estiver pendente e sem observações registradas. |
 | D21 | Somente o JA pode excluir um painel, desde que ele não contenha equipes nem observações. Após a exclusão, seus juízes ficam disponíveis para nova atribuição. |
-| D22 | O cadastro inicial das equipes partirá de uma lista oficial importada. A importação deve aceitar múltiplos formatos, incluindo `.xlsx`, `.csv`, `.txt` e `.json`. Outros formatos e as estruturas aceitas em cada formato ainda precisam ser definidos. |
+| D22 | O cadastro inicial das equipes partirá de uma lista oficial importada. A importação deve aceitar múltiplos formatos, incluindo `.xlsx`, `.csv`, `.txt` e `.json`. Estruturas e limites dos quatro formatos definidos em T01; formatos adicionais fora do MVP. |
 | D23 | O administrador realiza a importação da lista oficial. A aplicação mantém esse cadastro compartilhado para acesso pelos demais módulos. |
-| D24 | Após a importação, o JA pode incluir, excluir e sinalizar equipes apenas no escopo do módulo de juízes. Incluir significa selecionar uma equipe já existente no cadastro oficial importado; o JA não cadastra uma nova equipe fora dessa lista. Essas alterações não devem modificar o cadastro compartilhado nem afetar outros módulos. As condições de exclusão estão em D25; outras sinalizações ainda precisam ser detalhadas. |
+| D24 | Após a importação, o JA pode incluir, excluir e sinalizar equipes apenas no escopo do módulo de juízes. Incluir significa selecionar uma equipe já existente no cadastro oficial importado; o JA não cadastra uma nova equipe fora dessa lista. Essas alterações não devem modificar o cadastro compartilhado nem afetar outros módulos. As condições de exclusão estão em D25; sinalizações definidas em D26–D29/D69. |
 | D25 | O JA pode remover uma equipe do módulo de juízes apenas se ela estiver pendente e sem observações. Se já houver histórico de avaliação, ele deve ser preservado e a equipe deve ser sinalizada como retirada da avaliação, em vez de removida. O cadastro compartilhado permanece intacto. |
 | D26 | No MVP, o JA pode sinalizar equipes como “ausente”, “entrevista online” ou “outro impedimento”, com um campo para explicar o motivo. O motivo é obrigatório para “outro impedimento” e “retirada da avaliação”, e opcional para “ausente” e “entrevista online”. |
 | D27 | As sinalizações “ausente”, “entrevista online” e “outro impedimento” são informativas e não bloqueiam a avaliação. “Retirada da avaliação” impede novas observações e a conclusão da avaliação, preservando o histórico existente. |
@@ -68,8 +66,8 @@ As confirmações abaixo refinam as fontes históricas para o MVP atual.
 | D49 | Ao tentar sair da tela de anotações com alterações não salvas, solicitar confirmação, oferecendo continuar editando ou descartar as alterações. Isso abrange a navegação controlada pelo aplicativo; não garante interceptar encerramento forçado pelo sistema nem persistência após fechamento ou recarga. |
 | D50 | O MVP terá interface somente em inglês, com estrutura preparada para adicionar espanhol, francês e árabe posteriormente. As traduções adicionais não fazem parte da entrega inicial. |
 | D51 | Não contratar serviços pagos nem gerar novas despesas sem aprovação prévia da organização. Essa restrição deve orientar as escolhas de infraestrutura, integrações, builds e distribuição do MVP. |
-| D52 | **Histórica: retenção revisada por D65.**  Ao final da competição, todas as anotações devem ser excluídas definitivamente, sem retenção de seu conteúdo. O JA é responsável por essa exclusão. Não basta ocultar ou marcar os registros como excluídos. O alcance da limpeza foi ampliado e confirmado em D53. |
-| D53 | **Histórica: retenção revisada por D65.**  O encerramento deve excluir definitivamente todos os dados da competição no módulo de juízes, incluindo anotações, painéis, vínculos, status, sinalizações e a inclusão das equipes nesse módulo. Não reter histórico desses dados. Os dashboards e páginas de Judge e JA devem ficar limpos, como novos. Contas e roles permanecem conforme D54; a limpeza de Judging não autoriza apagar dados dos outros módulos ou o cadastro compartilhado de equipes. |
+| D52 | Substituída por D65/D74; aplicar exclusivamente o contrato vigente de encerramento e descarte. |
+| D53 | Substituída por D65/D74; comprovante técnico limitado por D73. |
 | D54 | As contas dos usuários e suas roles Judge/JA permanecem após a limpeza dos dados de Judging. O administrador continua responsável por alterar os acessos quando necessário. |
 | D55 | A exclusão definitiva dos dados de Judging pelo JA exige duas confirmações explícitas e consecutivas antes de iniciar qualquer deleção. Os avisos devem esclarecer o escopo e a irreversibilidade da operação. Cancelar qualquer uma das etapas não deve excluir dados. O objetivo é evitar exclusão acidental antes do encerramento da competição. |
 | D56 | O MVP atende uma única competição por vez. Não há requisito de operação simultânea de múltiplas competições nesta versão. |
@@ -81,7 +79,7 @@ As confirmações abaixo refinam as fontes históricas para o MVP atual.
 | D62 | O administrador pode cadastrar/habilitar juízes e JAs e gerenciar seus acessos, mas não pode consultar anotações ou avaliações nem executar as funções de Judge, líder ou JA. A importação do cadastro compartilhado continua permitida (D23). Não há bypass administrativo em Judging; atribuição de roles não pode ser usada para contornar essa proibição. Esta decisão substitui a proposta de permitir acesso administrativo mediante role adicional. |
 
 | D63 | Migração restrita a Filming, Judging e dependências necessárias. Pit Admin, anúncios e demais módulos não entram integralmente. Mentores entram como destinatários dos alertas/pager e nos fluxos necessários de Filming. |
-| D64 | Supabase é a persistência definitiva. Não exigir compatibilidade Prisma/Drizzle. Contratos de API, autenticação web/mobile e dependências entre pacotes ficam como TODO explícito durante o projeto. |
+| D64 | Supabase é a persistência definitiva. Não exigir compatibilidade Prisma/Drizzle. Contratos de API, autenticação web/mobile e dependências entre pacotes definidos em T01–T04 de fgc-mvp/contratos-tecnicos.md. |
 | D65 | O JA encerra Judging mediante duas confirmações. Os dashboards operacionais ficam vazios; somente o JA pode consultar a auditoria temporária. Todos os dados de Judging e suas cópias devem ser eliminados permanentemente até 24 horas após o encerramento. Contas, roles, cadastro global e dados independentes de outros módulos permanecem. O prazo é fixo, não renovável por consulta ou retry. A configuração de backups/logs ainda precisa comprovar esse limite. Esta decisão substitui a ausência de retenção imediata de D52/D53. As duas confirmações de D55 antecedem o encerramento; o descarte automático no prazo não exige novas confirmações. O administrador continua proibido de acessar o conteúdo. |
 
 | D66 | Criar projeto Supabase novo para o fgc-app. Reaproveitar schemas, relacionamentos e detalhes do firstglobal-ops como referência, adaptando-os ao escopo e às regras aprovadas. Não implica copiar dados reais, sessões, credenciais ou permissões administrativas antigas. |
@@ -112,25 +110,9 @@ em D39.
 A interface sem link ativo e com indicação de programação em breve foi
 confirmada em D61; o texto exibido deve seguir o idioma inglês do MVP.
 A API futura pode exigir adaptação de dados e autenticação, além da configuração
-do endpoint. O contrato técnico será definido no documento de arquitetura.
+do endpoint. O contrato técnico está definido em fgc-mvp/contratos-tecnicos.md.
 
-## Próximos pontos a esclarecer
 
-- Login por magic link/código identificado no legado; Google SSO fica para depois (D59). Ver inventário técnico em `fgc-mvp/inventario.md`.
+## Execução e validação
 
-**Validação pendente da lista oficial:** obter uma amostra e verificar a existência, o formato e a obrigatoriedade de identificador oficial, nome e país (D34), incluindo a unicidade do identificador. Ajustar o mapeamento e as validações de importação conforme essa evidência.
-
-- Transferência de juízes resolvida em D60; distribuição e remanejamento de equipes seguem D03, D17 e D20.
-- Conteúdo mínimo das informações das equipes, campos obrigatórios, estruturas dos arquivos, validação e tratamento de duplicidades/reimportações. A origem e o responsável pela importação foram confirmados em D22–D23.
-- Obrigatoriedade do motivo resolvida em D26; efeitos no fluxo, reativação e indicadores seguem D27–D29.
-- Inventariar Filming no `firstglobal-ops` para migração integral e verificação de paridade, sem abrir perguntas de recorte funcional neste momento (D41).
-- Obter acesso às contas das lojas já existentes na organização; definir responsáveis e prazos para distribuição de testes até 29/09/2026 e publicação pública o quanto antes (D42–D43, D57).
-- Inventariar os alertas existentes no `firstglobal-ops` e especificar sua adaptação para notificações, vibração e sons nos aplicativos móveis, incluindo permissões, preferências e comportamento em segundo plano (D44–D45).
-- Especificar e verificar a exclusão dos dados de julgamento em todos os locais onde possam ser armazenados, incluindo banco, backups, logs, caches e eventuais cópias/exportações. A capacidade efetiva da infraestrutura de cumprir a ausência de retenção ainda não foi verificada.
-- Consolidar critérios de aceite e roteiros de teste para os participantes, sem bloquear o trabalho pela definição nominal de validadores (D58).
-
-## Entregas do card ainda em andamento
-
-Inventário completo; contexto e restrições; regras e matriz de permissões;
-project brief; PRD; arquitetura; especificações de desenvolvimento/migração;
-revisão de consistência e organização para consulta pelo Codex.
+Decisões funcionais e contratos T01–T05 estão fechados. A amostra oficial valida D34 antes da carga real. Provisionamento, implementação e comprovações são acompanhados em [pendências](fgc-mvp/pendencias.md); não reabrir decisões resolvidas.

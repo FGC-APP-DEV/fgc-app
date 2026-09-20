@@ -1,21 +1,8 @@
-# Pendências e revisão documental
+# Pendências de execução e validação
 
-## Regras fechadas nesta rodada
+Decisões funcionais D01–D74 e contratos T01–T05 fechados. P15–P19 foram encerrados por D68–D74 e retirados da lista de perguntas; suas regras permanecem no PRD e nos contratos. Referência visual obrigatória: [design system](../design-system.md).
 
-D59: Google SSO posterior. D60: apenas JA transfere juízes. D26: motivo obrigatório
-para outro impedimento/retirada. D61: programação sem URL exibe mensagem em inglês,
-sem link ativo. D63 limita a migração; D64 fixa Supabase; D65 substitui a retenção de D52/D53: somente JA audita, descarte definitivo em até 24h.
-D67 aprova Expo/Expo Go para o mobile, com development builds e distribuição
-assinada para os testes que exigem aplicativo próprio. A escolha da ferramenta
-está fechada; a compatibilidade e a implementação permanecem pendentes.
-D68 fecha P15: uma observação editável por juiz/equipe/painel.
-D69 fecha P16: várias sinalizações simultâneas. D70 resolve a autoridade de T05:
-administrador em tela mínima; D71 define expiração e invalidação das sessões.
-
-Atualização de 19/09: D71 fecha validade/regeneração de mentor; D72 fecha carga
-inicial limpa; D73 fecha comprovante de limpeza; D74 reafirma backups/cópias em
-24h sem exceção. O adiamento de T01–T04 foi revisto: contratos definidos em
-[contratos técnicos](contratos-tecnicos.md), com revisão independente.
+O usuário informou em 19/09 que os demais itens estão sendo resolvidos em paralelo. Os estados abaixo são a última verificação registrada, não confirmação atual de indisponibilidade ou conclusão.
 
 ## Dependências e conflitos
 
@@ -35,65 +22,20 @@ inicial limpa; D73 fecha comprovante de limpeza; D74 reafirma backups/cópias em
 | P12 | Contrato fechado; ambiente pendente | API_BASE_URL por ambiente, LAN/HTTPS dev e HTTPS produção definidos; substituir localhost mobile na implementação e provisionar endpoint real. |
 | P13 | Contrato fechado; implementação pendente | T02/T03 definem protocolo HTTP, cookies/SecureStore, sessão mentor e callbacks; domínio/IDs devem ser provisionados e fluxo testado em build própria. |
 | P14 | Cobertura e regressão | Busca por nomes de arquivos test/spec/e2e no código não encontrou suítes; target mobile aceita passWithNoTests. Implementar testes significativos e verificar web/mobile após atualização; nenhuma execução comprovada. |
-| P15 | Resolvida em D68 | Uma observação editável por juiz/equipe/painel. Implementar unicidade e testar concorrência; resolução de produto não comprova schema ou código pronto. |
-| P16 | Resolvida em D69 | Várias sinalizações informativas simultâneas; retirada continua estado separado. Implementar e testar motivos/efeitos conforme D26–D29. |
-| P17 | Resolvida em D72 | Somente equipes/configuração; Filming, pager e Judging começam limpos. Implementar carga inicial e verificar ausência de dados operacionais legados. |
-| P18 | Resolvida em D70/D71 | Admin emite/regenera; código 7 dias desde emissão, sessão 7 dias desde resgate; regeneração revoga versões/sessões/vínculos push anteriores. |
-| P19 | Resolvida em D73 | Comprovante restrito a horário, versão da rotina e resultado por até 30 dias; implementar expiração sem conteúdo/contagens/identificadores de Judging. |
 | P20 | SMTP ausente | Usuário confirmou indisponibilidade; SMTP próprio/remetente/DNS necessários para login externo, conforme T02. |
 | P21 | Hospedagem ausente | Web/API HTTPS, proxy, health, segredos e destinatário de falhas precisam ser preparados; nenhum host existente foi confirmado. |
 
 ## O que exige decisão e o que pode avançar tecnicamente
 
 - **Usuário/organização:** fornecer amostra/URL P01/P02, acessos/Supabase/aparelhos
-  P03/P04/P11, SMTP P20 e hospedagem P21; estado atual confirmado: tudo falta.
+  P03/P04/P11, SMTP P20 e hospedagem P21; acompanhar provisionamento em andamento, conforme atualização do usuário.
   Políticas P15–P19 não exigem novas respostas.
 - **Equipe técnica:** matriz de versões, integração Expo, Metro/Nx, rede e testes
   P07/P12/P14; materializar T01–T04 em schemas/DTOs/testes antes de publicar APIs;
-  implementar push P06 e comprovar retenção P04/P09. Providenciar snapshot P10.
+  implementar push P06 e comprovar retenção P04/P09. Manter snapshot P10 sincronizado.
 - **Não bloquear tudo:** URL ausente tem placeholder aprovado. T01–T04 estão
   documentados; Expo e módulos podem ser preparados com dados sintéticos enquanto
   acessos são obtidos. Amostra valida D34 antes da carga oficial.
 - **Bloqueios de aceite:** Expo Go não encerra P03/P06/P07/P11/P13; sem testes
   reais E01–E06 não há aceite mobile. Sem P04/P09 resolvidos não usar dados reais
   sob a promessa de descarte integral em 24 horas.
-
-## Revisão de consistência realizada
-
-- Regras identificadas por D01–D74 e preservadas no documento de decisões;
-  PRD e especificação adotam esse documento integralmente.
-- Horários por link no MVP, filtro/API posteriores; português nas discussões
-  não muda interface em inglês.
-- Exclusão de Judging não apaga contas, roles, cadastro global nem Filming.
-- Concluída e retirada são estados distintos; reativação não apaga histórico.
-- Registros de importação já cadastrados não são sobrescritos; duplicatas
-  conflitantes não são resolvidas arbitrariamente.
-- Admin não pode consultar nem executar funções de Judging, inclusive mediante
-  tentativa de elevação via roles; D62 resolve a diferença do legado em P05.
-- Recursos do código legado são descritos como observados, não como migração pronta.
-
-## Limites da verificação
-
-Inspeção de código/configuração e descoberta Nx realizadas. Sem alteração de
-código de aplicação, migração, build, teste unitário/e2e, publicação ou exclusão
-de dados. Testes de execução permanecem não verificados.
-
-O runtime `_bmad/scripts` não foi encontrado no workspace nem no pacote consultado;
-os documentos foram consolidados diretamente em Markdown usando a estrutura
-de contrato/requisitos. Não se declara execução completa do pipeline automatizado
-BMAD, memlog ou seus gates de revisão.
-
-Diagrama anterior representa fronteiras Supabase/D65 e foi validado com Archify.
-O fluxo técnico atual está em ARCHITECTURE-SPINE.md e contratos-tecnicos.md;
-schema físico, configuração e execução ainda precisam ser implementados.
-
-A consolidação documental está concluída. Pendências acima são gates das entregas de implementação, não funcionalidades comprovadas. Ver [fechamento](fechamento.md).
-
-Revisão Expo de 18/09/2026: manifestos, targets estáticos, Metro, endpoint e ausência
-de pastas nativas conferidos novamente. Não foram consultadas contas externas nem
-executados builds, testes ou uma nova resolução de targets Nx nesta revisão.
-As validações anteriores do diagrama não cobrem o novo fluxo Expo documentado.
-
-Revisão de 19/09: relatórios independentes em reviews/; correções de protocolo,
-privilégios SQL, idempotência, entrega e grafo aplicadas. Ver lista concreta de
-acessos, responsáveis por função e critérios em [preparação operacional](prontidao-operacional.md).

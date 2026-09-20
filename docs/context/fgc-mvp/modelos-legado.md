@@ -5,7 +5,7 @@ Extração integral dos blocos Prisma para referência; destino SQL Supabase pro
 | Modelo/enum | Destino proposto | Tratamento |
 | --- | --- | --- |
 | Event (model) | `core.events` | Preservar semântica; adaptar SQL/RLS/FKs. |
-| ScheduleEntry (model) | `schedule.schedule_entries` | Mapeado para evolução; link provisório continua no MVP. |
+| ScheduleEntry (model) | `sem destino operacional no MVP` | Mapeado para evolução; link provisório continua no MVP. |
 | Team (model) | `core.teams` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | User (model) | `core.users` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | Role (model) | `core.roles` | Preservar semântica; adaptar SQL/RLS/FKs. |
@@ -15,27 +15,27 @@ Extração integral dos blocos Prisma para referência; destino SQL Supabase pro
 | MentorCode (model) | `private.mentor_codes` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | MentorSession (model) | `private.mentor_sessions` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | AuditLog (model) | `audit.audit_log` | Preservar semântica; adaptar SQL/RLS/FKs. |
-| Match (model) | `schedule.matches` | Mapeado para evolução; link provisório continua no MVP. |
-| MatchParticipant (model) | `schedule.match_participants` | Mapeado para evolução; link provisório continua no MVP. |
-| Ranking (model) | `schedule.rankings` | Mapeado para evolução; link provisório continua no MVP. |
+| Match (model) | `sem destino operacional no MVP` | Mapeado para evolução; link provisório continua no MVP. |
+| MatchParticipant (model) | `sem destino operacional no MVP` | Mapeado para evolução; link provisório continua no MVP. |
+| Ranking (model) | `sem destino operacional no MVP` | Mapeado para evolução; link provisório continua no MVP. |
 | TeamPitLocation (model) | `core.team_pit_locations` | Preservar semântica; adaptar SQL/RLS/FKs. |
-| TeamResource (model) | `core.team_resources` | Estrutura legada inventariada; upload/portfolio não aprovado no MVP, ativação adiada. |
-| AwardKey (enum) | `judging.award_key` | Fora do MVP aprovado; não migrar para uso operacional. |
+| TeamResource (model) | `sem destino operacional no MVP` | Estrutura legada inventariada; upload/portfolio não aprovado no MVP, ativação adiada. |
+| AwardKey (enum) | `sem destino operacional no MVP` | Fora do MVP aprovado; não migrar para uso operacional. |
 | PanelTeamStatus (enum) | `judging.panel_team_status` | Substituir por pending/evaluated + active/withdrawn. |
 | JudgePanel (model) | `judging.judge_panels` | Adicionar líder obrigatório e ciclo de Judging; remover award. |
 | PanelMember (model) | `judging.panel_members` | Unicidade juiz/ciclo; líder deve ser membro. |
 | PanelTeamAssignment (model) | `judging.panel_team_assignments` | Separar participação, estado e flags; sem round. |
 | TeamEvaluation (model) | `judging.team_evaluations` | Converter em observações; sem round/prêmios; manter autoria e painel. |
-| TeamAwardCandidacy (model) | `judging.team_award_candidacies` | Fora do MVP aprovado; não migrar para uso operacional. |
+| TeamAwardCandidacy (model) | `sem destino operacional no MVP` | Fora do MVP aprovado; não migrar para uso operacional. |
 | FilmingCategory (model) | `filming.filming_categories` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | FilmingShotItem (model) | `filming.filming_shot_items` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | TeamShotTemplate (model) | `filming.team_shot_templates` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | TeamShot (model) | `filming.team_shots` | Preservar semântica; adaptar SQL/RLS/FKs. |
-| Announcement (model) | `messaging.announcements` | Fora do recorte atual; preservar fonte para evolução, sem migrar anúncios completos. |
-| AnnouncementRead (model) | `messaging.announcement_reads` | Fora do recorte atual; preservar fonte para evolução, sem migrar anúncios completos. |
+| Announcement (model) | `sem destino operacional no MVP` | Fora do recorte atual; preservar fonte para evolução, sem migrar anúncios completos. |
+| AnnouncementRead (model) | `sem destino operacional no MVP` | Fora do recorte atual; preservar fonte para evolução, sem migrar anúncios completos. |
 | Page (model) | `messaging.pages` | Preservar semântica; adaptar SQL/RLS/FKs. |
 | PageResponse (model) | `messaging.page_responses` | Preservar semântica; adaptar SQL/RLS/FKs. |
-| ProductionInterview (model) | `core.production_interviews` | Modelo existe sem módulo completo; não criar produto especulativo. |
+| ProductionInterview (model) | `sem destino operacional no MVP` | Modelo existe sem módulo completo; não criar produto especulativo. |
 
 ## Event
 

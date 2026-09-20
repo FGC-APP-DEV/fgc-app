@@ -14,8 +14,7 @@ companions:
 
 # Especificação de desenvolvimento — FGC MVP
 
-Status: contrato inicial consolidado; pendências explícitas impedem declarar
-especificação técnica integralmente pronta para implementação.
+Status: definições funcionais, técnicas e referência visual prontas para orientar a implementação; execução e comprovações permanecem acompanhadas em pendencias.md.
 
 ## Why
 
@@ -72,8 +71,12 @@ de incompatibilidades ou a obtenção de credenciais para a etapa final.
 8. Rodar testes de regras/API/e2e, validação em dispositivos e builds de distribuição;
    preparar revisão das lojas e testes com participantes até o marco acordado.
 
-## Open Questions
+## Dependências de execução
 
 Ver [pendências](pendencias.md). Não converter recomendações técnicas em decisões
 de produto sem evidência. O [mapa por arquivo](mapa-arquivos.md), a [matriz funcional](migracao-escopo-paridade.md) e a [proposta de dados](supabase-dados-migracao.md) estão disponíveis. T01–T04 foram definidos em [contratos técnicos](contratos-tecnicos.md) após solicitação de fechar as pendências; D71–D74 encerram as perguntas funcionais; amostra oficial, valores de provisionamento e comprovações operacionais continuam pendentes. Esta especificação não autoriza
 executar migrações, publicação ou exclusão de dados reais.
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

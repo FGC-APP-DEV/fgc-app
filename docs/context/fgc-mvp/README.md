@@ -5,7 +5,7 @@ Regras e contratos de destino documentados; implementação e ambiente pendentes
 
 ## Ordem de leitura
 
-[Diagrama atualizado da arquitetura](arquitetura.html), gerado com Archify. Conteúdo em português; controles e idioma HTML do visualizador em inglês por limitação de localização.
+[Diagrama e fronteiras vigentes](ARCHITECTURE-SPINE.md).
 
 1. [Project brief](project-brief.md): objetivo, público, escopo e prazo.
 2. [PRD](PRD.md): requisitos e critérios de aceite.
@@ -17,7 +17,8 @@ Regras e contratos de destino documentados; implementação e ambiente pendentes
 8. [Pendências e revisão](pendencias.md): dependências, pontos não resolvidos e verificação documental.
 9. [Expo e testes mobile](expo-desenvolvimento.md): adoção aprovada, plano e critérios E01–E06.
 10. [Contratos técnicos](contratos-tecnicos.md) e [invariantes](ARCHITECTURE-SPINE.md): T01–T05 e decisões de implementação.
-11. [Preparação operacional](prontidao-operacional.md): recursos ausentes, responsáveis por função e evidência para aceite.
+11. [Design system](../design-system.md): referência visual obrigatória do MVP.
+12. [Preparação operacional](prontidao-operacional.md): recursos ausentes, responsáveis por função e evidência para aceite.
 
 As decisões da conversa prevalecem sobre documentos históricos e comportamento
 do protótipo. O legado é referência de paridade para Filming e de reaproveitamento
@@ -35,9 +36,7 @@ dependência externa. Isso não significa aplicação implementada nem descarte 
 Ver [fechamento e gates](fechamento.md).
 
 Revisão de 19/09: D71–D74 fecham validade/revogação de mentor, início limpo,
-comprovante e manutenção da regra de backups. Usuário confirmou ausência de todos
-os recursos operacionais levantados. Diagrama anterior mostra fronteiras históricas;
-contratos e spine atuais prevalecem sobre seus detalhes técnicos.
+comprovante e manutenção da regra de backups. Os demais itens de prontidão estão sendo resolvidos em paralelo, conforme informado pelo usuário. O diagrama vigente está na ARCHITECTURE-SPINE.md.
 
 ## Migração delimitada e proposta de dados
 
@@ -46,3 +45,7 @@ contratos e spine atuais prevalecem sobre seus detalhes técnicos.
 - [Supabase: schemas, autorização, migração e descarte](supabase-dados-migracao.md).
 
 As propostas de schema não são migrations executáveis nem evidência de implementação.
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

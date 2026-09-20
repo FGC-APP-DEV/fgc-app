@@ -54,15 +54,16 @@ SLAs e descarte são fatos a medir, não decisões que possam ser marcadas como 
 
 ## Verificação realizada
 
-Revisão documental e links locais; inspeção do legado; diagrama validado com 9/9 checks sem erros/avisos e teste automatizado em navegador. Nenhum código de aplicação, banco, deploy ou conta foi alterado. Testes unitários, e2e e nativos serão exigidos nas entregas de implementação; não foram executados nesta consolidação.
+Revisão documental e links locais; inspeção do legado; diagrama vigente documentado na ARCHITECTURE-SPINE.md. Nenhum código de aplicação, banco, deploy ou conta foi alterado. Testes unitários, e2e e nativos serão exigidos nas entregas de implementação; não foram executados nesta consolidação.
 
-O registro do diagrama acima pertence à consolidação anterior. Nesta atualização
-Expo foram revisados documentos e configuração estática do destino; não houve
-nova validação visual, build, migração ou teste de execução. Nada declara E01–E06
-concluídos. O detalhamento e os responsáveis por tipo de ação estão em
+A validação documental não declara E01–E06 concluídos. O detalhamento e os responsáveis por tipo de ação estão em
 [pendências P01–P21](pendencias.md).
 
 Revisão de 19/09: três relatórios independentes lidos e correções aplicadas;
 lint determinístico da spine sem achados. Verificação de links e manifesto do
 snapshot é registrada na entrega. Não se declara execução completa do runtime
 BMAD, ausente no workspace, nem aprovação operacional do aplicativo.
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

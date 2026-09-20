@@ -78,3 +78,7 @@ e iPhone. RF01 com callbacks nativos e RF13 com push remoto exigem development
 build própria; RF15 exige distribuição de builds assinadas e validação sem Metro.
 Expo Go não substitui esses critérios. Executar também E01–E06 do
 [plano Expo](expo-desenvolvimento.md), incluindo regressão web após atualizar dependências.
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

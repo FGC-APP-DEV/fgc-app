@@ -55,3 +55,7 @@ The original single-file prototype remains at [`fgc-judges-app.jsx`](./fgc-judge
 - **`NX Could not find Nx modules` / incomplete `node_modules/nx`:** Close editors/terminals locking files, delete `node_modules` and `package-lock.json`, then run `npm install` again from this folder.
 - **Windows `EPERM` during `npm install`:** Often antivirus or another Node process is holding `node_modules`; retry after a reboot or exclude the project folder from real-time scanning.
 - **Mobile native projects missing:** This repository currently ships the JS/TS shell and Metro config only. Follow the approved Expo adoption plan to generate/configure native projects against the selected SDK; do not copy projects from an arbitrary React Native version. Expo Go does not validate remote push or replace signed distribution builds.
+
+## Migration contracts and visual reference
+
+Use the [MVP context index](docs/context/fgc-mvp/README.md) for migration scope and technical contracts. The [design system](docs/context/design-system.md) is the mandatory visual reference for the final web, Android and iOS MVP. Prototype behavior does not override approved product rules.

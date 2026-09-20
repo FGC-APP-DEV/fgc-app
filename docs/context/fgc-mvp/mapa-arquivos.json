@@ -197,7 +197,7 @@
       "id": "AR-025",
       "source": "prisma/schema.prisma",
       "domain": "dados",
-      "target": "supabase/migrations/*.sql + libs/shared/src/database.types.ts",
+      "target": "supabase/migrations/*.sql + libs/database/src/database.types.ts",
       "action": "substituir",
       "adaptation": "Todos os modelos mapeados em modelos-legado.md; sem Prisma/Drizzle no destino."
     },
@@ -301,9 +301,9 @@
       "id": "AR-038",
       "source": "src/app/(auth)/sign-in/actions.ts",
       "domain": "auth",
-      "target": "supabase/functions/_shared/(auth)/sign-in/actions.ts",
+      "target": "libs/server/src/auth/(auth)/sign-in/actions.ts",
       "action": "adaptar",
-      "adaptation": "Separar comando seguro de navegação Next; manter contratos TODO."
+      "adaptation": "Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02."
     },
     {
       "id": "AR-039",
@@ -333,7 +333,7 @@
       "id": "AR-042",
       "source": "src/app/api/health/route.ts",
       "domain": "server",
-      "target": "supabase/functions/api/health/index.ts",
+      "target": "apps/fgc-api/src/api/health.ts",
       "action": "adaptar",
       "adaptation": "Health/cron autenticados; sync de horários permanece evolução conforme D05–D06."
     },
@@ -349,9 +349,9 @@
       "id": "AR-044",
       "source": "src/app/auth/callback/actions.ts",
       "domain": "auth",
-      "target": "supabase/functions/_shared/auth/callback/actions.ts",
+      "target": "libs/server/src/auth/auth/callback/actions.ts",
       "action": "adaptar",
-      "adaptation": "Separar comando seguro de navegação Next; manter contratos TODO."
+      "adaptation": "Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02."
     },
     {
       "id": "AR-045",
@@ -365,9 +365,9 @@
       "id": "AR-046",
       "source": "src/app/complete-profile/actions.ts",
       "domain": "auth",
-      "target": "supabase/functions/_shared/complete-profile/actions.ts",
+      "target": "libs/server/src/auth/complete-profile/actions.ts",
       "action": "adaptar",
-      "adaptation": "Separar comando seguro de navegação Next; manter contratos TODO."
+      "adaptation": "Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02."
     },
     {
       "id": "AR-047",
@@ -604,10 +604,10 @@
     {
       "id": "AR-076",
       "source": "src/components/locator/team-map.tsx",
-      "domain": "teams",
-      "target": "libs/teams/src/components/team-map.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/TeamMap.tsx",
       "action": "adaptar",
-      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+      "adaptation": "Apresentação sem acesso a dados; shells compõem dados autorizados; design-system.md."
     },
     {
       "id": "AR-077",
@@ -724,10 +724,10 @@
     {
       "id": "AR-091",
       "source": "src/components/pit-admin/mentor-codes-panel.tsx",
-      "domain": "pit-admin",
-      "target": "libs/pit-admin/src/components/mentor-codes-panel.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/components/mentor-codes-panel.tsx",
       "action": "adaptar",
-      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+      "adaptation": "Tela mínima do administrador conforme D70/D71; sem módulo Pit Admin."
     },
     {
       "id": "AR-092",
@@ -877,17 +877,17 @@
       "id": "AR-110",
       "source": "src/lib/admin/actions.ts",
       "domain": "admin",
-      "target": "supabase/functions/_shared/admin/admin/actions.ts",
+      "target": "libs/server/src/admin/actions.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-111",
       "source": "src/lib/admin/approve-emails.ts",
       "domain": "admin",
-      "target": "supabase/functions/_shared/admin/admin/approve-emails.ts",
+      "target": "libs/server/src/admin/approve-emails.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-112",
@@ -917,9 +917,9 @@
       "id": "AR-115",
       "source": "src/lib/auth.ts",
       "domain": "auth",
-      "target": "libs/auth/src + supabase/functions/_shared/auth",
+      "target": "libs/auth/src + libs/server/src/auth + apps/fgc-api/src",
       "action": "adaptar",
-      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato TODO."
+      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md."
     },
     {
       "id": "AR-116",
@@ -933,49 +933,49 @@
       "id": "AR-117",
       "source": "src/lib/events.ts",
       "domain": "shared",
-      "target": "supabase/functions/_shared/shared/events.ts",
+      "target": "libs/server/src/shared/events.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-118",
       "source": "src/lib/filming/categories.ts",
       "domain": "filming",
-      "target": "supabase/functions/_shared/filming/filming/categories.ts",
+      "target": "libs/server/src/filming/categories.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-119",
       "source": "src/lib/filming/list.ts",
       "domain": "filming",
-      "target": "supabase/functions/_shared/filming/filming/list.ts",
+      "target": "libs/server/src/filming/list.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-120",
       "source": "src/lib/filming/mark-shot.ts",
       "domain": "filming",
-      "target": "supabase/functions/_shared/filming/filming/mark-shot.ts",
+      "target": "libs/server/src/filming/mark-shot.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-121",
       "source": "src/lib/filming/shot-items.ts",
       "domain": "filming",
-      "target": "supabase/functions/_shared/filming/filming/shot-items.ts",
+      "target": "libs/server/src/filming/shot-items.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-122",
       "source": "src/lib/filming/team-status.ts",
       "domain": "filming",
-      "target": "supabase/functions/_shared/filming/filming/team-status.ts",
+      "target": "libs/server/src/filming/team-status.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-123",
@@ -983,7 +983,7 @@
       "domain": "shared",
       "target": "libs/shared/src/format.ts",
       "action": "adaptar",
-      "adaptation": "Reutilizar lógica pura após revisar imports e contratos; dependências TODO."
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
     },
     {
       "id": "AR-124",
@@ -991,47 +991,47 @@
       "domain": "shared",
       "target": "libs/shared/src/geo.ts",
       "action": "adaptar",
-      "adaptation": "Reutilizar lógica pura após revisar imports e contratos; dependências TODO."
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
     },
     {
       "id": "AR-125",
       "source": "src/lib/judges/advisor-actions.ts",
       "domain": "judging",
-      "target": "supabase/functions/_shared/judging/judges/advisor-actions.ts",
+      "target": "libs/server/src/judging/advisor-actions.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-126",
       "source": "src/lib/judges/advisor.ts",
       "domain": "judging",
-      "target": "supabase/functions/_shared/judging/judges/advisor.ts",
+      "target": "libs/server/src/judging/advisor.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-127",
       "source": "src/lib/judges/evaluation-actions.ts",
       "domain": "judging",
-      "target": "supabase/functions/_shared/judging/judges/evaluation-actions.ts",
+      "target": "libs/server/src/judging/evaluation-actions.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-128",
       "source": "src/lib/judges/labels.ts",
       "domain": "judging",
-      "target": "supabase/functions/_shared/judging/judges/labels.ts",
+      "target": "libs/server/src/judging/labels.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-129",
       "source": "src/lib/judges/list.ts",
       "domain": "judging",
-      "target": "supabase/functions/_shared/judging/judges/list.ts",
+      "target": "libs/server/src/judging/list.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-130",
@@ -1047,95 +1047,95 @@
       "domain": "shared",
       "target": "libs/shared/src/labels.ts",
       "action": "adaptar",
-      "adaptation": "Reutilizar lógica pura após revisar imports e contratos; dependências TODO."
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
     },
     {
       "id": "AR-132",
       "source": "src/lib/mentor/code-format.ts",
       "domain": "mentor",
-      "target": "supabase/functions/_shared/mentor/mentor/code-format.ts",
+      "target": "libs/server/src/mentor/code-format.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-133",
       "source": "src/lib/mentor/codes.ts",
       "domain": "mentor",
-      "target": "supabase/functions/_shared/mentor/mentor/codes.ts",
+      "target": "libs/server/src/mentor/codes.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-134",
       "source": "src/lib/mentor/issue.ts",
       "domain": "mentor",
-      "target": "supabase/functions/_shared/mentor/mentor/issue.ts",
+      "target": "libs/server/src/mentor/issue.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-135",
       "source": "src/lib/mentor/list.ts",
       "domain": "mentor",
-      "target": "supabase/functions/_shared/mentor/mentor/list.ts",
+      "target": "libs/server/src/mentor/list.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-136",
       "source": "src/lib/mentor/redeem.ts",
       "domain": "mentor",
-      "target": "supabase/functions/_shared/mentor/mentor/redeem.ts",
+      "target": "libs/server/src/mentor/redeem.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-137",
       "source": "src/lib/mentor/respond.ts",
       "domain": "mentor",
-      "target": "supabase/functions/_shared/mentor/mentor/respond.ts",
+      "target": "libs/server/src/mentor/respond.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-138",
       "source": "src/lib/mentor/session.ts",
       "domain": "mentor",
-      "target": "supabase/functions/_shared/mentor/mentor/session.ts",
+      "target": "libs/server/src/mentor/session.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-139",
       "source": "src/lib/pages/list.ts",
       "domain": "messaging",
-      "target": "supabase/functions/_shared/messaging/pages/list.ts",
+      "target": "libs/server/src/messaging/list.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-140",
       "source": "src/lib/pages/presets.ts",
       "domain": "messaging",
-      "target": "libs/messaging/src/pages/presets.ts",
+      "target": "libs/messaging/src/presets.ts",
       "action": "adaptar",
-      "adaptation": "Reutilizar lógica pura após revisar imports e contratos; dependências TODO."
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
     },
     {
       "id": "AR-141",
       "source": "src/lib/pages/queries.ts",
       "domain": "messaging",
-      "target": "supabase/functions/_shared/messaging/pages/queries.ts",
+      "target": "libs/server/src/messaging/queries.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-142",
       "source": "src/lib/pages/send.ts",
       "domain": "messaging",
-      "target": "supabase/functions/_shared/messaging/pages/send.ts",
+      "target": "libs/server/src/messaging/send.ts",
       "action": "adaptar",
-      "adaptation": "Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO."
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
     },
     {
       "id": "AR-143",
@@ -1157,17 +1157,17 @@
       "id": "AR-145",
       "source": "src/lib/supabase/client.ts",
       "domain": "auth",
-      "target": "libs/auth/src + supabase/functions/_shared/auth",
+      "target": "libs/auth/src + libs/server/src/auth + apps/fgc-api/src",
       "action": "adaptar",
-      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato TODO."
+      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md."
     },
     {
       "id": "AR-146",
       "source": "src/lib/supabase/server.ts",
       "domain": "auth",
-      "target": "libs/auth/src + supabase/functions/_shared/auth",
+      "target": "libs/auth/src + libs/server/src/auth + apps/fgc-api/src",
       "action": "adaptar",
-      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato TODO."
+      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md."
     },
     {
       "id": "AR-147",
@@ -1175,7 +1175,7 @@
       "domain": "shared",
       "target": "libs/shared/src/utils.ts",
       "action": "adaptar",
-      "adaptation": "Reutilizar lógica pura após revisar imports e contratos; dependências TODO."
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
     },
     {
       "id": "AR-148",
@@ -1183,7 +1183,7 @@
       "domain": "auth",
       "target": "libs/auth/src/session + shells web/mobile",
       "action": "substituir",
-      "adaptation": "Refresh/cookies Next viram adaptadores por plataforma; contrato TODO."
+      "adaptation": "Refresh/cookies Next viram adaptadores por plataforma; contrato T02/T03 em contratos-tecnicos.md."
     },
     {
       "id": "AR-149",

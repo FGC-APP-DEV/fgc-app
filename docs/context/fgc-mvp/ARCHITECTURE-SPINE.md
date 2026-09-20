@@ -159,3 +159,7 @@ oficial antes de carga real. Nenhum desses valores é inventado ou requisito
 marcado como testado. D71–D74 resolvem P17/P18/P19: operação começa limpa, sessão
 tem prazo/revogação definidos e comprovante tem retenção restrita. Viabilidade
 de D65/D74 continua exigindo evidência; até lá, implementar/testar com dados sintéticos.
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

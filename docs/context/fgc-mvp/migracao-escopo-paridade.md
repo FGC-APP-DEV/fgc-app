@@ -38,7 +38,7 @@ Paridade significa preservar comportamento aprovado, não reproduzir defeitos.
 | M19 | `mentor/redeem`, session, code-entry — acesso por equipe | Adaptar sessão web/mobile conforme T03/D71 | Código inválido/expirado dá erro genérico; revogação e expiração; sessão A nunca lê equipe B; rate limit no resgate. |
 | M20 | `mentor/respond`, pages-list — confirmar pager | SQL atômico + UI mentor | Uma resposta por pager/equipe: concorrência entre dois aparelhos aceita apenas uma; respostas preset; nenhum acesso staff. |
 | M21 | Mentor shell/home/pull-refresh/live-refresh | `libs/mentor`; apenas pager e situação Filming necessários | Badge/atualização corretos; offline mostra estado honesto; não carregar abas de anúncios/horários fora do escopo. |
-| M22 | `locator/team-map`, geo/labels/format | `libs/teams` + `libs/ui/shared` | Mapa e identificação equivalentes, acessíveis por toque; sem obrigar biblioteca DOM no mobile. |
+| M22 | `locator/team-map`, geo/labels/format | `libs/ui` + `libs/shared`, compostos pelos shells conforme T04 | Mapa e identificação equivalentes, acessíveis por toque; sem obrigar biblioteca DOM no mobile. |
 | M23 | `schedule`, matches-view, schedule-view, cron/sync scripts | Backlog; MVP `libs/schedule` apenas link | Placeholder sem URL; link validado abre site; nenhuma dependência do sync para operar Judging. |
 | M24 | Pit Admin, anúncios, AnnouncementRead | Fora do MVP completo; não migrar somente por acoplamento do mentor | Não mostrar módulo extra; separar dependências de código de mentor do painel Pit Admin. |
 | M25 | TeamResource, ProductionInterview | Modelos inventariados, ativação adiada | Sem upload/portfolio/produção inventados; preservar origem para evolução. |
@@ -60,7 +60,7 @@ Expo Go é uma etapa de teste rápido, não a comprovação integral de M01/M29/
 Registrar também ambiente Go/development build/distribuição em cada evidência.
 Ver [plano Expo](expo-desenvolvimento.md).
 
-## Contratos técnicos — adiamento revisto nesta rodada
+## Contratos técnicos vigentes
 
 - T01: REST via Express, envelope/paginação/versão/idempotência e SQL transacional definidos em [contratos técnicos](contratos-tecnicos.md).
 - T02: identidade Supabase, tokens/cookies por plataforma, callbacks e refresh definidos no mesmo contrato; valores de domínio/SMTP precisam ser provisionados.
@@ -68,7 +68,10 @@ Ver [plano Expo](expo-desenvolvimento.md).
 - T04: grafo de pacotes, exports públicos e tags definidos; pacotes novos ainda devem ser gerados e validados no código.
 - T05: **resolvido em D70/D71** — administrador em tela mínima emite/regenera códigos de mentor; Pit Admin completo fora do escopo. Expiração e invalidação de sessões definidas em T03.
 
-Contratos acima prevalecem sobre caminhos mecânicos históricos do mapa por arquivo,
-inclusive destinos Edge/GraphQL antes propostos. Materializar schemas/DTOs/testes
+O mapa por arquivo segue os contratos acima e o grafo T04. Materializar schemas/DTOs/testes
 antes de publicar cada operação. Dependências externas bloqueiam somente
 o comportamento que depende delas; nenhum plano autoriza migração de dados reais.
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

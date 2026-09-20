@@ -1,11 +1,11 @@
 # Arquitetura — contrato de destino do MVP
 
-[Diagrama atualizado com Archify](arquitetura.html) · [fonte](arquitetura.archify.json) · [validação](arquitetura-validacao.md).
+[Diagrama e fronteiras vigentes](ARCHITECTURE-SPINE.md).
 
 Status: contratos T01–T04 definidos em [contratos técnicos](contratos-tecnicos.md)
 e invariantes em [ARCHITECTURE-SPINE](ARCHITECTURE-SPINE.md). Definições técnicas
 não comprovam implementação, compatibilidade executada ou garantia de descarte.
-Políticas de produto sem resposta permanecem identificadas como tal.
+Decisões funcionais fechadas em D01–D74; a amostra externa valida D34 antes da carga real.
 Referências: [inventário](inventario.md), [regras](../FGC-MVP-DECISOES.md).
 
 ## Fronteiras
@@ -101,9 +101,12 @@ como destino; a configuração atual ainda precisa migrar e ser testada.
 Expo Push Service é o adaptador de entrega escolhido em T01. EAS pago e Expo Router
 não foram adotados; build iOS usa Mac disponível ou EAS dentro do orçamento aprovado.
 
-O diagrama existente representa as fronteiras de aplicação/dados; não detalha
-esta nova estratégia de desenvolvimento e distribuição. Este documento e o plano
+O diagrama da ARCHITECTURE-SPINE.md representa as fronteiras vigentes. Este documento e o plano
 Expo são as referências desse fluxo.
 
 Fontes oficiais: [development builds](https://docs.expo.dev/develop/development-builds/introduction/)
 e [limitações do Expo Go](https://docs.expo.dev/develop/development-builds/faq/).
+
+## Referência obrigatória de interface
+
+Aplicar [design-system.md](../design-system.md) à versão final do MVP em web, Android e iOS, através de @fgc/ui. Preservar identidade visual e adaptar as primitivas à plataforma. Fluxos, permissões e estados seguem D01–D74 e T01–T05; a referência visual não acrescenta funcionalidades. Validar acessibilidade, responsividade e estados assíncronos nos fluxos aprovados.

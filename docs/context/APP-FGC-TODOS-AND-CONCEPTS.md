@@ -1,59 +1,11 @@
-ALL CAN VIBE CODE (TO MAKE THEIR MODULES QUICKLY) \- ADD THE WORK TO THE BOARD IN GITHUB THEN ADD THE PR LINK TO THE RESPECTIVE CARD  
-\- COMMIT TO THE RESPECTIVE BRANCH  
-\- OPEN PR  
-\-\> CODE REVIEW (AI-ASSISTED / AUTOMATED)  
-\- OWNERS REVIEW (ME / JOSE)  
-\- (INSTEAD OF REQUESTING CHANGES TO THE CODE OWNERS) WE MAKE THE CHANGES (IN ORDER TO GUARANTEE QUALITY IN PRODUCTION \- DS, BEST PRACTICES, ARCH., ETC)  
-\- WE MERGE IT (STAGING ENV)  
-\-\> CODE REVIEW (AI)  
-\- EVERYBODY\* TESTS IT (STAGING ENV)  
-\- FIXES IF NECESSARY  
-\- MAKE IT TO PRODUCTION  
-\- GRILL-ME (GRILL WITH DOCS \- VIDEO LUCAS MONTANO)
+# FGC — contexto e trabalho de migração
 
-RECCOMENDED STACK:  
-\- CLAUDE CODE / ANTIGRAVITY / CODEX  
-\- GIT  
-\- GITHUB (MANDATORY)
+Definições consolidadas no [índice do MVP](fgc-mvp/README.md). As decisões D01–D74, os contratos T01–T05 e o [design system](design-system.md) são as referências de implementação.
 
-ATTENTION TO:  
-\- OS (May occur conflicts because of dependencies or code \- make sure everything runs smooth when in staging and production)  
-\- DEPLOY (Thoroughly check the build and the environments before dploying to guarantee consistency and quality)  
-\- REVIEW IMPLEMENTATION FLOW, ADD AUTOMATED CODE REVIEW?\* \+ PIPELINE (reviews, move card, send status on whatsapp/slack)
+- Migrar Filming e dependências aprovadas; implementar Judging simplificado conforme M01–M30.
+- Usar Supabase novo, REST/Express e Expo, conforme arquitetura; carga inicial limitada a equipes/configuração (D72).
+- Aplicar a identidade visual fornecida em web/Android/iOS através de componentes compartilhados.
+- Implementar testes de regras, integração e e2e; revisar código e cumprir os critérios de aceite antes de PR.
+- Validar ambiente, distribuição e descarte conforme [pendências](fgc-mvp/pendencias.md).
 
-APP FGC   
-\- módulo judges  
-\- setup ambiente  
-\- v0\* (merge meu \+ greg)  
-\- preencher backlog github (reuniões \-\> escopo)  
-\- codigo roberto, codigo eric  
-\- BMAD / Grill me, rtk  
-\- design system  
-\- cloud  
-\- loop Chuck in  
-\- DoR e DoD
-
-\---  
-NO EXPENSES  
-KEEP ROLES SEPARATE \- (A JUDGE CANNOT ACCESS THE PIT ADMIN STUFF) \-\> ADMIN GIVES ACCESS  
-MAKE PACKAGES (DS \- EG.: SEPARATE THE PAGE MODULE TO BE REUSED)  
-I AM GONNA WORK WITH THE JUDGES MODULE (MAKE IT UNIQUE \- THEN SPLIT JA / JUDGE WITHIN)  
-BRANCH DEV / TEST (MEU REPO)
-
-**BACKLOG:**
-
-* CHECAR MAGIC LINK / CODIGO EMAIL (ERRO/PRIMEIRO EMAIL NAO VEIO CODIGO E LINK FALHO)  
-* SENSITIVE DATA \- SUPABASE (ENCRYPT? \-  HOW ARE JUDGES GONNA MAKE SURE THAT INFO IS DELETED AFTER COMPETITION)  
-* ADD A QUICK LINKS (ONBOARDING TRAINING) SECTION  
-* ADD MORE LANGUAGES (EN, FR, SP, AR)  
-* DESIGN SYSTEM (FGC PATTERN) \-\> GERAR  
-* USAR IA PRA RESUMIR DESCRIÇÕES TIMES E DAR IDEIAS DE POSSÍVEIS PRÊMIOS
-
-**TODO:**
-
-* **COLOCAR CONTEXTO NO CODEX \- EXPLICAR O OBJETIVO \+ COLLECT BUSINESS RULES AND DOCUMENT THE APP** (CONSOLIDAR ISSO TUDO \+ DOCS INICIAIS \+ RESUMO REUNIÃO GREG NO CONTEXTO) \-\> GERAR PRD, project-brief, architecture, specs p/ dev até o final \+ transpilar react native (pegar oq esta no do greg e jogar pro meu  
-* MIGRAR APP GREG PRO “FGC-APP” (NX \+ RN \= DEPLOY LOJAS \- Pedir pro Greg testar o pager)  
-* USAR BANCO GREG (VALIDAR)  
-* AJUSTAR MÓDULO JUÍZES  
-* USAR O DESIGN SYSTEM DO APP GOOGLE\*
-
+Interface em inglês, roles separadas, conexão obrigatória e nenhuma despesa nova sem aprovação. O usuário informou em 19/09 que os demais itens de prontidão estão sendo resolvidos; isso não equivale a verificações concluídas.

@@ -2,7 +2,7 @@
 
 Base: `70d3355014ffa27963455a589a24ff48ad151900`. 150 arquivos rastreados pelo Git. Gerado de fontes locais; não contém dados ou segredos do ambiente.
 
-Os destinos são propostas de localização, não contratos/pacotes já criados. API, autenticação por plataforma e dependências finais permanecem TODO. Nenhum arquivo é excluído silenciosamente: referência/avaliar exige decisão antes da implementação. O catálogo funcional prevalece sobre destinos mecânicos.
+Destinos seguem T01–T04 em contratos-tecnicos.md; os pacotes serão materializados na implementação. O catálogo M01–M30 define inclusão/exclusão. Caminhos indicam responsabilidade, sem impor correspondência de um arquivo por arquivo. Interface segue ../design-system.md.
 
 | ID | Origem | Domínio | Destino proposto | Ação | Adaptação |
 | --- | --- | --- | --- | --- | --- |
@@ -30,7 +30,7 @@ Os destinos são propostas de localização, não contratos/pacotes já criados.
 | AR-022 | `prisma/migrations/20260708163658_judging_round/migration.sql` | dados | `arquivo de referência do legado; novas migrations SQL Supabase` | referência | Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias. |
 | AR-023 | `prisma/migrations/20260708170751_panel_award/migration.sql` | dados | `arquivo de referência do legado; novas migrations SQL Supabase` | referência | Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias. |
 | AR-024 | `prisma/migrations/migration_lock.toml` | dados | `arquivo de referência do legado; novas migrations SQL Supabase` | referência | Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias. |
-| AR-025 | `prisma/schema.prisma` | dados | `supabase/migrations/*.sql + libs/shared/src/database.types.ts` | substituir | Todos os modelos mapeados em modelos-legado.md; sem Prisma/Drizzle no destino. |
+| AR-025 | `prisma/schema.prisma` | dados | `supabase/migrations/*.sql + libs/database/src/database.types.ts` | substituir | Todos os modelos mapeados em modelos-legado.md; sem Prisma/Drizzle no destino. |
 | AR-026 | `prisma/seed-mock-schedule.ts` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
 | AR-027 | `prisma/seed.ts` | dados | `supabase/seed.sql ou tools/migration/seed.ts` | adaptar | Separar fixtures de dados reais; sync externo posterior; atribuição de roles não permite bypass. |
 | AR-028 | `prisma/sync-matches.ts` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
@@ -43,15 +43,15 @@ Os destinos são propostas de localização, não contratos/pacotes já criados.
 | AR-035 | `public/next.svg` | assets | `apps/fgc-web/public/next.svg ou libs/ui/src/assets/next.svg` | avaliar | Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença. |
 | AR-036 | `public/vercel.svg` | assets | `apps/fgc-web/public/vercel.svg ou libs/ui/src/assets/vercel.svg` | avaliar | Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença. |
 | AR-037 | `public/window.svg` | assets | `apps/fgc-web/public/window.svg ou libs/ui/src/assets/window.svg` | avaliar | Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença. |
-| AR-038 | `src/app/(auth)/sign-in/actions.ts` | auth | `supabase/functions/_shared/(auth)/sign-in/actions.ts` | adaptar | Separar comando seguro de navegação Next; manter contratos TODO. |
+| AR-038 | `src/app/(auth)/sign-in/actions.ts` | auth | `libs/server/src/auth/(auth)/sign-in/actions.ts` | adaptar | Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02. |
 | AR-039 | `src/app/(auth)/sign-in/page.tsx` | auth | `libs/auth/src/screens/(auth)/sign-in.tsx + apps/fgc-{web,mobile}` | adaptar | Registrar rota em cada shell; ajustar Judging e horários às decisões atuais. |
 | AR-040 | `src/app/admin/page.tsx` | admin | `libs/admin/src/screens/admin.tsx + apps/fgc-{web,mobile}` | adaptar | Registrar rota em cada shell; ajustar Judging e horários às decisões atuais. |
 | AR-041 | `src/app/api/cron/sync-matches/route.ts` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
-| AR-042 | `src/app/api/health/route.ts` | server | `supabase/functions/api/health/index.ts` | adaptar | Health/cron autenticados; sync de horários permanece evolução conforme D05–D06. |
+| AR-042 | `src/app/api/health/route.ts` | server | `apps/fgc-api/src/api/health.ts` | adaptar | Health/cron autenticados; sync de horários permanece evolução conforme D05–D06. |
 | AR-043 | `src/app/apple-icon.png` | shell | `apps/fgc-web + apps/fgc-mobile + libs/ui` | adaptar | Separar layout/metadados/PWA web de assets, tema e configuração nativa. |
-| AR-044 | `src/app/auth/callback/actions.ts` | auth | `supabase/functions/_shared/auth/callback/actions.ts` | adaptar | Separar comando seguro de navegação Next; manter contratos TODO. |
+| AR-044 | `src/app/auth/callback/actions.ts` | auth | `libs/server/src/auth/auth/callback/actions.ts` | adaptar | Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02. |
 | AR-045 | `src/app/auth/callback/page.tsx` | auth | `libs/auth/src/screens/auth/callback.tsx + apps/fgc-{web,mobile}` | adaptar | Registrar rota em cada shell; ajustar Judging e horários às decisões atuais. |
-| AR-046 | `src/app/complete-profile/actions.ts` | auth | `supabase/functions/_shared/complete-profile/actions.ts` | adaptar | Separar comando seguro de navegação Next; manter contratos TODO. |
+| AR-046 | `src/app/complete-profile/actions.ts` | auth | `libs/server/src/auth/complete-profile/actions.ts` | adaptar | Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02. |
 | AR-047 | `src/app/complete-profile/page.tsx` | auth | `libs/auth/src/screens/complete-profile.tsx + apps/fgc-{web,mobile}` | adaptar | Registrar rota em cada shell; ajustar Judging e horários às decisões atuais. |
 | AR-048 | `src/app/filming/page.tsx` | filming | `libs/filming/src/screens/filming.tsx + apps/fgc-{web,mobile}` | adaptar | Registrar rota em cada shell; ajustar Judging e horários às decisões atuais. |
 | AR-049 | `src/app/globals.css` | shell | `apps/fgc-web + apps/fgc-mobile + libs/ui` | adaptar | Separar layout/metadados/PWA web de assets, tema e configuração nativa. |
@@ -81,7 +81,7 @@ Os destinos são propostas de localização, não contratos/pacotes já criados.
 | AR-073 | `src/components/judges/judges-tabs.tsx` | judging | `libs/judging/src/components/judges-tabs.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
 | AR-074 | `src/components/judges/match-list.tsx` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
 | AR-075 | `src/components/judges/panel-view.tsx` | judging | `libs/judging/src/components/panel-view.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
-| AR-076 | `src/components/locator/team-map.tsx` | teams | `libs/teams/src/components/team-map.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
+| AR-076 | `src/components/locator/team-map.tsx` | ui | `libs/ui/src/components/TeamMap.tsx` | adaptar | Apresentação sem acesso a dados; shells compõem dados autorizados; design-system.md. |
 | AR-077 | `src/components/mentor/code-entry-form.tsx` | mentor | `libs/mentor/src/components/code-entry-form.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
 | AR-078 | `src/components/mentor/day-picker.tsx` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
 | AR-079 | `src/components/mentor/filming-view.tsx` | mentor | `libs/mentor/src/components/filming-view.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
@@ -96,7 +96,7 @@ Os destinos são propostas de localização, não contratos/pacotes já criados.
 | AR-088 | `src/components/page-team/page-team-button.tsx` | messaging | `libs/messaging/src/components/page-team-button.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
 | AR-089 | `src/components/page-team/page-team-dialog.tsx` | messaging | `libs/messaging/src/components/page-team-dialog.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
 | AR-090 | `src/components/page-team/recent-pages-list.tsx` | messaging | `libs/messaging/src/components/recent-pages-list.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
-| AR-091 | `src/components/pit-admin/mentor-codes-panel.tsx` | pit-admin | `libs/pit-admin/src/components/mentor-codes-panel.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
+| AR-091 | `src/components/pit-admin/mentor-codes-panel.tsx` | admin | `libs/admin/src/components/mentor-codes-panel.tsx` | adaptar | Tela mínima do administrador conforme D70/D71; sem módulo Pit Admin. |
 | AR-092 | `src/components/pit-admin/pit-admin-tabs.tsx` | fora do escopo | `referência futura de Pit Admin/anúncios` | adiar | Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo. |
 | AR-093 | `src/components/ui/app-shell.tsx` | ui | `libs/ui/src/components/app-shell.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
 | AR-094 | `src/components/ui/badge.tsx` | ui | `libs/ui/src/components/badge.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
@@ -115,44 +115,44 @@ Os destinos são propostas de localização, não contratos/pacotes já criados.
 | AR-107 | `src/components/ui/table.tsx` | ui | `libs/ui/src/components/table.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
 | AR-108 | `src/components/ui/tabs.tsx` | ui | `libs/ui/src/components/tabs.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
 | AR-109 | `src/components/ui/textarea.tsx` | ui | `libs/ui/src/components/textarea.tsx` | adaptar | Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo. |
-| AR-110 | `src/lib/admin/actions.ts` | admin | `supabase/functions/_shared/admin/admin/actions.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-111 | `src/lib/admin/approve-emails.ts` | admin | `supabase/functions/_shared/admin/admin/approve-emails.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
+| AR-110 | `src/lib/admin/actions.ts` | admin | `libs/server/src/admin/actions.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-111 | `src/lib/admin/approve-emails.ts` | admin | `libs/server/src/admin/approve-emails.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
 | AR-112 | `src/lib/announcements/list.ts` | fora do escopo | `referência futura de Pit Admin/anúncios` | adiar | Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo. |
 | AR-113 | `src/lib/announcements/presets.ts` | fora do escopo | `referência futura de Pit Admin/anúncios` | adiar | Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo. |
 | AR-114 | `src/lib/announcements/send.ts` | fora do escopo | `referência futura de Pit Admin/anúncios` | adiar | Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo. |
-| AR-115 | `src/lib/auth.ts` | auth | `libs/auth/src + supabase/functions/_shared/auth` | adaptar | Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato TODO. |
+| AR-115 | `src/lib/auth.ts` | auth | `libs/auth/src + libs/server/src/auth + apps/fgc-api/src` | adaptar | Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md. |
 | AR-116 | `src/lib/db.ts` | dados | `supabase/migrations + acesso Supabase tipado` | substituir | Eliminar cliente Prisma; não introduzir Drizzle. |
-| AR-117 | `src/lib/events.ts` | shared | `supabase/functions/_shared/shared/events.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-118 | `src/lib/filming/categories.ts` | filming | `supabase/functions/_shared/filming/filming/categories.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-119 | `src/lib/filming/list.ts` | filming | `supabase/functions/_shared/filming/filming/list.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-120 | `src/lib/filming/mark-shot.ts` | filming | `supabase/functions/_shared/filming/filming/mark-shot.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-121 | `src/lib/filming/shot-items.ts` | filming | `supabase/functions/_shared/filming/filming/shot-items.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-122 | `src/lib/filming/team-status.ts` | filming | `supabase/functions/_shared/filming/filming/team-status.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-123 | `src/lib/format.ts` | shared | `libs/shared/src/format.ts` | adaptar | Reutilizar lógica pura após revisar imports e contratos; dependências TODO. |
-| AR-124 | `src/lib/geo.ts` | shared | `libs/shared/src/geo.ts` | adaptar | Reutilizar lógica pura após revisar imports e contratos; dependências TODO. |
-| AR-125 | `src/lib/judges/advisor-actions.ts` | judging | `supabase/functions/_shared/judging/judges/advisor-actions.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-126 | `src/lib/judges/advisor.ts` | judging | `supabase/functions/_shared/judging/judges/advisor.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-127 | `src/lib/judges/evaluation-actions.ts` | judging | `supabase/functions/_shared/judging/judges/evaluation-actions.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-128 | `src/lib/judges/labels.ts` | judging | `supabase/functions/_shared/judging/judges/labels.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-129 | `src/lib/judges/list.ts` | judging | `supabase/functions/_shared/judging/judges/list.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
+| AR-117 | `src/lib/events.ts` | shared | `libs/server/src/shared/events.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-118 | `src/lib/filming/categories.ts` | filming | `libs/server/src/filming/categories.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-119 | `src/lib/filming/list.ts` | filming | `libs/server/src/filming/list.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-120 | `src/lib/filming/mark-shot.ts` | filming | `libs/server/src/filming/mark-shot.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-121 | `src/lib/filming/shot-items.ts` | filming | `libs/server/src/filming/shot-items.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-122 | `src/lib/filming/team-status.ts` | filming | `libs/server/src/filming/team-status.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-123 | `src/lib/format.ts` | shared | `libs/shared/src/format.ts` | adaptar | Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared. |
+| AR-124 | `src/lib/geo.ts` | shared | `libs/shared/src/geo.ts` | adaptar | Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared. |
+| AR-125 | `src/lib/judges/advisor-actions.ts` | judging | `libs/server/src/judging/advisor-actions.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-126 | `src/lib/judges/advisor.ts` | judging | `libs/server/src/judging/advisor.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-127 | `src/lib/judges/evaluation-actions.ts` | judging | `libs/server/src/judging/evaluation-actions.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-128 | `src/lib/judges/labels.ts` | judging | `libs/server/src/judging/labels.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-129 | `src/lib/judges/list.ts` | judging | `libs/server/src/judging/list.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
 | AR-130 | `src/lib/judges/match-list.ts` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
-| AR-131 | `src/lib/labels.ts` | shared | `libs/shared/src/labels.ts` | adaptar | Reutilizar lógica pura após revisar imports e contratos; dependências TODO. |
-| AR-132 | `src/lib/mentor/code-format.ts` | mentor | `supabase/functions/_shared/mentor/mentor/code-format.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-133 | `src/lib/mentor/codes.ts` | mentor | `supabase/functions/_shared/mentor/mentor/codes.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-134 | `src/lib/mentor/issue.ts` | mentor | `supabase/functions/_shared/mentor/mentor/issue.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-135 | `src/lib/mentor/list.ts` | mentor | `supabase/functions/_shared/mentor/mentor/list.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-136 | `src/lib/mentor/redeem.ts` | mentor | `supabase/functions/_shared/mentor/mentor/redeem.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-137 | `src/lib/mentor/respond.ts` | mentor | `supabase/functions/_shared/mentor/mentor/respond.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-138 | `src/lib/mentor/session.ts` | mentor | `supabase/functions/_shared/mentor/mentor/session.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-139 | `src/lib/pages/list.ts` | messaging | `supabase/functions/_shared/messaging/pages/list.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-140 | `src/lib/pages/presets.ts` | messaging | `libs/messaging/src/pages/presets.ts` | adaptar | Reutilizar lógica pura após revisar imports e contratos; dependências TODO. |
-| AR-141 | `src/lib/pages/queries.ts` | messaging | `supabase/functions/_shared/messaging/pages/queries.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
-| AR-142 | `src/lib/pages/send.ts` | messaging | `supabase/functions/_shared/messaging/pages/send.ts` | adaptar | Substituir Prisma/Server Actions por SQL/RPC/Edge Function; assinatura final TODO. |
+| AR-131 | `src/lib/labels.ts` | shared | `libs/shared/src/labels.ts` | adaptar | Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared. |
+| AR-132 | `src/lib/mentor/code-format.ts` | mentor | `libs/server/src/mentor/code-format.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-133 | `src/lib/mentor/codes.ts` | mentor | `libs/server/src/mentor/codes.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-134 | `src/lib/mentor/issue.ts` | mentor | `libs/server/src/mentor/issue.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-135 | `src/lib/mentor/list.ts` | mentor | `libs/server/src/mentor/list.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-136 | `src/lib/mentor/redeem.ts` | mentor | `libs/server/src/mentor/redeem.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-137 | `src/lib/mentor/respond.ts` | mentor | `libs/server/src/mentor/respond.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-138 | `src/lib/mentor/session.ts` | mentor | `libs/server/src/mentor/session.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-139 | `src/lib/pages/list.ts` | messaging | `libs/server/src/messaging/list.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-140 | `src/lib/pages/presets.ts` | messaging | `libs/messaging/src/presets.ts` | adaptar | Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared. |
+| AR-141 | `src/lib/pages/queries.ts` | messaging | `libs/server/src/messaging/queries.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
+| AR-142 | `src/lib/pages/send.ts` | messaging | `libs/server/src/messaging/send.ts` | adaptar | Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04. |
 | AR-143 | `src/lib/schedule/matches.ts` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
 | AR-144 | `src/lib/schedule/sync.ts` | programação | `backlog: libs/schedule; MVP: link externo` | adiar | D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar. |
-| AR-145 | `src/lib/supabase/client.ts` | auth | `libs/auth/src + supabase/functions/_shared/auth` | adaptar | Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato TODO. |
-| AR-146 | `src/lib/supabase/server.ts` | auth | `libs/auth/src + supabase/functions/_shared/auth` | adaptar | Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato TODO. |
-| AR-147 | `src/lib/utils.ts` | shared | `libs/shared/src/utils.ts` | adaptar | Reutilizar lógica pura após revisar imports e contratos; dependências TODO. |
-| AR-148 | `src/proxy.ts` | auth | `libs/auth/src/session + shells web/mobile` | substituir | Refresh/cookies Next viram adaptadores por plataforma; contrato TODO. |
+| AR-145 | `src/lib/supabase/client.ts` | auth | `libs/auth/src + libs/server/src/auth + apps/fgc-api/src` | adaptar | Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md. |
+| AR-146 | `src/lib/supabase/server.ts` | auth | `libs/auth/src + libs/server/src/auth + apps/fgc-api/src` | adaptar | Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md. |
+| AR-147 | `src/lib/utils.ts` | shared | `libs/shared/src/utils.ts` | adaptar | Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared. |
+| AR-148 | `src/proxy.ts` | auth | `libs/auth/src/session + shells web/mobile` | substituir | Refresh/cookies Next viram adaptadores por plataforma; contrato T02/T03 em contratos-tecnicos.md. |
 | AR-149 | `tsconfig.json` | configuração | `configuração Nx/RN/Supabase equivalente` | substituir | Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual. |
 | AR-150 | `vercel.json` | configuração | `configuração Nx/RN/Supabase equivalente` | substituir | Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual. |
