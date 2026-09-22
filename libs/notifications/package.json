@@ -1,0 +1,16 @@
+{
+  "name": "@fgc/notifications",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "expo-notifications": "57.0.20",
+    "expo-constants": "57.0.19",
+    "expo-device": "57.0.2"
+  },
+  "peerDependencies": {
+    "react": "19.2.3",
+    "react-native": "0.86.3"
+  }
+}

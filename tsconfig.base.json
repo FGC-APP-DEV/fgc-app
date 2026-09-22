@@ -8,7 +8,11 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "strict": true,
@@ -23,13 +27,55 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@fgc/shared": ["libs/shared/src/index.ts"],
-      "@fgc/graphql": ["libs/graphql/src/index.ts"],
-      "@fgc/ui": ["libs/ui/src/index.ts"],
-      "@fgc/auth": ["libs/auth/src/index.ts"],
-      "@fgc/judging": ["libs/judging/src/index.ts"],
-      "@fgc/database": ["libs/database/src/index.ts"]
+      "@fgc/shared": [
+        "libs/shared/src/index.ts"
+      ],
+      "@fgc/ui": [
+        "libs/ui/src/index.ts"
+      ],
+      "@fgc/auth": [
+        "libs/auth/src/index.ts"
+      ],
+      "@fgc/judging": [
+        "libs/judging/src/index.ts"
+      ],
+      "@fgc/database": [
+        "libs/database/src/index.ts"
+      ],
+      "@fgc/contracts": [
+        "libs/contracts/src/index.ts"
+      ],
+      "@fgc/api-client": [
+        "libs/api-client/src/index.ts"
+      ],
+      "@fgc/server": [
+        "libs/server/src/index.ts"
+      ],
+      "@fgc/filming": [
+        "libs/filming/src/index.ts"
+      ],
+      "@fgc/admin": [
+        "libs/admin/src/index.ts"
+      ],
+      "@fgc/mentor": [
+        "libs/mentor/src/index.ts"
+      ],
+      "@fgc/imports": [
+        "libs/imports/src/index.ts"
+      ],
+      "@fgc/schedule": [
+        "libs/schedule/src/index.ts"
+      ],
+      "@fgc/messaging": [
+        "libs/messaging/src/index.ts"
+      ],
+      "@fgc/notifications": [
+        "libs/notifications/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

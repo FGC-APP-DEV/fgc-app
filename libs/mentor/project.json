@@ -1,0 +1,20 @@
+{
+  "name": "mentor",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/mentor/src",
+  "projectType": "library",
+  "tags": [
+    "platform:client",
+    "type:domain",
+    "scope:mentor"
+  ],
+  "// targets": "to see all targets run: nx show project mentor --web",
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/mentor/tsconfig.check.json"
+      }
+    }
+  }
+}

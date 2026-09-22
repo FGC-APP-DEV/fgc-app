@@ -1,6 +1,0 @@
-export * from './teamRepository'
-export * from './userRepository'
-export * from './interviewRepository'
-export * from './announcementRepository'
-export * from './eventScheduleRepository'
-export * from './evaluationRepository'

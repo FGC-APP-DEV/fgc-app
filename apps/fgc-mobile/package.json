@@ -4,9 +4,16 @@
   "private": true,
   "dependencies": {
     "@fgc/auth": "*",
-    "@fgc/graphql": "*",
+    "@fgc/contracts": "*",
+    "@fgc/ui": "*",
+    "@fgc/admin": "*",
+    "@fgc/imports": "*",
+    "@fgc/filming": "*",
     "@fgc/judging": "*",
-    "@fgc/shared": "*",
-    "@fgc/ui": "*"
-  }
+    "@fgc/messaging": "*",
+    "@fgc/mentor": "*",
+    "@fgc/schedule": "*",
+    "@fgc/notifications": "*"
+  },
+  "main": "index.js"
 }

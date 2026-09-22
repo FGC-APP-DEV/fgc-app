@@ -1,0 +1,26 @@
+begin;
+insert into auth.users(id) values('00000000-0000-4000-8000-000000000001');
+insert into auth.sessions(id,user_id) values('10000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000001');
+insert into core.users(id,email) values('00000000-0000-4000-8000-000000000001','scheduler@example.invalid');
+insert into core.events(id,name,active) values('20000000-0000-4000-8000-000000000001','Synthetic',true);
+insert into core.user_event_roles values('20000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000001','filmmaker');
+insert into core.teams(id,official_id,name,country) values('30000000-0000-4000-8000-000000000001','001','Synthetic','BR');
+create or replace function pg_temp.assert_true(ok boolean,label text) returns void language plpgsql as $$begin if ok is distinct from true then raise exception 'ASSERT: %',label;end if;end$$;
+create or replace function pg_temp.expect_error(q text,expected text) returns void language plpgsql as $$begin execute q;raise exception 'EXPECTED_ERROR_NOT_THROWN';exception when others then if sqlerrm<>expected then raise exception 'Expected %, got %',expected,sqlerrm;end if;end$$;
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000001","session_id":"10000000-0000-4000-8000-000000000001"}',true);
+select pg_temp.expect_error($q$select api.page_create(jsonb_build_object('teamId','30000000-0000-4000-8000-000000000001','sourceArea','filming','message','Past','scheduledFor',clock_timestamp()-interval '1 second'),gen_random_uuid())$q$,'VALIDATION_ERROR');
+select set_config('test.scheduled_payload',jsonb_build_object('teamId','30000000-0000-4000-8000-000000000001','sourceArea','filming','message','Scheduled','scheduledFor',clock_timestamp()+interval '1 second')::text,true);
+select set_config('test.scheduled_receipt',api.page_create(current_setting('test.scheduled_payload')::jsonb,'50000000-0000-4000-8000-000000000001')::text,true);
+-- Advance real time, not a modified payload or a forged receipt.
+select pg_sleep(1.1);
+select pg_temp.assert_true((current_setting('test.scheduled_payload')::jsonb->>'scheduledFor')::timestamptz<clock_timestamp(),'scheduled instant passed');
+select pg_temp.assert_true(api.page_create(current_setting('test.scheduled_payload')::jsonb,'50000000-0000-4000-8000-000000000001')=current_setting('test.scheduled_receipt')::jsonb,'replay after scheduled instant returns exact original receipt');
+select pg_temp.expect_error($q$select api.page_create(current_setting('test.scheduled_payload')::jsonb,gen_random_uuid())$q$,'VALIDATION_ERROR');
+select pg_temp.assert_true((select count(*)=1 from messaging.pages),'replay and rejected initial requests do not create extra pages');
+reset role;
+delete from core.user_event_roles;
+set local role authenticated;
+select pg_temp.expect_error($q$select api.page_create(current_setting('test.scheduled_payload')::jsonb,'50000000-0000-4000-8000-000000000001')$q$,'FORBIDDEN');
+reset role;
+rollback;

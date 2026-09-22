@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@fgc/database": "*",
-    "@fgc/graphql": "*",
-    "@fgc/shared": "*"
+    "@fgc/server": "*",
+    "dotenv": "^16.3.1"
   }
 }

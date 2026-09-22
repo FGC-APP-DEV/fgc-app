@@ -3,14 +3,22 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/fgc-api/src",
   "projectType": "application",
-  "tags": ["scope:app", "type:api"],
+  "tags": [
+    "scope:app",
+    "type:api"
+  ],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
-      "outputs": ["{workspaceRoot}/dist/apps/fgc-api"],
+      "outputs": [
+        "{workspaceRoot}/dist/apps/fgc-api"
+      ],
       "options": {
-        "command": "npx tsc -p apps/fgc-api/tsconfig.app.json --outDir dist/apps/fgc-api"
-      }
+        "command": "node scripts/build-api.mjs"
+      },
+      "dependsOn": [
+        "typecheck"
+      ]
     },
     "serve": {
       "executor": "nx:run-commands",
@@ -22,15 +30,25 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["apps/fgc-api/**/*.ts"]
+        "lintFilePatterns": [
+          "apps/fgc-api/**/*.ts"
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/fgc-api/tsconfig.app.json"
       }
     }
   }

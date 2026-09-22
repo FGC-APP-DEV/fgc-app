@@ -3,29 +3,33 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/ui/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:ui"],
+  "tags": [
+    "scope:shared",
+    "type:ui"
+  ],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/ui",
-        "main": "libs/ui/src/index.ts",
-        "tsConfig": "libs/ui/tsconfig.lib.json"
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/ui/**/*.{ts,tsx}"]
+        "lintFilePatterns": [
+          "libs/ui/**/*.{ts,tsx}"
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/ui/tsconfig.check.json"
       }
     }
   }

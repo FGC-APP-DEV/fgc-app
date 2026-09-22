@@ -18,7 +18,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 const clientEnv = {
   NODE_ENV: getEnv('NODE_ENV', 'development'),
-  REACT_APP_API_URL: getEnv('REACT_APP_API_URL', 'http://localhost:4000'),
+  API_BASE_URL: '/api/v1',
 }
 
 module.exports = {
@@ -36,8 +36,7 @@ module.exports = {
     modules: [path.resolve(workspaceRoot, 'node_modules'), 'node_modules'],
     alias: {
       'react-native$': 'react-native-web',
-      '@fgc/shared': path.resolve(workspaceRoot, 'libs/shared/src/index.ts'),
-      '@fgc/graphql': path.resolve(workspaceRoot, 'libs/graphql/src/index.ts'),
+      ...Object.fromEntries(Object.entries(require('../../tsconfig.base.json').compilerOptions.paths).map(([name, files]) => [name, path.resolve(workspaceRoot, files[0])])),
       '@fgc/ui': path.resolve(workspaceRoot, 'libs/ui/src/index.ts'),
       '@fgc/auth': path.resolve(workspaceRoot, 'libs/auth/src/index.ts'),
       '@fgc/judging': path.resolve(workspaceRoot, 'libs/judging/src/index.ts'),
@@ -45,6 +44,7 @@ module.exports = {
   },
   module: {
     rules: [
+      { test: /\.(ttf|png|jpg|svg)$/, type: 'asset/resource' },
       {
         test: /\.(ts|tsx)$/,
         use: {
@@ -74,6 +74,8 @@ module.exports = {
     historyApiFallback: true,
     port: 3000,
     hot: true,
+    proxy: [{ context: ['/api', '/health'], target: 'http://localhost:4000', changeOrigin: false }],
     allowedHosts: ['.docker.internal', 'localhost', '.localhost'],
   },
 }
+

@@ -1,0 +1,20 @@
+{
+  "name": "admin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/admin/src",
+  "projectType": "library",
+  "tags": [
+    "platform:client",
+    "type:domain",
+    "scope:admin"
+  ],
+  "// targets": "to see all targets run: nx show project admin --web",
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/admin/tsconfig.check.json"
+      }
+    }
+  }
+}
