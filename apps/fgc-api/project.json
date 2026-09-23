@@ -4,8 +4,9 @@
   "sourceRoot": "apps/fgc-api/src",
   "projectType": "application",
   "tags": [
-    "scope:app",
-    "type:api"
+    "scope:fgc-api",
+    "platform:server",
+    "type:app"
   ],
   "targets": {
     "build": {

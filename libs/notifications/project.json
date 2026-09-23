@@ -4,9 +4,9 @@
   "sourceRoot": "libs/notifications/src",
   "projectType": "library",
   "tags": [
+    "scope:notifications",
     "platform:client",
-    "type:domain",
-    "scope:notifications"
+    "type:domain"
   ],
   "targets": {
     "lint": {

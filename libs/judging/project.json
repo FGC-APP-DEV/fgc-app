@@ -4,8 +4,9 @@
   "sourceRoot": "libs/judging/src",
   "projectType": "library",
   "tags": [
-    "scope:shared",
-    "type:feature"
+    "scope:judging",
+    "platform:client",
+    "type:domain"
   ],
   "targets": {
     "lint": {

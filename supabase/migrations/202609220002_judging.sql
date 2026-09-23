@@ -12,13 +12,13 @@ begin
  if op not in ('observation_put','observation_delete','evaluation_complete','evaluation_reopen') then perform private.require_role('judgeAdvisor'); end if;
  if op in ('observation_put','observation_delete','evaluation_complete','evaluation_reopen','participation_remove','team_transfer','team_withdraw','team_reactivate','flag_put','flag_delete') then
   select * into t from judging.participations where cycle_id=c and team_id=(p->>'teamId')::uuid for update;
+  if t.id is null and op='participation_remove' then r:=private.replay(a,op,k,p);if r is not null then return r;end if;end if;
   if t.id is null or not private.judging_access(c,t.panel_id) then raise exception 'NOT_FOUND'; end if;
   select * into panel from judging.panels where id=t.panel_id;
  end if;
  if op in ('observation_put','observation_delete') then
   perform private.require_role('judge');
   if t.panel_id is distinct from (p->>'panelId')::uuid or not exists(select 1 from judging.members where cycle_id=c and panel_id=t.panel_id and user_id=a) then raise exception 'NOT_FOUND'; end if;
-  if t.state<>'active' or t.evaluation_state<>'pending' then raise exception 'STATE_CONFLICT'; end if;
  end if;
  if op='evaluation_complete' and (panel.leader_id is distinct from a or not private.has_role('judge')) then raise exception 'FORBIDDEN'; end if;
  if op='evaluation_reopen' and not private.has_role('judgeAdvisor') and panel.leader_id is distinct from a then raise exception 'FORBIDDEN'; end if;
@@ -91,6 +91,7 @@ begin
   update judging.participations set panel_id=target.id,version=version+1 where id=t.id returning id,version into i,v;
   update judging.panels set version=version+1 where id in (t.panel_id,target.id);
  when 'observation_put','observation_delete' then
+  if t.state<>'active' or t.evaluation_state<>'pending' then raise exception 'STATE_CONFLICT'; end if;
   select * into obs from judging.observations where cycle_id=c and team_id=t.team_id and panel_id=t.panel_id and author_id=a for update;
   perform private.assert_version(coalesce(obs.version,0),(p->>'expectedVersion')::integer);
   if op='observation_delete' then

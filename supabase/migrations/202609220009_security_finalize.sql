@@ -11,7 +11,7 @@ do $$ declare f record;begin
    if f.proname like 'staff_auth_%' or f.proname in ('health_check','staff_provision','mentor_rate_limit','mentor_redeem','mentor_logout','mentor_device_put','mentor_device_delete','mentor_respond','mentor_me','mentor_pages','mentor_filming','delivery_claim','delivery_authorize','delivery_finish','purge_due') then
     execute format('grant execute on function api.%I(%s) to service_role',f.proname,f.args);
    else execute format('grant execute on function api.%I(%s) to authenticated',f.proname,f.args);end if;
-  elsif f.proname in ('actor','event_id','has_role','require_role','require_judging','require_enabled','require_pages','require_team_read','staff_enabled','judging_access','audit_access','eligible_judge','me','schedule','teams_list','pages_list','panels_list','participations_list','observations_list','judging_audit','tracker','categories_list','items_list') then
+  elsif f.proname in ('actor','event_id','has_role','require_role','require_judging','require_enabled','require_pages','require_team_read','staff_enabled','judging_access','audit_access','eligible_judge','page_delivery_status','me','schedule','teams_list','pages_list','panels_list','participations_list','observations_list','judging_audit','tracker','categories_list','items_list') then
    execute format('grant execute on function private.%I(%s) to authenticated',f.proname,f.args);
   end if;
  end loop;

@@ -26,6 +26,7 @@ export function ObservationEditor({
   const [, render] = useState(0)
   const [confirm, setConfirm] = useState<'discard' | 'delete' | null>(null)
   const [error, setError] = useState('')
+  const [reviewed, setReviewed] = useState<Observation | null | undefined>(undefined)
   const update = () => {
     render((value) => value + 1)
     onDirtyChange?.(draft.dirty)
@@ -44,6 +45,7 @@ export function ObservationEditor({
     const saved = await pending
     update()
     if (saved) {
+      setReviewed(undefined)
       try {
         await onSaved()
       } catch {
@@ -56,7 +58,9 @@ export function ObservationEditor({
       const current = await api.get<Observation[]>(
         `/judging/teams/${teamId}/observations`,
       )
-      draft.reconcile(current.find((o) => o.authorId === user?.id))
+      const saved = current.find((o) => o.authorId === user?.id)
+      setReviewed(saved ?? null)
+      draft.reconcile(saved)
       update()
       await onSaved()
     } catch {
@@ -93,6 +97,14 @@ export function ObservationEditor({
             <Notice text="Observations can only be changed by their author while this team is active and pending in their current panel." />
           )}
           {(draft.error || error) && <Notice error text={draft.error || error} />}
+          {reviewed !== undefined && (
+            <Card title="Current saved observation">
+              <Body>
+                {reviewed?.text ?? 'Your previous observation has been deleted.'}
+              </Body>
+              <Notice text="Compare this saved record with your draft above. Edit your draft as needed before saving, or discard it to keep the saved record." />
+            </Card>
+          )}
           <View style={layout.row}>
             <Button
               label={

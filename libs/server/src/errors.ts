@@ -4,5 +4,6 @@ export class DomainError extends Error {
 }
 export function fromRpc(error: { message?: string; code?: string }): DomainError {
   const code = Object.keys(errorStatus).find(c => error.message === c || error.message?.startsWith(c + ':')) as ErrorCode | undefined;
-  return new DomainError(code ?? (error.code === '23505' ? 'DUPLICATE' : 'DEPENDENCY_UNAVAILABLE'));
+  const sqlCodes: Record<string, ErrorCode> = { '23505': 'DUPLICATE', '23514': 'VALIDATION_ERROR', '23502': 'VALIDATION_ERROR', '22P02': 'VALIDATION_ERROR', '22007': 'VALIDATION_ERROR', '23503': 'STATE_CONFLICT' };
+  return new DomainError(code ?? sqlCodes[error.code ?? ''] ?? 'DEPENDENCY_UNAVAILABLE');
 }

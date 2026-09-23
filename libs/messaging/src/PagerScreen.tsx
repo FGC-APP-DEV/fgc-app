@@ -5,6 +5,7 @@ import { useAuth } from '@fgc/auth';
 import { pagerPresets, type Page, type PageSource, type Team } from '@fgc/contracts';
 import { Badge, Body, Button, Card, Field, Heading, Loading, Notice, Screen, layout } from '@fgc/ui';
 
+const deliveryLabels: Record<string, string> = { scheduled: 'Scheduled', queued: 'Push queued', accepted: 'Accepted by push provider — device delivery unconfirmed', failed: 'Push failed — message remains in the team pager', cancelled: 'Push cancelled', responded: 'Team responded', no_devices: 'No registered push device — available in team pager' };
 export function PagerScreen({ source, initialTeamId, onBack }: { source: PageSource; initialTeamId?: string; onBack: () => void }) {
   const { api } = useAuth(); const [teams, setTeams] = useState<Team[]>([]); const [pages, setPages] = useState<Page[]>([]);
   const [teamId, setTeam] = useState(initialTeamId ?? ''); const [search, setSearch] = useState(''); const [message, setMessage] = useState(''); const [minutes, setMinutes] = useState(0);
@@ -23,6 +24,6 @@ export function PagerScreen({ source, initialTeamId, onBack }: { source: PageSou
       <Field label="Message (500 characters maximum)" multiline maxLength={500} value={message} onChangeText={v => edit(() => setMessage(v))} />
       <View style={layout.row}>{[0, source === 'judges' ? 15 : 10, 30, 60].map(offset => <Button key={offset} label={offset ? `In ${offset} min` : 'Send now'} variant={minutes === offset ? 'primary' : 'secondary'} onPress={() => edit(() => setMinutes(offset))} />)}</View>
       <Button label={busy ? 'Sending…' : 'Send message'} disabled={busy || !teamId || !message.trim()} onPress={() => void submit()} />
-    </Card><Heading>Message history</Heading><Button label="Refresh messages" variant="secondary" onPress={() => void load()} />{!loaded ? <Loading /> : !pages.length ? <Notice text="No messages yet." /> : pages.map(page => <Card key={page.id} title={teams.find(t => t.id === page.teamId)?.name ?? 'Team'}><Body>{page.message}</Body><Badge label={page.response ?? (page.scheduledFor && Date.parse(page.scheduledFor) > Date.now() ? 'Scheduled' : 'Awaiting response')} /><Body>{page.response ? `Responded ${new Date(page.respondedAt ?? page.createdAt).toLocaleString()}` : `Available ${new Date(page.scheduledFor ?? page.createdAt).toLocaleString()}`}</Body></Card>)}
+    </Card><Heading>Message history</Heading><Button label="Refresh messages" variant="secondary" onPress={() => void load()} />{!loaded ? <Loading /> : !pages.length ? <Notice text="No messages yet." /> : pages.map(page => <Card key={page.id} title={teams.find(t => t.id === page.teamId)?.name ?? 'Team'}><Body>{page.message}</Body><Badge label={page.response ?? (page.scheduledFor && Date.parse(page.scheduledFor) > Date.now() ? 'Scheduled' : 'Awaiting response')} />{page.deliveryStatus && <Body>{deliveryLabels[page.deliveryStatus] ?? 'Push status unavailable'}</Body>}<Body>{page.response ? `Responded ${new Date(page.respondedAt ?? page.createdAt).toLocaleString()}` : `Available ${new Date(page.scheduledFor ?? page.createdAt).toLocaleString()}`}</Body></Card>)}
   </Screen>;
 }

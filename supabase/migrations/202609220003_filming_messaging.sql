@@ -71,6 +71,7 @@ create function api.mentor_respond(p_token_hash text,p_input jsonb,p_key uuid) r
  update private.deliveries set status='cancelled',lease_until=null where page_id=pg.id and status in ('queued','leased');
  -- Mentor is not a core user: receipt belongs to cycle but no staff audit entry.
  r:=jsonb_build_object('commandId',p_key,'entityId',pg.id,'resultingVersion',pg.version+1,'outcome','updated','committedAt',now());
- insert into private.receipts values(s.id,'mentor_respond',p_key,encode(sha256(convert_to(p_input::text,'UTF8')),'hex'),r,pg.cycle_id);return r;end $$;
+ insert into private.receipts(actor_id,operation,key,payload_hash,result,cycle_id) values(s.id,'mentor_respond',p_key,encode(sha256(convert_to(p_input::text,'UTF8')),'hex'),r,pg.cycle_id);return r;end $$;
 commit;
+
 

@@ -4,8 +4,9 @@
   "sourceRoot": "apps/fgc-mobile/src",
   "projectType": "application",
   "tags": [
-    "scope:app",
-    "type:mobile"
+    "scope:fgc-mobile",
+    "platform:client",
+    "type:app"
   ],
   "targets": {
     "start": {

@@ -4,7 +4,8 @@
   "sourceRoot": "libs/ui/src",
   "projectType": "library",
   "tags": [
-    "scope:shared",
+    "scope:ui",
+    "platform:client",
     "type:ui"
   ],
   "targets": {
@@ -23,7 +24,7 @@
       ],
       "options": {
         "jestConfig": "jest.config.js",
-        "passWithNoTests": true
+        "passWithNoTests": false
       }
     },
     "typecheck": {

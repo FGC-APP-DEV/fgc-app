@@ -4,7 +4,8 @@
   "sourceRoot": "libs/database/src",
   "projectType": "library",
   "tags": [
-    "scope:shared",
+    "scope:database",
+    "platform:server",
     "type:data-access"
   ],
   "targets": {
@@ -12,7 +13,7 @@
       "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": [
-          "libs/database/**/*.ts"
+          "libs/database/**/*.{ts,tsx}"
         ]
       }
     },

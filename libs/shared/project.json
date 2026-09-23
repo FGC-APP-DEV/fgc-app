@@ -5,14 +5,15 @@
   "projectType": "library",
   "tags": [
     "scope:shared",
-    "type:util"
+    "platform:shared",
+    "type:domain"
   ],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": [
-          "libs/shared/**/*.ts"
+          "libs/shared/**/*.{ts,tsx}"
         ]
       }
     },

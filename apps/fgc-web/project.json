@@ -4,8 +4,9 @@
   "sourceRoot": "apps/fgc-web/src",
   "projectType": "application",
   "tags": [
-    "scope:app",
-    "type:web"
+    "scope:fgc-web",
+    "platform:client",
+    "type:app"
   ],
   "targets": {
     "build": {
