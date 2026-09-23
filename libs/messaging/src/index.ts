@@ -1,1 +1,1 @@
-export * from './PagerScreen';
+export * from './PagerScreen'

@@ -1,1 +1,1 @@
-export * from './AdminScreen';
+export * from './AdminScreen'

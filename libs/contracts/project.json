@@ -3,11 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/contracts/src",
   "projectType": "library",
-  "tags": [
-    "scope:contracts",
-    "platform:shared",
-    "type:domain"
-  ],
+  "tags": ["scope:contracts", "platform:shared", "type:domain"],
   "// targets": "to see all targets run: nx show project contracts --web",
   "targets": {
     "test": {
@@ -26,9 +22,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": [
-          "libs/contracts/**/*.{ts,tsx}"
-        ]
+        "lintFilePatterns": ["libs/contracts/**/*.{ts,tsx}"]
       }
     }
   }

@@ -3,11 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/mentor/src",
   "projectType": "library",
-  "tags": [
-    "scope:mentor",
-    "platform:client",
-    "type:domain"
-  ],
+  "tags": ["scope:mentor", "platform:client", "type:domain"],
   "// targets": "to see all targets run: nx show project mentor --web",
   "targets": {
     "typecheck": {
@@ -19,9 +15,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": [
-          "libs/mentor/**/*.{ts,tsx}"
-        ]
+        "lintFilePatterns": ["libs/mentor/**/*.{ts,tsx}"]
       }
     }
   }

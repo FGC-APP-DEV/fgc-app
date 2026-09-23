@@ -3,18 +3,11 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "outDir": "../../dist/out-tsc",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "skipLibCheck": true,
     "strict": true,
     "noImplicitAny": true
   },
-  "include": [
-    "src/index.tsx"
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.spec.tsx"
-  ]
+  "include": ["src/index.tsx"],
+  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"]
 }

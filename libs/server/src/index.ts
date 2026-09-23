@@ -1,2 +1,2 @@
-export * from './http';
-export * from './bootstrap';
+export * from './http'
+export * from './bootstrap'

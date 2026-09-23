@@ -2,15 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "src/index.ts"
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.spec.tsx"
-  ]
+  "include": ["src/index.ts"],
+  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"]
 }

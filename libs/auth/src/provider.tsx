@@ -14,6 +14,7 @@ export interface AuthRuntime {
   publishSession?(session: SessionResult | null): void
   subscribeSession?(callback: (session: SessionResult | null) => void): () => void
   getAuthLink?(): { attemptId: string; tokenHash: string } | null
+  subscribeAuthLink?(callback: () => void): () => void
 }
 interface AuthValue {
   api: ApiClient
@@ -43,6 +44,11 @@ export function AuthProvider({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [installationId, setInstallation] = useState('')
+  const [, setLinkRevision] = useState(0)
+  useEffect(
+    () => runtime.subscribeAuthLink?.(() => setLinkRevision((value) => value + 1)),
+    [runtime],
+  )
   const state = useMemo(() => {
     const value: {
       manager?: SessionManager

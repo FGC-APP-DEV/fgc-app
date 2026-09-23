@@ -1,1 +1,1 @@
-export * from './ScheduleScreen';
+export * from './ScheduleScreen'

@@ -36,7 +36,11 @@ module.exports = {
     modules: [path.resolve(workspaceRoot, 'node_modules'), 'node_modules'],
     alias: {
       'react-native$': 'react-native-web',
-      ...Object.fromEntries(Object.entries(require('../../tsconfig.base.json').compilerOptions.paths).map(([name, files]) => [name, path.resolve(workspaceRoot, files[0])])),
+      ...Object.fromEntries(
+        Object.entries(require('../../tsconfig.base.json').compilerOptions.paths).map(
+          ([name, files]) => [name, path.resolve(workspaceRoot, files[0])],
+        ),
+      ),
       '@fgc/ui': path.resolve(workspaceRoot, 'libs/ui/src/index.ts'),
       '@fgc/auth': path.resolve(workspaceRoot, 'libs/auth/src/index.ts'),
       '@fgc/judging': path.resolve(workspaceRoot, 'libs/judging/src/index.ts'),
@@ -74,8 +78,13 @@ module.exports = {
     historyApiFallback: true,
     port: 3000,
     hot: true,
-    proxy: [{ context: ['/api', '/health'], target: 'http://localhost:4000', changeOrigin: false }],
+    proxy: [
+      {
+        context: ['/api', '/health'],
+        target: 'http://localhost:4000',
+        changeOrigin: false,
+      },
+    ],
     allowedHosts: ['.docker.internal', 'localhost', '.localhost'],
   },
 }
-

@@ -15,28 +15,17 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": [
-    "@typescript-eslint",
-    "security",
-    "@nx"
-  ],
+  "plugins": ["@typescript-eslint", "security", "@nx"],
   "rules": {
     "prefer-const": "error",
     "no-var": "error",
     "no-console": [
       "warn",
       {
-        "allow": [
-          "warn",
-          "error",
-          "log"
-        ]
+        "allow": ["warn", "error", "log"]
       }
     ],
-    "eqeqeq": [
-      "error",
-      "always"
-    ],
+    "eqeqeq": ["error", "always"],
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {
@@ -51,22 +40,12 @@
         "depConstraints": [
           {
             "sourceTag": "platform:client",
-            "onlyDependOnLibsWithTags": [
-              "platform:client",
-              "platform:shared"
-            ],
-            "bannedExternalImports": [
-              "@supabase/*",
-              "express",
-              "exceljs",
-              "node:*"
-            ]
+            "onlyDependOnLibsWithTags": ["platform:client", "platform:shared"],
+            "bannedExternalImports": ["@supabase/*", "express", "exceljs", "node:*"]
           },
           {
             "sourceTag": "platform:shared",
-            "onlyDependOnLibsWithTags": [
-              "platform:shared"
-            ],
+            "onlyDependOnLibsWithTags": ["platform:shared"],
             "bannedExternalImports": [
               "react",
               "react-native",
@@ -77,22 +56,15 @@
           },
           {
             "sourceTag": "scope:shared",
-            "onlyDependOnLibsWithTags": [
-              "scope:__none__"
-            ]
+            "onlyDependOnLibsWithTags": ["scope:__none__"]
           },
           {
             "sourceTag": "scope:contracts",
-            "onlyDependOnLibsWithTags": [
-              "scope:shared"
-            ]
+            "onlyDependOnLibsWithTags": ["scope:shared"]
           },
           {
             "sourceTag": "scope:api-client",
-            "onlyDependOnLibsWithTags": [
-              "scope:contracts",
-              "scope:shared"
-            ]
+            "onlyDependOnLibsWithTags": ["scope:contracts", "scope:shared"]
           },
           {
             "sourceTag": "scope:auth",
@@ -104,16 +76,11 @@
           },
           {
             "sourceTag": "scope:ui",
-            "onlyDependOnLibsWithTags": [
-              "scope:shared"
-            ]
+            "onlyDependOnLibsWithTags": ["scope:shared"]
           },
           {
             "sourceTag": "scope:database",
-            "onlyDependOnLibsWithTags": [
-              "scope:contracts",
-              "scope:shared"
-            ]
+            "onlyDependOnLibsWithTags": ["scope:contracts", "scope:shared"]
           },
           {
             "sourceTag": "scope:server",
@@ -125,10 +92,7 @@
           },
           {
             "sourceTag": "scope:notifications",
-            "onlyDependOnLibsWithTags": [
-              "scope:contracts",
-              "scope:shared"
-            ]
+            "onlyDependOnLibsWithTags": ["scope:contracts", "scope:shared"]
           },
           {
             "sourceTag": "scope:judging",
@@ -199,6 +163,14 @@
               "scope:contracts",
               "scope:shared"
             ]
+          },
+          {
+            "sourceTag": "scope:fgc-api",
+            "onlyDependOnLibsWithTags": [
+              "scope:server",
+              "scope:contracts",
+              "scope:shared"
+            ]
           }
         ]
       }
@@ -208,9 +180,7 @@
       {
         "patterns": [
           {
-            "group": [
-              "@fgc/*/*"
-            ],
+            "group": ["@fgc/*/*"],
             "message": "Use the public package export, not an internal path."
           }
         ]

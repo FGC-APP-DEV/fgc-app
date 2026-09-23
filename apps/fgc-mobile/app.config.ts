@@ -1,22 +1,25 @@
-import type { ConfigContext, ExpoConfig } from 'expo/config';
+import type { ConfigContext, ExpoConfig } from 'expo/config'
 
 function normalizeDomain(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  return value.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  if (!value) return undefined
+  return value.replace(/^https?:\/\//, '').replace(/\/$/, '')
 }
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const domain = normalizeDomain(process.env.FGC_APP_LINK_DOMAIN);
-  const easProjectId = process.env.FGC_EAS_PROJECT_ID;
+  const domain = normalizeDomain(process.env.FGC_APP_LINK_DOMAIN)
+  const easProjectId = process.env.FGC_EAS_PROJECT_ID
   const plugins: NonNullable<ExpoConfig['plugins']> = [
-    ['expo-secure-store', {
-      configureAndroidBackup: true,
-      faceIDPermission: 'Allow FGC to protect your signed-in session.',
-    }],
+    [
+      'expo-secure-store',
+      {
+        configureAndroidBackup: true,
+        faceIDPermission: 'Allow FGC to protect your signed-in session.',
+      },
+    ],
     ['expo-notifications', { defaultChannel: 'pager' }],
-  ];
+  ]
   if (process.env.FGC_ENABLE_IOS_SCENE_SUPPORT === 'true') {
-    plugins.push(['expo-build-properties', { ios: { enableSceneSupport: true } }]);
+    plugins.push(['expo-build-properties', { ios: { enableSceneSupport: true } }])
   }
   return {
     ...config,
@@ -42,12 +45,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       ...config.android,
       package: process.env.FGC_ANDROID_PACKAGE,
-      intentFilters: domain ? [{
-        action: 'VIEW',
-        autoVerify: true,
-        data: [{ scheme: 'https', host: domain }],
-        category: ['BROWSABLE', 'DEFAULT'],
-      }] : undefined,
+      intentFilters: domain
+        ? [
+            {
+              action: 'VIEW',
+              autoVerify: true,
+              data: [{ scheme: 'https', host: domain }],
+              category: ['BROWSABLE', 'DEFAULT'],
+            },
+          ]
+        : undefined,
     },
-  };
-};
+  }
+}

@@ -39,7 +39,9 @@ Configure `pg_cron` + `pg_net` in the actual Supabase project to call the
 authenticated internal worker endpoint each minute. Store the endpoint and
 credential in Vault, never in this repository or a cron SQL literal. The worker
 must call `delivery_claim`, then `delivery_authorize` immediately before each
-external send, and `delivery_finish` with the provider result. Only send the
+external send, and `delivery_finish` with the provider result and `p_attempt`
+from the authorization result. Null authorization skips sending and finishing;
+expired or replaced attempts cannot update the current lease. Only send the
 generic title/body and random delivery ID returned by the authorization RPC.
 It must also call `purge_due` and auth cleanup independently of client traffic.
 The network call occurs outside the transaction: an already-authorized push can
@@ -51,3 +53,6 @@ expired read access is not evidence of deletion. Test the deployed scheduler,
 multi-connection races, volume/latency and failure alerts before real use.
 Managed backups, logs and all other copies require a separately verified
 24-hour physical-deletion policy. These migrations do not prove that guarantee.
+
+A nonexecuted provisioning template is available at [operations/scheduler.sql](operations/scheduler.sql). It separates SQL cleanup from the HTTP delivery worker so API downtime does not prevent database cleanup. Validate on synthetic data and configure failure alerts before operational acceptance.
+

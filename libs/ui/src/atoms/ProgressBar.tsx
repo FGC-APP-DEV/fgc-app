@@ -12,7 +12,13 @@ export function ProgressBar({ value, max }: ProgressBarProps) {
   const { colors } = useTheme()
   const pct = useMemo(() => clamp(Math.round((value / max) * 100), 0, 100), [value, max])
   const fillColor =
-    pct >= 80 ? colors.success : pct >= 50 ? colors.accent : pct >= 30 ? colors.warning : colors.danger
+    pct >= 80
+      ? colors.success
+      : pct >= 50
+        ? colors.accent
+        : pct >= 30
+          ? colors.warning
+          : colors.danger
   return (
     <View style={[styles.track, { backgroundColor: colors.border }]}>
       <View style={[styles.fill, { width: `${pct}%`, backgroundColor: fillColor }]} />

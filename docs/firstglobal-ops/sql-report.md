@@ -1,6 +1,6 @@
 # SQL persistence implementation report
 
-Implemented on 2026-09-22 for the approved clean migration. No real database,
+Implemented on 2026-09-22; integration audit verified on 2026-09-23 for the approved clean migration. No real database,
 legacy data, paid service, deployment, push or production deletion was touched.
 
 ## Implemented and verified locally
@@ -45,7 +45,7 @@ node supabase/tests/run-pglite.mjs C:/Users/jvoli/AppData/Local/Temp/fgc-sql-har
 ```
 
 All eight migrations applied to a disposable PostgreSQL/PGlite database,
-including the separately implemented authentication migration. All three SQL suites
+including the separately implemented authentication migration. All four SQL suites
 passed. `domain.sql` verifies admin deny on RPC and tables, direct-write deny,
 leader creation, membership transfer, role-filtered reads, version conflict,
 idempotent replay/payload mismatch, immediate access loss after transfer,
@@ -64,6 +64,26 @@ the same past schedule with a new key is rejected. Revoking the actor's role
 still denies replay. Scheduling validation runs after current authorization and
 receipt lookup, so manual retries remain valid after the scheduled instant.
 
+`contracts.sql` covers pending access approval IDs/versions and pagination,
+editing pending roles before first sign-in, preview column/sheet persistence,
+post-commit imported/existing row statuses, delete receipt outcome, visible
+delivery status, worker attempt fencing, stale-worker rejection without token
+deactivation, 24-hour receipt expiration and cleanup preserving domain data.
+
+The integration audit also aligned nullable flag reasons/withdrawal reasons and
+observation author labels with the client DTOs. Admin reads include pending
+approved emails with stable IDs, so their versions can be supplied when editing
+access before first sign-in. Import reads retain columns/sheets and overlay
+committed result statuses on preview rows. Staff page history now projects
+`deliveryStatus`: scheduled, queued, accepted, failed, cancelled, responded or
+no_devices. Accepted means accepted by the provider, never proof of OS delivery.
+
+Receipts expire after 24 hours, earlier if their Judging cycle is purged.
+An expired receipt still present returns IDEMPOTENCY_EXPIRED; the worker deletes
+expired rows. Once removed, a reused key is no longer detectable, as specified
+by T01. Authorized observation replay is checked before new-write state rules,
+so completion does not erase a prior receipt or permit a new observation.
+
 These are real SQL execution tests with synthetic Auth functions, not tests of
 a real Supabase project, PostgREST, physical retention, push delivery or two
 simultaneously active PostgreSQL connections. Those checks remain unverified.
@@ -76,34 +96,34 @@ Domain exceptions use canonical error messages with SQLSTATE P0001; SQL
 constraint errors must also map to safe 400/409 errors. Responses contain no
 notes. Observation mutation input uses `text`; Filming shot input uses `notes`.
 
-| RPC | Fields in p_input |
-| --- | --- |
-| profile_update | name, expectedVersion |
-| access_grant | email (one per call), roles, mode, expectedVersion |
-| panel_create | name, leaderId, judgeIds |
-| panel_leader | panelId, leaderId, expectedVersion |
-| panel_members | panelId, judgeIds (full replacement), expectedVersion |
-| panel_team | panelId, teamId, expectedVersion (panel) |
-| panel_delete | panelId, expectedVersion |
-| judge_transfer | judgeId, sourcePanelId, targetPanelId, expectedVersion (membership), sourceVersion, targetVersion |
-| participation_add | teamId; optional panelId supported |
-| participation_remove | teamId, expectedVersion (participation) |
-| team_transfer | teamId, sourcePanelId, targetPanelId, expectedVersion (participation), sourceVersion, targetVersion |
-| observation_put / observation_delete | teamId, panelId, expectedVersion; put includes text |
-| evaluation_complete | teamId, expectedVersion, confirmed=true |
-| evaluation_reopen / team_reactivate | teamId, expectedVersion |
-| team_withdraw | teamId, expectedVersion, reason |
-| flag_put / flag_delete | teamId, type (absent/online/other), expectedVersion; put includes reason |
-| closure_intent | expectedVersion (cycle), confirmed=true; receipt entityId is the short-lived token |
-| judging_close | token, expectedVersion (cycle) |
-| category_create | name; optional description |
-| item_create | categoryId, title |
-| item_toggle / item_delete | itemId, expectedVersion; toggle includes done |
-| shot_mark / shot_clear | teamId, templateId, expectedVersion; mark includes status and notes |
-| page_create | teamId, sourceArea, message, optional scheduledFor |
-| mentor_code_issue | teamId, expectedVersion, digest (server HMAC); replay returns SECRET_ALREADY_ISSUED |
-| import_preview | inputHash, rows (normalized preview) |
-| import_row_commit | previewId, row, expectedVersion |
+| RPC                                  | Fields in p_input                                                                                   |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| profile_update                       | name, expectedVersion                                                                               |
+| access_grant                         | email (one per call), roles, mode, expectedVersion                                                  |
+| panel_create                         | name, leaderId, judgeIds                                                                            |
+| panel_leader                         | panelId, leaderId, expectedVersion                                                                  |
+| panel_members                        | panelId, judgeIds (full replacement), expectedVersion                                               |
+| panel_team                           | panelId, teamId, expectedVersion (panel)                                                            |
+| panel_delete                         | panelId, expectedVersion                                                                            |
+| judge_transfer                       | judgeId, sourcePanelId, targetPanelId, expectedVersion (membership), sourceVersion, targetVersion   |
+| participation_add                    | teamId; optional panelId supported                                                                  |
+| participation_remove                 | teamId, expectedVersion (participation)                                                             |
+| team_transfer                        | teamId, sourcePanelId, targetPanelId, expectedVersion (participation), sourceVersion, targetVersion |
+| observation_put / observation_delete | teamId, panelId, expectedVersion; put includes text                                                 |
+| evaluation_complete                  | teamId, expectedVersion, confirmed=true                                                             |
+| evaluation_reopen / team_reactivate  | teamId, expectedVersion                                                                             |
+| team_withdraw                        | teamId, expectedVersion, reason                                                                     |
+| flag_put / flag_delete               | teamId, type (absent/online/other), expectedVersion; put includes reason                            |
+| closure_intent                       | expectedVersion (cycle), confirmed=true; receipt entityId is the short-lived token                  |
+| judging_close                        | token, expectedVersion (cycle)                                                                      |
+| category_create                      | name; optional description                                                                          |
+| item_create                          | categoryId, title                                                                                   |
+| item_toggle / item_delete            | itemId, expectedVersion; toggle includes done                                                       |
+| shot_mark / shot_clear               | teamId, templateId, expectedVersion; mark includes status and notes                                 |
+| page_create                          | teamId, sourceArea, message, optional scheduledFor                                                  |
+| mentor_code_issue                    | teamId, expectedVersion, digest (server HMAC); replay returns SECRET_ALREADY_ISSUED                 |
+| import_preview                       | inputHash, rows (normalized preview)                                                                |
+| import_row_commit                    | previewId, row, expectedVersion                                                                     |
 
 `me()`, `schedule()`, `judging_cycle()`, `judging_audit()` and
 `mentor_codes_list()` are unpaged staff reads. `teams_list`, `users_list`,
@@ -133,16 +153,21 @@ Service-only functions:
 - `mentor_device_put(p_token_hash,p_input)` takes installationId/token/platform/
   permission (granted/denied); `mentor_device_delete(p_token_hash,p_installation_id)`.
 - `delivery_claim(p_limit)` returns claimed delivery UUIDs, 60-second leases.
-- `delivery_authorize(p_id)` returns `{deliveryId,token,title,body}` or null.
-- `delivery_finish(p_id,p_accepted,p_invalid_token=false)` records provider result.
+- `delivery_authorize(p_id)` returns `{deliveryId,attempt,token,title,body}` or null.
+- `delivery_finish(p_id,p_accepted,p_invalid_token=false,p_attempt=null)` records
+  provider result only for the matching, unexpired lease attempt. Worker must
+  pass the attempt from authorization; null authorization skips finish. A stale
+  attempt cannot overwrite the current lease or disable its push token.
 - `purge_due()` performs eligible deletion and expired-preview cleanup.
 - `staff_auth_*` functions are described by the authentication implementer.
 
 ## Integration/operational follow-up
 
-The HTTP closure-intent response must expose receipt.entityId as `token` if its
-UI expects a token field. Removal route currently maps :id to teamId; callers
-must send the official internal team UUID, not the participation UUID.
+The current Judging UI correctly uses closure receipt.entityId as the token and
+sends teamId for participation removal. The current worker passes p_attempt
+from authorization and skips null authorization. Root owns safe SQL error-code
+mapping, delivery-status presentation and labeling unverified map positions;
+these cross-layer observations were sent to root rather than edited here.
 Deploy pg_cron/pg_net + Vault and the internal worker endpoint; configure only
 api as an exposed schema. Validate live PostgREST auth/session behavior,
 multi-connection races and volume. Confirm physical deletion across managed

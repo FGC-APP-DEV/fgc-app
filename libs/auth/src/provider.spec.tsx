@@ -39,6 +39,7 @@ function Consumer() {
     <>
       {auth.user ? <Draft /> : <p>Login</p>}
       <span>{auth.error}</span>
+      {auth.hasAuthLink && <button>Confirm email sign-in</button>}
     </>
   )
 }
@@ -71,7 +72,7 @@ afterEach(async () => {
   node.remove()
   jest.useRealTimers()
 })
-async function mount() {
+async function mount(overrides: Partial<AuthRuntime> = {}) {
   const runtime: AuthRuntime = {
     platform: 'web',
     baseUrl: 'https://fgc.test',
@@ -86,6 +87,7 @@ async function mount() {
       resume = callback
       return () => undefined
     },
+    ...overrides,
   }
   await act(async () => {
     root.render(
@@ -95,6 +97,28 @@ async function mount() {
     )
   })
 }
+test('a warm native callback exposes confirmation without requiring an AppState change', async () => {
+  let link: { attemptId: string; tokenHash: string } | null = null
+  let notify = () => undefined
+  mockRefreshError = new ApiError('UNAUTHENTICATED', 'No session', 401)
+  await mount({
+    platform: 'mobile',
+    getAuthLink: () => link,
+    subscribeAuthLink: (callback) => {
+      notify = callback
+      return () => undefined
+    },
+  })
+  expect(node.textContent).toContain('Login')
+  expect(node.textContent).not.toContain('Confirm email sign-in')
+  const calls = mockPost.mock.calls.length
+  await act(async () => {
+    link = { attemptId: 'attempt', tokenHash: 'temporary-proof' }
+    notify()
+  })
+  expect(node.textContent).toContain('Confirm email sign-in')
+  expect(mockPost).toHaveBeenCalledTimes(calls)
+})
 test('periodic renewal preserves mounted draft on temporary failure and renews without replaying writes', async () => {
   await mount()
   expect(node.textContent).toContain('unsaved observation')

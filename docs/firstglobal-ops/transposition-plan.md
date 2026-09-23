@@ -8,21 +8,21 @@ the end. No production migration, deletion, publishing or paid services.
 ## Execution ledger
 
 - [ ] 1. Contracts and workspace: typed REST schemas, client, Nx package boundaries,
-  meaningful test targets. Verify envelopes, validation and failed requests.
+     meaningful test targets. Verify envelopes, validation and failed requests.
 - [ ] 2. SQL persistence: isolated schemas, RLS and transactional commands for
-  identity, teams, Filming, Judging, pager, mentor and closure. Verify role
-  denials, versions, replay, transfers, expiry and first-response races.
+     identity, teams, Filming, Judging, pager, mentor and closure. Verify role
+     denials, versions, replay, transfers, expiry and first-response races.
 - [ ] 3. Server: Supabase identity/session adapters, REST composition and domain
-  operations; remove demo authentication and public GraphQL. Verify API behavior
-  with synthetic fixtures; real SQL checks must be distinguished from mocks.
+     operations; remove demo authentication and public GraphQL. Verify API behavior
+     with synthetic fixtures; real SQL checks must be distinguished from mocks.
 - [ ] 4. Clients: authorized launcher, staff/mentor login, admin/imports, Filming,
-  Judging, messaging, mentor and schedule through shared RN UI. Verify errors,
-  unsaved drafts, empty states and role isolation.
+     Judging, messaging, mentor and schedule through shared RN UI. Verify errors,
+     unsaved drafts, empty states and role isolation.
 - [ ] 5. Expo: inspect available SDK matrix; migrate entry/config/Metro, secure
-  storage and notification adapters; preserve web. Validate dependency graph,
-  compile/export, then record device/distribution checks separately.
+     storage and notification adapters; preserve web. Validate dependency graph,
+     compile/export, then record device/distribution checks separately.
 - [ ] 6. Integration: unit, API, browser e2e, typecheck, builds and lint;
-  independent review and final per-M-ID evidence/pending register.
+     independent review and final per-M-ID evidence/pending register.
 
 ## Interfaces and ownership
 

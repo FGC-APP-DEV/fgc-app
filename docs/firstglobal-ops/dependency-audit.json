@@ -1,0 +1,530 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@expo/cli": {
+      "name": "@expo/cli",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@expo/config",
+        "@expo/config-plugins",
+        "@expo/inline-modules",
+        "@expo/metro-config",
+        "@expo/prebuild-config"
+      ],
+      "effects": ["expo"],
+      "range": "<=0.0.0-canary-20231123-1b19f96-4 || >=0.0.1-canary-20231125-d600e44",
+      "nodes": ["node_modules/@expo/cli"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/config": {
+      "name": "@expo/config",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@expo/config-plugins"],
+      "effects": [
+        "@expo/cli",
+        "@expo/local-build-cache-provider",
+        "@expo/metro-config",
+        "@expo/prebuild-config",
+        "expo"
+      ],
+      "range": "<=0.0.1-canary-20240418-8d74597 || >=3.3.23-alpha.0",
+      "nodes": ["node_modules/@expo/config"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/config-plugins": {
+      "name": "@expo/config-plugins",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["xcode"],
+      "effects": [
+        "@expo/cli",
+        "@expo/config",
+        "@expo/inline-modules",
+        "@expo/prebuild-config",
+        "expo"
+      ],
+      "range": "*",
+      "nodes": ["node_modules/@expo/config-plugins"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/inline-modules": {
+      "name": "@expo/inline-modules",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@expo/config-plugins"],
+      "effects": ["@expo/cli"],
+      "range": ">=0.0.2-canary-20260409-6fc2991",
+      "nodes": ["node_modules/@expo/inline-modules"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/local-build-cache-provider": {
+      "name": "@expo/local-build-cache-provider",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@expo/config"],
+      "effects": ["expo"],
+      "range": "*",
+      "nodes": ["node_modules/@expo/local-build-cache-provider"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/metro-config": {
+      "name": "@expo/metro-config",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@expo/config"],
+      "effects": ["@expo/cli", "expo"],
+      "range": "<=0.0.1-canary-20240418-8d74597 || >=0.1.49-alpha.0",
+      "nodes": ["node_modules/@expo/metro-config"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/prebuild-config": {
+      "name": "@expo/prebuild-config",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@expo/config", "@expo/config-plugins"],
+      "effects": ["@expo/cli"],
+      "range": "*",
+      "nodes": ["node_modules/@expo/prebuild-config"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "@nx/eslint": {
+      "name": "@nx/eslint",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["@nx/js"],
+      "effects": [],
+      "range": "22.7.0-beta.0 - 23.1.1 || 23.2.0-beta.0 - 23.2.0-rc.2",
+      "nodes": ["node_modules/@nx/eslint"],
+      "fixAvailable": {
+        "name": "@nx/eslint",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@nx/eslint-plugin": {
+      "name": "@nx/eslint-plugin",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["@nx/js"],
+      "effects": [],
+      "range": "22.7.0-beta.0 - 23.1.1 || 23.2.0-beta.0 - 23.2.0-rc.2",
+      "nodes": ["node_modules/@nx/eslint-plugin"],
+      "fixAvailable": {
+        "name": "@nx/eslint-plugin",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@nx/jest": {
+      "name": "@nx/jest",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["@nx/js"],
+      "effects": [],
+      "range": "22.7.0-beta.0 - 23.1.1 || 23.2.0-beta.0 - 23.2.0-rc.2",
+      "nodes": ["node_modules/@nx/jest"],
+      "fixAvailable": {
+        "name": "@nx/jest",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@nx/js": {
+      "name": "@nx/js",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["@nx/workspace"],
+      "effects": [
+        "@nx/eslint",
+        "@nx/eslint-plugin",
+        "@nx/jest",
+        "@nx/web",
+        "@nx/webpack"
+      ],
+      "range": "22.7.0-beta.0 - 23.1.1 || 23.2.0-beta.0 - 23.2.0-rc.2",
+      "nodes": ["node_modules/@nx/js"],
+      "fixAvailable": {
+        "name": "@nx/js",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@nx/web": {
+      "name": "@nx/web",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["@nx/js"],
+      "effects": [],
+      "range": "22.7.0-beta.0 - 23.1.1 || 23.2.0-beta.0 - 23.2.0-rc.2",
+      "nodes": ["node_modules/@nx/web"],
+      "fixAvailable": {
+        "name": "@nx/web",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@nx/webpack": {
+      "name": "@nx/webpack",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["@nx/js", "less", "webpack-dev-server"],
+      "effects": [],
+      "range": "*",
+      "nodes": ["node_modules/@nx/webpack"],
+      "fixAvailable": {
+        "name": "@nx/webpack",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@nx/workspace": {
+      "name": "@nx/workspace",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["nx"],
+      "effects": ["@nx/js"],
+      "range": "22.7.0-beta.0 - 23.1.1 || 23.2.0-beta.0 - 23.2.0-rc.2",
+      "nodes": ["node_modules/@nx/workspace"],
+      "fixAvailable": {
+        "name": "@nx/workspace",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "brace-expansion": {
+      "name": "brace-expansion",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1130734,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "severity": "high",
+          "cwe": ["CWE-400", "CWE-770"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <5.0.9"
+        }
+      ],
+      "effects": ["nx"],
+      "range": "4.0.0 - 5.0.8",
+      "nodes": ["node_modules/brace-expansion"],
+      "fixAvailable": {
+        "name": "nx",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "exceljs": {
+      "name": "exceljs",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": ["uuid"],
+      "effects": [],
+      "range": ">=3.5.0",
+      "nodes": ["node_modules/exceljs"],
+      "fixAvailable": {
+        "name": "exceljs",
+        "version": "3.4.0",
+        "isSemVerMajor": true
+      }
+    },
+    "expo": {
+      "name": "expo",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@expo/cli",
+        "@expo/config",
+        "@expo/config-plugins",
+        "@expo/local-build-cache-provider",
+        "@expo/metro-config"
+      ],
+      "effects": [],
+      "range": "40.0.0-alpha.0 - 40.0.0-beta.5 || >=41.0.0-alpha.0",
+      "nodes": ["node_modules/expo"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    },
+    "image-size": {
+      "name": "image-size",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1138808,
+          "name": "image-size",
+          "dependency": "image-size",
+          "title": "image-size: ICNS parser allows denial of service through an infinite loop",
+          "url": "https://github.com/advisories/GHSA-w3rx-r6r6-pgpr",
+          "severity": "high",
+          "cwe": ["CWE-835"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=2.0.2"
+        },
+        {
+          "source": 1138809,
+          "name": "image-size",
+          "dependency": "image-size",
+          "title": "image-size: JXL and HEIF parsers allow denial of service through infinite loops",
+          "url": "https://github.com/advisories/GHSA-5p2g-fcmc-qvqq",
+          "severity": "high",
+          "cwe": ["CWE-835"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=2.0.2"
+        }
+      ],
+      "effects": ["less"],
+      "range": "<=2.0.2",
+      "nodes": ["node_modules/image-size"],
+      "fixAvailable": {
+        "name": "@nx/webpack",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "less": {
+      "name": "less",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["image-size"],
+      "effects": ["@nx/webpack"],
+      "range": "2.2.0 - 4.6.7",
+      "nodes": ["node_modules/less"],
+      "fixAvailable": {
+        "name": "@nx/webpack",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "nx": {
+      "name": "nx",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["brace-expansion", "smol-toml"],
+      "effects": ["@nx/workspace"],
+      "range": "22.6.5 - 23.3.0-pr.36958.5270397",
+      "nodes": ["node_modules/nx"],
+      "fixAvailable": {
+        "name": "nx",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "qs": {
+      "name": "qs",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1119502,
+          "name": "qs",
+          "dependency": "qs",
+          "title": "qs has a remotely triggerable DoS: qs.stringify crashes with TypeError on null/undefined entries in comma-format arrays when encodeValuesOnly is set",
+          "url": "https://github.com/advisories/GHSA-q8mj-m7cp-5q26",
+          "severity": "moderate",
+          "cwe": ["CWE-476"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=6.11.1 <=6.15.1"
+        },
+        {
+          "source": 1158506,
+          "name": "qs",
+          "dependency": "qs",
+          "title": "qs array-limit bypass via bracket-key comma parsing",
+          "url": "https://github.com/advisories/GHSA-x5fp-wj9c-mxmx",
+          "severity": "moderate",
+          "cwe": ["CWE-770"],
+          "cvss": {
+            "score": 3.7,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=6.14.2 <=6.15.3"
+        },
+        {
+          "source": 1158507,
+          "name": "qs",
+          "dependency": "qs",
+          "title": "qs: Denial of Service via Attacker Controlled isBuffer",
+          "url": "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+          "severity": "moderate",
+          "cwe": ["CWE-248", "CWE-703"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=2.2.5 <6.16.0"
+        }
+      ],
+      "effects": [],
+      "range": "2.2.5 - 6.15.3",
+      "nodes": ["node_modules/express/node_modules/qs"],
+      "fixAvailable": true
+    },
+    "smol-toml": {
+      "name": "smol-toml",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1193945,
+          "name": "smol-toml",
+          "dependency": "smol-toml",
+          "title": "smol-toml: Denial of Service via malformed TOML documents",
+          "url": "https://github.com/advisories/GHSA-7w5x-hrqm-74c2",
+          "severity": "high",
+          "cwe": ["CWE-606", "CWE-835"],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=1.7.0"
+        }
+      ],
+      "effects": ["nx"],
+      "range": "<=1.7.0",
+      "nodes": ["node_modules/smol-toml"],
+      "fixAvailable": {
+        "name": "nx",
+        "version": "23.2.1",
+        "isSemVerMajor": true
+      }
+    },
+    "sockjs": {
+      "name": "sockjs",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["uuid"],
+      "effects": ["webpack-dev-server"],
+      "range": ">=0.3.17",
+      "nodes": ["node_modules/sockjs"],
+      "fixAvailable": {
+        "name": "webpack-dev-server",
+        "version": "6.0.0",
+        "isSemVerMajor": true
+      }
+    },
+    "uuid": {
+      "name": "uuid",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1119441,
+          "name": "uuid",
+          "dependency": "uuid",
+          "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+          "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+          "severity": "moderate",
+          "cwe": ["CWE-787", "CWE-1285"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": "<11.1.1"
+        }
+      ],
+      "effects": ["exceljs", "sockjs", "xcode"],
+      "range": "<11.1.1",
+      "nodes": ["node_modules/uuid", "node_modules/xcode/node_modules/uuid"],
+      "fixAvailable": {
+        "name": "exceljs",
+        "version": "3.4.0",
+        "isSemVerMajor": true
+      }
+    },
+    "webpack-dev-server": {
+      "name": "webpack-dev-server",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": ["sockjs"],
+      "effects": ["@nx/webpack"],
+      "range": "2.0.0-beta - 5.2.6",
+      "nodes": ["node_modules/webpack-dev-server"],
+      "fixAvailable": {
+        "name": "webpack-dev-server",
+        "version": "6.0.0",
+        "isSemVerMajor": true
+      }
+    },
+    "xcode": {
+      "name": "xcode",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["uuid"],
+      "effects": ["@expo/config-plugins"],
+      "range": ">=0.9.2",
+      "nodes": ["node_modules/xcode"],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "46.0.21",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 14,
+      "high": 12,
+      "critical": 0,
+      "total": 26
+    },
+    "dependencies": {
+      "prod": 747,
+      "dev": 1248,
+      "optional": 139,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 2006
+    }
+  }
+}

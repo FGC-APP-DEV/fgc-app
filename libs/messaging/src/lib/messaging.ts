@@ -1,3 +1,3 @@
 export function messaging(): string {
-  return 'messaging';
+  return 'messaging'
 }

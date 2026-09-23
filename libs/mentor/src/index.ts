@@ -1,1 +1,1 @@
-export * from './MentorScreen';
+export * from './MentorScreen'

@@ -3,11 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/imports/src",
   "projectType": "library",
-  "tags": [
-    "scope:imports",
-    "platform:client",
-    "type:domain"
-  ],
+  "tags": ["scope:imports", "platform:client", "type:domain"],
   "// targets": "to see all targets run: nx show project imports --web",
   "targets": {
     "typecheck": {
@@ -19,9 +15,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": [
-          "libs/imports/**/*.{ts,tsx}"
-        ]
+        "lintFilePatterns": ["libs/imports/**/*.{ts,tsx}"]
       }
     }
   }

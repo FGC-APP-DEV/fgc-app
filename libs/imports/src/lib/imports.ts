@@ -1,3 +1,3 @@
 export function imports(): string {
-  return 'imports';
+  return 'imports'
 }

@@ -3,11 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/filming/src",
   "projectType": "library",
-  "tags": [
-    "scope:filming",
-    "platform:client",
-    "type:domain"
-  ],
+  "tags": ["scope:filming", "platform:client", "type:domain"],
   "// targets": "to see all targets run: nx show project filming --web",
   "targets": {
     "typecheck": {
@@ -19,9 +15,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": [
-          "libs/filming/**/*.{ts,tsx}"
-        ]
+        "lintFilePatterns": ["libs/filming/**/*.{ts,tsx}"]
       }
     }
   }

@@ -3,18 +3,11 @@
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "../../dist/apps/fgc-api",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "skipLibCheck": true,
     "noEmit": false,
     "declaration": false
   },
-  "include": [
-    "src/main.ts"
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.spec.tsx"
-  ]
+  "include": ["src/main.ts"],
+  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"]
 }

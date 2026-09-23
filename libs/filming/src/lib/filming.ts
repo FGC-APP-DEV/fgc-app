@@ -1,3 +1,3 @@
 export function filming(): string {
-  return 'filming';
+  return 'filming'
 }

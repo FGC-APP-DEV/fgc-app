@@ -1,10 +1,10 @@
-export { createNotificationAdapter } from './lib/notifications';
+export { createNotificationAdapter } from './lib/notifications'
 export {
   DeliveryDeduplicator,
   GENERIC_NOTIFICATION_CONTENT,
   NotificationEventDeduplicator,
   notificationCapabilities,
-} from './lib/notifications-core';
+} from './lib/notifications-core'
 export type {
   DeviceRegistrationOptions,
   DeviceRegistrationResult,
@@ -15,4 +15,4 @@ export type {
   NotificationSubscription,
   PushDeviceRegistration,
   RegisterPushDevice,
-} from './lib/notifications-core';
+} from './lib/notifications-core'

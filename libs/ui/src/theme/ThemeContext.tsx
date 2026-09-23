@@ -14,7 +14,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDark, setDark] = useState(true)
   const colors = useMemo(() => (isDark ? darkColors : lightColors), [isDark])
-  const toggle = useCallback(() => setDark(d => !d), [])
+  const toggle = useCallback(() => setDark((d) => !d), [])
   const value = useMemo(
     () => ({ isDark, colors, setDark, toggle }),
     [isDark, colors, toggle],
