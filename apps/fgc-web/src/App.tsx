@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { BackHandler, View } from 'react-native'
+import { BackHandler, View, useWindowDimensions } from 'react-native'
 import { AuthProvider, useAuth } from '@fgc/auth'
 import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
@@ -26,6 +26,7 @@ import {
   Screen,
   layout,
   MockAccounts,
+  WIDE_BREAKPOINT,
   type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
@@ -157,6 +158,7 @@ function Login() {
 }
 function Shell() {
   const auth = useAuth()
+  const wide = useWindowDimensions().width >= WIDE_BREAKPOINT
   const [route, setRoute] = useState<Route>('home')
   const [pageSource, setSource] = useState<PageSource>('filming')
   const [teamId, setTeam] = useState<string>()
@@ -258,7 +260,8 @@ function Shell() {
           </Card>
         </Screen>
       ) : (
-        <>
+        <View style={{ flex: 1, flexDirection: wide ? 'row-reverse' : 'column' }}>
+          <View style={{ flex: 1, minWidth: 0 }}>
           {route === 'home' && (
             <Screen>
               <Heading>Welcome, {auth.user.name}</Heading>
@@ -318,12 +321,14 @@ function Shell() {
               />
             )}
           {route === 'schedule' && caps.schedule && <ScheduleScreen />}
+          </View>
           <BottomNav
+            side={wide}
             items={navItems}
             active={activeNav}
             onSelect={(id) => navigate(id as Route)}
           />
-        </>
+        </View>
       )}
       {pending && (
         <Confirm

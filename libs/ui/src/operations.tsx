@@ -56,8 +56,11 @@ export const elevation = {
     elevation: 8,
   },
 } as const
+/** Window width from which shells switch to the desktop layout (side rail, wider content). */
+export const WIDE_BREAKPOINT = 900
 export const layout = StyleSheet.create({
   screen: { flex: 1, backgroundColor: tokens.background },
+  contentWide: { maxWidth: 1152, padding: 32, gap: 24 },
   content: {
     width: '100%',
     maxWidth: 896,
@@ -388,10 +391,14 @@ export function Loading() {
   )
 }
 export function Screen({ children }: { children: React.ReactNode }) {
+  const { width } = useWindowDimensions()
   return (
     <ScrollView
       style={layout.screen}
-      contentContainerStyle={layout.content}
+      contentContainerStyle={[
+        layout.content,
+        width >= WIDE_BREAKPOINT && layout.contentWide,
+      ]}
       keyboardShouldPersistTaps="handled"
     >
       {children}
@@ -680,25 +687,40 @@ export function BottomNav({
   items,
   active,
   onSelect,
+  side = false,
 }: {
   items: readonly NavItem[]
   active: string
   onSelect: (id: string) => void
+  /** Vertical rail for wide screens instead of the bottom bar. */
+  side?: boolean
 }) {
   return (
     <View
       role="navigation"
       accessibilityLabel="Workspaces"
-      style={{
-        minHeight: 64,
-        backgroundColor: tokens.surface,
-        borderTopWidth: 1,
-        borderColor: tokens.border,
-        paddingHorizontal: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-      }}
+      style={
+        side
+          ? {
+              width: 112,
+              backgroundColor: tokens.surface,
+              borderRightWidth: 1,
+              borderColor: tokens.border,
+              padding: 12,
+              gap: 8,
+              alignItems: 'stretch',
+            }
+          : {
+              minHeight: 64,
+              backgroundColor: tokens.surface,
+              borderTopWidth: 1,
+              borderColor: tokens.border,
+              paddingHorizontal: 8,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+            }
+      }
     >
       {items.map((item) => {
         const on = item.id === active
@@ -713,7 +735,7 @@ export function BottomNav({
             style={({ pressed }) => [
               {
                 minWidth: 72,
-                height: 48,
+                height: side ? 64 : 48,
                 paddingHorizontal: 12,
                 borderRadius: radius.control,
                 alignItems: 'center',
