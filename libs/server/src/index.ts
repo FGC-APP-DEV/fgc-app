@@ -1,2 +1,5 @@
 export * from './http'
 export * from './bootstrap'
+export * from './errors'
+export * from './auth'
+export * from './worker'

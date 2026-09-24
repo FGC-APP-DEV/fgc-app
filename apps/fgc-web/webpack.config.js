@@ -19,6 +19,8 @@ const isProduction = process.env.NODE_ENV === 'production'
 const clientEnv = {
   NODE_ENV: getEnv('NODE_ENV', 'development'),
   API_BASE_URL: '/api/v1',
+  // Set only by `npm run dev:mock`; enables the mock account picker.
+  FGC_MOCK: !isProduction && process.env.FGC_MOCK === '1' ? '1' : '',
 }
 
 module.exports = {
@@ -80,7 +82,7 @@ module.exports = {
     hot: true,
     proxy: [
       {
-        context: ['/api', '/health'],
+        context: ['/api', '/health', '/__mock'],
         target: 'http://localhost:4000',
         changeOrigin: false,
       },

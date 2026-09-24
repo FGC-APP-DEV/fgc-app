@@ -217,7 +217,11 @@ export function AdminScreen({ onImports }: { onImports: () => void }) {
                 label={`${codes.some((c) => c.teamId === team.id) ? 'Regenerate' : 'Issue'} code for ${team.name}`}
                 disabled={busy}
                 variant="secondary"
-                onPress={() => setRegenerate(team)}
+                onPress={() =>
+                  codes.some((c) => c.teamId === team.id)
+                    ? setRegenerate(team)
+                    : void issue(team)
+                }
               />
             </View>
           ))}

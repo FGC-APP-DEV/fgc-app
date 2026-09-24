@@ -8,6 +8,6 @@
     "noEmit": false,
     "declaration": false
   },
-  "include": ["src/main.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "**/*.spec.tsx"]
 }

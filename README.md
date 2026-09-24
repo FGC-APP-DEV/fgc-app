@@ -12,7 +12,8 @@ Canonical product/design decisions live in the parent workspace `contexts/`.
 Use Node >=22.13.0 and run commands from this repository. Install locked packages
 with `npm ci`. Copy `.env.local.example` to `.env.local` and fill provisioned
 server values. The API reads this file; the browser never receives service keys.
-There is no passwordless demo login or local Drizzle database path.
+There is no passwordless demo login or local Drizzle database path. To explore the
+complete app **without any external service**, use the mock environment below.
 
 The new Supabase project must be configured from `supabase/migrations` in order.
 Expose only `api`. Configure Auth email templates/SMTP, active event, initial
@@ -22,12 +23,29 @@ information. Read [SQL report](docs/firstglobal-ops/sql-report.md) and
 Do not use real Judging content until the physical 24-hour retention requirement
 is proven for the database, backups, logs and copies.
 
+## Mock environment (no Supabase, SMTP or devices needed)
+
+```powershell
+npm run dev:mock
+```
+
+Open http://localhost:3000. The mock API (`apps/fgc-api/src/mock`) runs the real
+SQL migrations on in-memory PostgreSQL (PGlite) and the real REST API and auth
+router, seeded with synthetic data: 24 teams, two judging panels, an
+observation, a flag, Filming shots and shot-list items, three mentor codes and
+pending pagers. Only the identity provider is replaced: every account signs in
+with code `123456`, and no email is sent. The login screen shows a **Mock
+accounts** panel for one-tap sign-in (admin, judge advisor, judges, filmmaker,
+mixed-role users, mentor codes). Data resets whenever the process restarts.
+Details and limits: [docs/mock-development.md](docs/mock-development.md).
+
 ## Development and verification
 
 ```powershell
 npm run dev:api
 npm run dev:web
 npm run dev:mobile
+npm run dev:mock
 npm run typecheck
 npm test
 npm run test:e2e
@@ -46,9 +64,10 @@ the Expo environment. `fgc-mobile:start-go` is for compatible UI checks;
 `fgc-mobile:start-dev-client` and installed builds are needed for push and links.
 `fgc-mobile:export` compiles bundles only, without signing or publishing.
 
-Unit/HTTP tests use synthetic data. `fgc-web:e2e` launches a temporary static
-server on 127.0.0.1:3000 and Edge via Playwright, with an intercepted API; it is
-not a real backend acceptance test. The SQL harness executes actual migrations
+Unit/HTTP tests use synthetic data. `fgc-web:e2e` runs two Playwright projects in
+Edge: `contract` (static server on 127.0.0.1:3000, intercepted API) and
+`fullstack` (127.0.0.1:3100: real UI, REST API and SQL on the mock stack). Neither
+is acceptance against real Supabase/SMTP/devices. The SQL harness executes actual migrations
 in disposable PGlite with synthetic Supabase Auth functions. Its invocation and
 limitations are documented in the SQL report.
 

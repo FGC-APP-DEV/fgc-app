@@ -803,6 +803,9 @@ export function JudgingScreen({
           description={confirmation.description}
           onCancel={() => setConfirmation(null)}
           onConfirm={() => {
+            // A confirmation shown by the previous step can appear while that step is
+            // still refreshing; keep it open instead of silently discarding the tap.
+            if (busy) return
             const action = confirmation
             setConfirmation(null)
             void run(action.work)

@@ -28,6 +28,16 @@
       "options": {
         "command": "node supabase/tests/run-pglite.mjs node_modules/@electric-sql/pglite/dist/index.js"
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "jest.config.js",
+        "passWithNoTests": false
+      }
     }
   }
 }

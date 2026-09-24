@@ -35,6 +35,8 @@ export interface ApiConfig {
   authRouter?: Router
   importsRouter?: Router
   workerRouter?: Router
+  /** Development-only routes, mounted at /__mock. Ignored unless `development` is true. */
+  devRouter?: Router
 }
 interface Staff {
   rpc: RpcClient
@@ -148,6 +150,7 @@ export function createApi(config: ApiConfig) {
   if (config.authRouter) app.use('/api/v1/auth', config.authRouter)
   if (config.importsRouter) app.use('/api/v1/imports', config.importsRouter)
   if (config.workerRouter) app.use('/internal', config.workerRouter)
+  if (config.development && config.devRouter) app.use('/__mock', config.devRouter)
   app.post(
     '/api/v1/imports/preview',
     wrap(async (req, res) => {
@@ -436,12 +439,10 @@ export function createApi(config: ApiConfig) {
     }),
   )
   app.use((_, res) =>
-    res
-      .status(404)
-      .json({
-        error: { code: 'NOT_FOUND', message: 'Route not found.' },
-        requestId: res.locals.requestId,
-      }),
+    res.status(404).json({
+      error: { code: 'NOT_FOUND', message: 'Route not found.' },
+      requestId: res.locals.requestId,
+    }),
   )
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const typed =
@@ -452,18 +453,16 @@ export function createApi(config: ApiConfig) {
           : (error as { type?: string })?.type === 'entity.too.large'
             ? new DomainError('PAYLOAD_TOO_LARGE')
             : new DomainError('DEPENDENCY_UNAVAILABLE')
-    res
-      .status(c.errorStatus[typed.code])
-      .json({
-        error: {
-          code: typed.code,
-          message: typed.message,
-          ...(error instanceof ZodError
-            ? { fieldErrors: error.flatten().fieldErrors }
-            : {}),
-        },
-        requestId: res.locals.requestId,
-      })
+    res.status(c.errorStatus[typed.code]).json({
+      error: {
+        code: typed.code,
+        message: typed.message,
+        ...(error instanceof ZodError
+          ? { fieldErrors: error.flatten().fieldErrors }
+          : {}),
+      },
+      requestId: res.locals.requestId,
+    })
   })
   return app
 }

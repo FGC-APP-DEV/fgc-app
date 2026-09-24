@@ -21,6 +21,7 @@ import {
   Notice,
   Screen,
   layout,
+  MockAccounts,
   tokens,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
@@ -30,6 +31,10 @@ import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular'
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold'
 
 type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager' | 'schedule'
+const mockInfoUrl =
+  process.env.EXPO_PUBLIC_FGC_MOCK === '1' && process.env.EXPO_PUBLIC_API_BASE_URL
+    ? process.env.EXPO_PUBLIC_API_BASE_URL.replace(/\/api\/v1\/?$/, '') + '/__mock/info'
+    : undefined
 function Login() {
   const auth = useAuth()
   const [mode, setMode] = useState<'staff' | 'mentor'>('staff')
@@ -47,6 +52,11 @@ function Login() {
       setBusy(false)
     }
   }
+  const quickStaff = (address: string, otp: string) =>
+    void run(async () => {
+      await auth.sendEmail(address)
+      await auth.verify(otp)
+    })
   return (
     <Screen>
       <Heading>FIRST GLOBAL</Heading>
@@ -131,6 +141,12 @@ function Login() {
           </>
         )}
       </Card>
+      <MockAccounts
+        infoUrl={mockInfoUrl}
+        disabled={busy || !auth.installationId}
+        onStaff={quickStaff}
+        onMentor={(value) => void run(() => auth.redeem(value))}
+      />
     </Screen>
   )
 }
