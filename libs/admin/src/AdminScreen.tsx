@@ -1,3 +1,4 @@
+import { sortTeams } from '@fgc/shared'
 import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
@@ -26,6 +27,8 @@ export function AdminScreen({ onImports }: { onImports: () => void }) {
   const [mode, setMode] = useState<'add' | 'replace'>('add')
   const [editing, setEditing] = useState<User | null>(null)
   const [search, setSearch] = useState('')
+  const [userSearch, setUserSearch] = useState('')
+  const [picked, setPicked] = useState<Set<string>>(new Set())
   const [regenerate, setRegenerate] = useState<Team | null>(null)
   const [secret, setSecret] = useState('')
   const [error, setError] = useState('')
@@ -39,7 +42,7 @@ export function AdminScreen({ onImports }: { onImports: () => void }) {
         api.get<typeof codes>('/admin/mentor-codes'),
       ])
       setUsers(allUsers)
-      setTeams(allTeams)
+      setTeams(sortTeams(allTeams, (t) => t))
       setCodes(allCodes)
     } catch (e) {
       setError((e as Error).message)
@@ -48,6 +51,11 @@ export function AdminScreen({ onImports }: { onImports: () => void }) {
   useEffect(() => {
     void load()
   }, [api])
+  const shownUsers = users.filter((u) =>
+    `${u.name ?? ''} ${u.email} ${u.roles.join(' ')}`
+      .toLowerCase()
+      .includes(userSearch.trim().toLowerCase()),
+  )
   const grant = async () => {
     setBusy(true)
     setError('')
@@ -171,26 +179,81 @@ export function AdminScreen({ onImports }: { onImports: () => void }) {
         {result && <Notice text={result} />}
       </Card>
       <Card title="Current users">
-        {users.length ? (
-          users.map((u) => (
+        <Field
+          label="Search users"
+          value={userSearch}
+          onChangeText={setUserSearch}
+          autoCapitalize="none"
+        />
+        {shownUsers.length > 0 && (
+          <View style={layout.row}>
+            <Button
+              label="Select all shown"
+              variant="secondary"
+              onPress={() =>
+                setPicked(new Set([...picked, ...shownUsers.map((u) => u.email)]))
+              }
+            />
+            {picked.size > 0 && (
+              <>
+                <Button
+                  label={`Edit ${picked.size} selected`}
+                  onPress={() => {
+                    setEditing(null)
+                    setEmails([...picked].join(', '))
+                    setRoles([])
+                    setMode('add')
+                    setResult(
+                      'Choose roles and a mode, then save access for the selection.',
+                    )
+                  }}
+                />
+                <Button
+                  label="Clear selection"
+                  variant="secondary"
+                  onPress={() => setPicked(new Set())}
+                />
+              </>
+            )}
+          </View>
+        )}
+        {shownUsers.length ? (
+          shownUsers.map((u) => (
             <View key={u.id} style={layout.stack}>
               <Body>
                 {u.name ?? u.email} · {u.roles.join(', ') || 'No access'}
               </Body>
-              <Button
-                label={`Edit ${u.email}`}
-                variant="secondary"
-                onPress={() => {
-                  setEditing(u)
-                  setEmails(u.email)
-                  setRoles(u.roles)
-                  setMode('replace')
-                }}
-              />
+              <View style={layout.row}>
+                <Button
+                  label={`${picked.has(u.email) ? 'Selected' : 'Select'} ${u.email}`}
+                  variant={picked.has(u.email) ? 'primary' : 'secondary'}
+                  onPress={() => {
+                    const next = new Set(picked)
+                    if (!next.delete(u.email)) next.add(u.email)
+                    setPicked(next)
+                  }}
+                />
+                <Button
+                  label={`Edit ${u.email}`}
+                  variant="secondary"
+                  onPress={() => {
+                    setEditing(u)
+                    setEmails(u.email)
+                    setRoles(u.roles)
+                    setMode('replace')
+                  }}
+                />
+              </View>
             </View>
           ))
         ) : (
-          <Notice text="No users have signed in yet." />
+          <Notice
+            text={
+              users.length
+                ? 'No users match this search.'
+                : 'No users have signed in yet.'
+            }
+          />
         )}
       </Card>
       <Card title="Mentor access codes">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { Category, ShotItem, Tracker, TrackerTeam } from '@fgc/contracts'
-import { CONTINENTS, teamContinent } from '@fgc/shared'
+import { CONTINENTS, countryName, sortTeams, teamContinent } from '@fgc/shared'
 import {
   Badge,
   Body,
@@ -13,6 +13,7 @@ import {
   Heading,
   Loading,
   Notice,
+  ProgressBar,
   Screen,
   TeamMap,
   layout,
@@ -41,6 +42,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   const template = tracker.templates.find((t) => t.name === 'Step & Repeat')
   const shot = (team: TrackerTeam) =>
     team.shots.find((s) => s.templateId === template?.id)
+  const captured = tracker.teams.filter((t) => shot(t)?.status === 'captured').length
   const load = async () => {
     try {
       const all: TrackerTeam[] = []
@@ -58,7 +60,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
         api.list<Category>('/filming/categories'),
         api.list<ShotItem>('/filming/items'),
       ])
-      setTracker({ teams: all, templates })
+      setTracker({ teams: sortTeams(all, (t) => t), templates })
       setCategories(nextCategories)
       setItems(nextItems)
     } catch (e) {
@@ -99,7 +101,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   }
   const filtered = tracker.teams.filter(
     (t) =>
-      `${t.name} ${t.country} ${t.officialId}`
+      `${t.name} ${t.country} ${countryName(t.country)} ${t.officialId}`
         .toLowerCase()
         .includes(search.toLowerCase()) &&
       (status === 'all' || (shot(t)?.status ?? 'pending') === status) &&
@@ -130,9 +132,13 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
         <>
           <Card title="Coverage">
             <Body>
-              {tracker.teams.filter((t) => shot(t)?.status === 'captured').length} of{' '}
-              {tracker.teams.length} teams captured
+              {captured} of {tracker.teams.length} teams captured
             </Body>
+            <ProgressBar
+              value={captured}
+              max={tracker.teams.length}
+              label="Teams captured"
+            />
             <View style={layout.row}>
               {['all', 'pending', 'captured', 'skipped'].map((value) => (
                 <Button

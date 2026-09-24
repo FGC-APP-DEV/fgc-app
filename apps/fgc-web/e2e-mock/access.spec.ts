@@ -49,3 +49,26 @@ test('the official schedule link is shown when configured', async ({ page }) => 
   await signIn(page, 'film@fgc.test', 'Fran Filmmaker')
   await expect(page.getByText('Official schedule')).toBeVisible()
 })
+
+test('an administrator searches users and replaces the roles of a selection in one save', async ({
+  page,
+}) => {
+  await signIn(page, 'admin@fgc.test')
+  await page.getByRole('button', { name: 'Open administration' }).click()
+  await page
+    .getByRole('textbox', { name: 'Email addresses (comma or line separated)' })
+    .fill('bulk1@fgc.test, bulk2@fgc.test')
+  await page.getByRole('button', { name: 'filmmaker', exact: true }).click()
+  await page.getByRole('button', { name: 'Save access', exact: true }).click()
+  await expect(page.getByText('bulk1@fgc.test · filmmaker')).toBeVisible()
+
+  await page.getByRole('textbox', { name: 'Search users' }).fill('bulk')
+  await expect(page.getByText('ja@fgc.test')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Select all shown' }).click()
+  await page.getByRole('button', { name: 'Edit 2 selected' }).click()
+  await page.getByRole('button', { name: 'Replace roles', exact: true }).click()
+  await page.getByRole('button', { name: 'judge', exact: true }).click()
+  await page.getByRole('button', { name: 'Save access', exact: true }).click()
+  await expect(page.getByText('bulk1@fgc.test · judge', { exact: true })).toBeVisible()
+  await expect(page.getByText('bulk2@fgc.test · judge', { exact: true })).toBeVisible()
+})

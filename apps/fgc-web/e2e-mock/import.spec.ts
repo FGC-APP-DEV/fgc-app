@@ -44,3 +44,29 @@ test('re-importing an existing team never overwrites it', async ({ page }) => {
   await expect(page.getByText('Team Brazil', { exact: true })).toBeVisible()
   await expect(page.getByText('Renamed Brazil')).toHaveCount(0)
 })
+
+test('more than one page of teams stays complete and sorted by name in Filming', async ({
+  page,
+}) => {
+  const rows = Array.from(
+    { length: 120 },
+    (_, i) =>
+      `A${String(i + 1).padStart(3, '0')},Aardvark Robotics ${String(i + 1).padStart(3, '0')},BR`,
+  )
+  await openImport(page, `id,name,country\n${rows.join('\n')}\n`)
+  await page
+    .getByRole('button', { name: 'Confirm and import valid rows', exact: true })
+    .click()
+  await expect(page.getByText(/Row 120: imported/)).toBeVisible({ timeout: 60_000 })
+  await page.getByRole('button', { name: 'Home', exact: true }).click()
+  await page.getByRole('button', { name: 'Open filming' }).click()
+  const coverage = page.getByText(/^\d+ of \d+ teams captured$/)
+  await expect(coverage).not.toHaveText(/of 0 teams/)
+  const total = Number(/of (\d+)/.exec(await coverage.innerText())?.[1])
+  expect(total).toBeGreaterThanOrEqual(144)
+  const first = page.getByRole('heading').filter({ hasText: ' · ' }).first()
+  await expect(first).toHaveText('A001 · Aardvark Robotics 001')
+  // Country names are searchable, not only the ISO code stored on the team.
+  await page.getByRole('textbox', { name: 'Search teams or shots' }).fill('Brazil')
+  await expect(page.getByText('A001 · Aardvark Robotics 001')).toBeVisible()
+})

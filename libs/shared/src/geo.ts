@@ -290,3 +290,14 @@ const FGC_CODE_OVERRIDES: Record<string, Continent> = {
 export function teamContinent(country: string, countryCode: string): Continent | null {
   return countryCodeToContinent(countryCode) ?? FGC_CODE_OVERRIDES[country] ?? null
 }
+
+/** English country name for an ISO code (search only); falls back to the code where Intl lacks data. */
+export function countryName(code: string): string {
+  try {
+    return (
+      new Intl.DisplayNames(['en'], { type: 'region' }).of(code.toUpperCase()) ?? code
+    )
+  } catch {
+    return code
+  }
+}

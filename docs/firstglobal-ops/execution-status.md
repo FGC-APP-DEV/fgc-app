@@ -3,6 +3,14 @@
 Updated 2026-09-22. **In progress; not production ready and not fully accepted.**
 Approved scope: workspace `contexts/fgc-mvp/migracao-escopo-paridade.md` and D01–D74/T01–T05. Design: workspace `contexts/design-system.md`.
 
+## Update 2026-09-23 (phases 1–3)
+
+- Repository cleanup, a complete **mock development environment** (`npm run dev:mock`, see
+  `docs/mock-development.md`), 22 full-stack browser tests in addition to the 8 contract
+  tests, and a per-function parity audit with fixes: `parity-audit.md`.
+- Still unverified: everything that needs real Supabase, SMTP, hosting, devices or store
+  accounts. The mock does not change that.
+
 ## Implemented
 
 - Shared REST contracts, versioned/idempotent commands and per-request Supabase identity.

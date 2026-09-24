@@ -12,6 +12,7 @@ import { ScheduleScreen } from '@fgc/schedule'
 import {
   Body,
   Button,
+  AppHeader,
   Card,
   Confirm,
   Field,
@@ -21,7 +22,6 @@ import {
   Screen,
   layout,
   MockAccounts,
-  tokens,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 
@@ -195,25 +195,7 @@ function Shell() {
   }
   return (
     <View style={layout.screen}>
-      <View
-        style={{
-          minHeight: 64,
-          backgroundColor: tokens.surface,
-          borderBottomWidth: 1,
-          borderColor: tokens.border,
-          padding: 12,
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <Body>FIRST GLOBAL · Operations</Body>
-        </View>
-        <Button label="Home" variant="secondary" onPress={() => navigate('home')} />
-        <Button label="Sign out" variant="secondary" onPress={logout} />
-      </View>
+      <AppHeader onHome={() => navigate('home')} onSignOut={logout} />
       {error && <Notice text={error} error />}
       {auth.mentor ? (
         <MentorScreen />

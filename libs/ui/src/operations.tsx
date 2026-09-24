@@ -197,7 +197,45 @@ export function Notice({ text, error = false }: { text: string; error?: boolean 
     </View>
   )
 }
-export function Badge({ label }: { label: string }) {
+type Tone = 'neutral' | 'success' | 'warning' | 'danger'
+// Text colours are darkened variants of the state tokens: the raw success/warning/danger
+// fills do not reach 4.5:1 as small text (design-system.md, section 12).
+const neutralTone = { fill: tokens.surfaceLow, text: tokens.primaryContainer }
+function toneColors(tone: Tone) {
+  switch (tone) {
+    case 'success':
+      return { fill: '#22C55E1A', text: '#166534' }
+    case 'warning':
+      return { fill: '#F59E0B1A', text: '#92400E' }
+    case 'danger':
+      return { fill: '#EF44441A', text: '#B91C1C' }
+    default:
+      return neutralTone
+  }
+}
+const toneByLabel = new Map<string, Tone>([
+  ['captured', 'success'],
+  ['complete', 'success'],
+  ['evaluated', 'success'],
+  ['active', 'success'],
+  ['responded', 'success'],
+  ['accepted', 'success'],
+  ['skipped', 'warning'],
+  ['absent', 'warning'],
+  ['online', 'warning'],
+  ['other', 'warning'],
+  ['withdrawn', 'warning'],
+  ['scheduled', 'warning'],
+  ['queued', 'warning'],
+  ['failed', 'danger'],
+  ['cancelled', 'danger'],
+  ['no_devices', 'danger'],
+])
+/** Compact status badge; the tone follows the domain state unless overridden. */
+export function Badge({ label, tone }: { label: string; tone?: Tone }) {
+  const { fill, text } = toneColors(
+    tone ?? toneByLabel.get(label.toLowerCase()) ?? 'neutral',
+  )
   return (
     <View
       style={{
@@ -205,18 +243,19 @@ export function Badge({ label }: { label: string }) {
         borderRadius: 8,
         paddingHorizontal: 10,
         paddingVertical: 5,
-        backgroundColor: tokens.surfaceLow,
+        backgroundColor: fill,
       }}
     >
-      <Text style={{ color: tokens.primaryContainer, fontWeight: '700', fontSize: 12 }}>
-        {label}
-      </Text>
+      <Text style={{ color: text, fontWeight: '700', fontSize: 12 }}>{label}</Text>
     </View>
   )
 }
 export function Loading() {
   return (
-    <View accessibilityLabel="Loading" style={{ padding: 24 }}>
+    <View
+      accessibilityLabel="Loading"
+      style={{ padding: 24, alignItems: 'center', gap: 8 }}
+    >
       <ActivityIndicator color={tokens.secondary} />
       <Text style={layout.muted}>Loading…</Text>
     </View>
@@ -268,5 +307,94 @@ export function Confirm({
         </View>
       </View>
     </Modal>
+  )
+}
+
+/** Top bar shared by the web and native shells: 64 px, surface fill, hairline border. */
+export function AppHeader({
+  onHome,
+  onSignOut,
+}: {
+  onHome: () => void
+  onSignOut: () => void
+}) {
+  return (
+    <View
+      style={{
+        minHeight: 64,
+        backgroundColor: tokens.surface,
+        borderBottomWidth: 1,
+        borderColor: tokens.border,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 12,
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 1 },
+        elevation: 2,
+      }}
+    >
+      <View style={{ flex: 1, minWidth: 140 }}>
+        <Text
+          accessibilityRole="header"
+          style={{
+            fontFamily: 'InterBold',
+            fontWeight: '700',
+            fontSize: 18,
+            color: tokens.primary,
+          }}
+        >
+          FIRST GLOBAL
+        </Text>
+        <Text
+          style={{
+            fontFamily: 'Inter',
+            fontSize: 11,
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+            color: tokens.outline,
+          }}
+        >
+          Operations
+        </Text>
+      </View>
+      <Button label="Home" variant="secondary" onPress={onHome} />
+      <Button label="Sign out" variant="secondary" onPress={onSignOut} />
+    </View>
+  )
+}
+
+/** Progress track (surface-container-high) with a primary fill, exposed as a progressbar. */
+export function ProgressBar({
+  value,
+  max,
+  label,
+}: {
+  value: number
+  max: number
+  label: string
+}) {
+  const percent =
+    max > 0 ? Math.min(100, Math.max(0, Math.round((value / max) * 100))) : 0
+  return (
+    <View
+      accessibilityRole="progressbar"
+      accessibilityLabel={label}
+      accessibilityValue={{ min: 0, max: 100, now: percent }}
+      style={{
+        height: 16,
+        borderRadius: 8,
+        backgroundColor: tokens.surfaceHigh,
+        overflow: 'hidden',
+      }}
+    >
+      <View
+        style={{ width: `${percent}%`, height: '100%', backgroundColor: tokens.primary }}
+      />
+    </View>
   )
 }

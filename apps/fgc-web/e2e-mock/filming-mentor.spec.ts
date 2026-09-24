@@ -26,6 +26,11 @@ test('filmmaker captures a shot, an admin issues a mentor code, the mentor answe
   await film.getByRole('button', { name: 'Page Team Ghana', exact: true }).click()
   await film.getByRole('textbox', { name: /Message/ }).fill('Please come to the booth.')
   await film.getByRole('button', { name: 'Send message' }).click()
+  await expect(film.getByText('Please come to the booth.').first()).toBeVisible()
+  await film.getByRole('textbox', { name: 'Filter messages by team' }).fill('Kenya')
+  await expect(film.getByText('Please come to the booth.')).toHaveCount(0)
+  await film.getByRole('textbox', { name: 'Filter messages by team' }).fill('Ghana')
+  await expect(film.getByText('Please come to the booth.').first()).toBeVisible()
 
   const mentor = await (await browser.newContext()).newPage()
   await mentor.goto('/')

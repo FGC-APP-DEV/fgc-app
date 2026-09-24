@@ -219,13 +219,15 @@ export async function seed(mock: MockGateway, mentorSecret: string) {
   })
 
   const film = await session('film@fgc.test')
-  const templates = (
-    await db.query<{ id: string }>('select id from filming.templates order by name')
-  ).rows
+  const stepAndRepeat = (
+    await db.query<{ id: string }>(
+      `select id from filming.templates where name='Step & Repeat'`,
+    )
+  ).rows[0].id
   await film.rpc('shot_mark', {
     p_input: {
       teamId: teams[0].id,
-      templateId: templates[2].id,
+      templateId: stepAndRepeat,
       expectedVersion: 0,
       status: 'captured',
       notes: 'Great energy, all six members present.',
@@ -235,7 +237,7 @@ export async function seed(mock: MockGateway, mentorSecret: string) {
   await film.rpc('shot_mark', {
     p_input: {
       teamId: teams[1].id,
-      templateId: templates[2].id,
+      templateId: stepAndRepeat,
       expectedVersion: 0,
       status: 'skipped',
       notes: 'Team was in a match.',

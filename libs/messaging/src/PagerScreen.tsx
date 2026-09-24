@@ -1,3 +1,4 @@
+import { countryName, sortTeams } from '@fgc/shared'
 import { createPageAttempt } from './page-attempt'
 import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
@@ -36,6 +37,7 @@ export function PagerScreen({
 }) {
   const { api } = useAuth()
   const [teams, setTeams] = useState<Team[]>([])
+  const [historySearch, setHistorySearch] = useState('')
   const [pages, setPages] = useState<Page[]>([])
   const [teamId, setTeam] = useState(initialTeamId ?? '')
   const [search, setSearch] = useState('')
@@ -52,7 +54,7 @@ export function PagerScreen({
         api.list<Team>('/teams'),
         api.list<Page>(`/pages?sourceArea=${source}`),
       ])
-      setTeams(all)
+      setTeams(sortTeams(all, (t) => t))
       setPages(history)
     } catch (e) {
       setError((e as Error).message)
@@ -91,6 +93,11 @@ export function PagerScreen({
       setBusy(false)
     }
   }
+  const shownPages = pages.filter((page) =>
+    (teams.find((t) => t.id === page.teamId)?.name ?? '')
+      .toLowerCase()
+      .includes(historySearch.trim().toLowerCase()),
+  )
   return (
     <Screen>
       <Button label="Back" variant="secondary" onPress={onBack} />
@@ -108,7 +115,9 @@ export function PagerScreen({
         <View style={layout.row}>
           {teams
             .filter((t) =>
-              `${t.officialId} ${t.name}`.toLowerCase().includes(search.toLowerCase()),
+              `${t.officialId} ${t.name} ${t.country} ${countryName(t.country)}`
+                .toLowerCase()
+                .includes(search.toLowerCase()),
             )
             .slice(0, 25)
             .map((t) => (
@@ -155,12 +164,19 @@ export function PagerScreen({
       </Card>
       <Heading>Message history</Heading>
       <Button label="Refresh messages" variant="secondary" onPress={() => void load()} />
+      <Field
+        label="Filter messages by team"
+        value={historySearch}
+        onChangeText={setHistorySearch}
+      />
       {!loaded ? (
         <Loading />
-      ) : !pages.length ? (
-        <Notice text="No messages yet." />
+      ) : !shownPages.length ? (
+        <Notice
+          text={pages.length ? 'No messages match this team.' : 'No messages yet.'}
+        />
       ) : (
-        pages.map((page) => (
+        shownPages.map((page) => (
           <Card
             key={page.id}
             title={teams.find((t) => t.id === page.teamId)?.name ?? 'Team'}

@@ -1,3 +1,4 @@
+import { sortTeams } from '@fgc/shared'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
@@ -12,6 +13,7 @@ import {
   Heading,
   Loading,
   Notice,
+  ProgressBar,
   Screen,
   layout,
 } from '@fgc/ui'
@@ -93,7 +95,7 @@ export function JudgingScreen({
         api.get<Cycle | null>('/judging/cycle'),
       ])
       setPanels(nextPanels)
-      setTeams(nextTeams)
+      setTeams(sortTeams(nextTeams, (t) => t.team))
       setCycle(nextCycle)
       if (advisor) {
         const [nextJudges, allTeams] = await Promise.all([
@@ -273,6 +275,11 @@ export function JudgingScreen({
             <Body>
               {summary.evaluated} of {summary.active} active teams evaluated
             </Body>
+            <ProgressBar
+              value={summary.evaluated}
+              max={summary.active}
+              label="Teams evaluated"
+            />
             <Body>{summary.withdrawn} withdrawn</Body>
           </Card>
           <Field label="Search judging teams" value={search} onChangeText={setSearch} />
