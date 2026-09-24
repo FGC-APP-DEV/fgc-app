@@ -11,6 +11,7 @@ export async function signIn(page: Page, email: string, name?: string) {
 }
 
 export async function signOut(page: Page) {
+  await page.getByRole('button', { name: 'Account menu' }).click()
   await page.getByRole('button', { name: 'Sign out' }).click()
   await expect(page.getByRole('button', { name: 'Send sign-in email' })).toBeVisible()
 }

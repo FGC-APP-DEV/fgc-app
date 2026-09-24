@@ -37,6 +37,14 @@ interface Audit {
   observations: { id: string; notes: string; team_id: string; author_id: string }[]
   entries: { id: string; operation?: string; created_at?: string }[]
 }
+const teamAccent = (t: Participation) =>
+  t.participationStatus === 'withdrawn'
+    ? 'danger'
+    : t.evaluationStatus === 'evaluated'
+      ? 'success'
+      : t.flags.length
+        ? 'warning'
+        : 'neutral'
 interface Confirmation {
   title: string
   description: string
@@ -282,7 +290,12 @@ export function JudgingScreen({
             />
             <Body>{summary.withdrawn} withdrawn</Body>
           </Card>
-          <Field label="Search judging teams" value={search} onChangeText={setSearch} />
+          <Field
+            label="Search judging teams"
+            icon="search"
+            value={search}
+            onChangeText={setSearch}
+          />
           {!selected &&
             teams
               .filter((t) =>
@@ -291,7 +304,11 @@ export function JudgingScreen({
                   .includes(search.toLowerCase()),
               )
               .map((t) => (
-                <Card key={t.id} title={`${t.team.officialId} · ${t.team.name}`}>
+                <Card
+                  key={t.id}
+                  title={`${t.team.officialId} · ${t.team.name}`}
+                  accent={teamAccent(t)}
+                >
                   <Body>
                     {t.team.country} ·{' '}
                     {panels.find((p) => p.id === t.panelId)?.name ?? 'Unassigned'}
@@ -314,7 +331,10 @@ export function JudgingScreen({
           )}
           {current && access && (
             <>
-              <Card title={`${current.team.officialId} · ${current.team.name}`}>
+              <Card
+                title={`${current.team.officialId} · ${current.team.name}`}
+                accent={teamAccent(current)}
+              >
                 <Body>{currentPanel?.name ?? 'No panel assigned'}</Body>
                 <View style={layout.row}>
                   <Badge label={current.evaluationStatus} />
@@ -519,6 +539,7 @@ export function JudgingScreen({
             <Card title="Include an imported team">
               <Field
                 label="Find registered team"
+                icon="search"
                 value={search}
                 onChangeText={setSearch}
               />

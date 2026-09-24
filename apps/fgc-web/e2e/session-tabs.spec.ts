@@ -148,6 +148,7 @@ test('a second tab reuses in-memory session and logout clears both tabs', async 
   expect(fixture.refreshes).toBe(firstRefreshes)
   await expectNoCredentials(page)
   await expectNoCredentials(second)
+  await second.getByRole('button', { name: 'Account menu' }).click()
   await second.getByRole('button', { name: 'Sign out', exact: true }).click()
   await expect(second.getByRole('textbox', { name: 'Email address' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Email address' })).toBeVisible()

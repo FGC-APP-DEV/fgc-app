@@ -2,7 +2,27 @@ import React, { useEffect, useState } from 'react'
 import { AppState, View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import { mentorResponses, type Page } from '@fgc/contracts'
-import { Badge, Body, Button, Card, Heading, Notice, Screen, layout } from '@fgc/ui'
+import {
+  ActionTile,
+  Badge,
+  Body,
+  Button,
+  Card,
+  Heading,
+  Notice,
+  Screen,
+  layout,
+  type IconName,
+} from '@fgc/ui'
+
+const responseTile: Record<
+  (typeof mentorResponses)[number],
+  { icon: IconName; tone: 'success' | 'warning' | 'danger' }
+> = {
+  'On our way': { icon: 'user', tone: 'success' },
+  'ETA ~10 min': { icon: 'clock', tone: 'warning' },
+  "Can't come now": { icon: 'alertTriangle', tone: 'danger' },
+}
 
 export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) {
   const { api, mentor } = useAuth()
@@ -65,15 +85,19 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
         <Card
           key={page.id}
           title={page.sourceArea === 'judges' ? 'Judging message' : 'Filming message'}
+          emphasis={page.response ? undefined : 'danger'}
+          accent={page.response ? 'success' : undefined}
         >
           <Body>{page.message}</Body>
           <Badge label={page.response ?? 'Response requested'} />
           {!page.response && (
-            <View style={layout.stack}>
+            <View style={[layout.row, { alignItems: 'stretch', gap: 12 }]}>
               {mentorResponses.map((response) => (
-                <Button
+                <ActionTile
                   key={response}
                   label={response}
+                  icon={responseTile[response].icon}
+                  tone={responseTile[response].tone}
                   disabled={busy === page.id}
                   onPress={() => void respond(page, response)}
                 />

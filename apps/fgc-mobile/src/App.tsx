@@ -14,15 +14,18 @@ import {
   Body,
   Button,
   AppHeader,
+  BottomNav,
   Card,
   Confirm,
   Field,
   Heading,
+  humanize,
   Loading,
   Notice,
   Screen,
   layout,
   MockAccounts,
+  type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
@@ -198,6 +201,27 @@ function Shell() {
     )
   if (!auth.user && !auth.mentor) return <Login />
   const caps = capabilities(auth.user?.roles ?? [])
+  const navItems: NavItem[] = [
+    { id: 'home', label: 'Home', icon: 'dashboard' },
+    ...(caps.admin ? [{ id: 'admin', label: 'Admin', icon: 'admin' } as const] : []),
+    ...(caps.judging
+      ? [{ id: 'judging', label: 'Judging', icon: 'judging' } as const]
+      : []),
+    ...(caps.filming
+      ? [{ id: 'filming', label: 'Filming', icon: 'video' } as const]
+      : []),
+    ...(caps.schedule
+      ? [{ id: 'schedule', label: 'Schedule', icon: 'calendar' } as const]
+      : []),
+  ]
+  const activeNav =
+    route === 'imports'
+      ? 'admin'
+      : route === 'pager'
+        ? pageSource === 'judges'
+          ? 'judging'
+          : 'filming'
+        : route
   const page = (source: PageSource, id?: string) => {
     setSource(source)
     setTeam(id)
@@ -205,7 +229,11 @@ function Shell() {
   }
   return (
     <View style={layout.screen}>
-      <AppHeader onHome={() => navigate('home')} onSignOut={logout} />
+      <AppHeader
+        onSignOut={logout}
+        userName={auth.user?.name ?? auth.mentor?.team.name}
+        userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : 'Mentor'}
+      />
       {error && <Notice text={error} error />}
       {auth.mentor ? (
         <>
@@ -293,6 +321,11 @@ function Shell() {
               />
             )}
           {route === 'schedule' && caps.schedule && <ScheduleScreen />}
+          <BottomNav
+            items={navItems}
+            active={activeNav}
+            onSelect={(id) => navigate(id as Route)}
+          />
         </>
       )}
       {pending && (

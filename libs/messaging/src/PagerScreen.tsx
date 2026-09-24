@@ -111,7 +111,12 @@ export function PagerScreen({
         <Notice text="Message recorded. Check the history for the team's response." />
       )}
       <Card title="New message">
-        <Field label="Find a team" value={search} onChangeText={setSearch} />
+        <Field
+          label="Find a team"
+          icon="search"
+          value={search}
+          onChangeText={setSearch}
+        />
         <View style={layout.row}>
           {teams
             .filter((t) =>
@@ -166,6 +171,7 @@ export function PagerScreen({
       <Button label="Refresh messages" variant="secondary" onPress={() => void load()} />
       <Field
         label="Filter messages by team"
+        icon="search"
         value={historySearch}
         onChangeText={setHistorySearch}
       />
@@ -180,6 +186,7 @@ export function PagerScreen({
           <Card
             key={page.id}
             title={teams.find((t) => t.id === page.teamId)?.name ?? 'Team'}
+            accent={page.response ? 'success' : 'warning'}
           >
             <Body>{page.message}</Body>
             <Badge

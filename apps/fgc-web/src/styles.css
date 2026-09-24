@@ -20,6 +20,10 @@ body,
   background: #f8fafc;
   font-family: Inter, system-ui, sans-serif;
 }
+#root {
+  display: flex;
+  flex-direction: column;
+}
 * {
   box-sizing: border-box;
 }

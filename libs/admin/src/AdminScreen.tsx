@@ -181,6 +181,7 @@ export function AdminScreen({ onImports }: { onImports: () => void }) {
       <Card title="Current users">
         <Field
           label="Search users"
+          icon="search"
           value={userSearch}
           onChangeText={setUserSearch}
           autoCapitalize="none"
@@ -266,6 +267,7 @@ export function AdminScreen({ onImports }: { onImports: () => void }) {
         )}
         <Field
           label="Find team for mentor code"
+          icon="search"
           value={search}
           onChangeText={setSearch}
         />

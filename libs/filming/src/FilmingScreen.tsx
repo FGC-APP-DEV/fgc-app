@@ -127,7 +127,12 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
       </View>
       {error && <Notice text={error} error />}
       {!loaded && <Loading />}
-      <Field label="Search teams or shots" value={search} onChangeText={setSearch} />
+      <Field
+        label="Search teams or shots"
+        icon="search"
+        value={search}
+        onChangeText={setSearch}
+      />
       {tab === 'tracker' ? (
         <>
           <Card title="Coverage">
@@ -185,7 +190,17 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
             </Card>
           ) : (
             filtered.map((team) => (
-              <Card key={team.id} title={`${team.officialId} · ${team.name}`}>
+              <Card
+                key={team.id}
+                title={`${team.officialId} · ${team.name}`}
+                accent={
+                  shot(team)?.status === 'captured'
+                    ? 'success'
+                    : shot(team)?.status === 'skipped'
+                      ? 'warning'
+                      : 'neutral'
+                }
+              >
                 <View style={layout.row}>
                   <Badge label={shot(team)?.status ?? 'pending'} />
                   <Body>{team.country}</Body>
@@ -321,7 +336,11 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                 (itemStatus === 'all' || Boolean(i.doneAt) === (itemStatus === 'done')),
             )
             .map((item) => (
-              <Card key={item.id} title={item.title}>
+              <Card
+                key={item.id}
+                title={item.title}
+                accent={item.doneAt ? 'success' : 'neutral'}
+              >
                 <Body>{categories.find((c) => c.id === item.categoryId)?.name}</Body>
                 <Badge label={item.doneAt ? 'Complete' : 'Pending'} />
                 <View style={layout.row}>
