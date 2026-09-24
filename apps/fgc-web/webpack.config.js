@@ -50,7 +50,7 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.(ttf|png|jpg|svg)$/, type: 'asset/resource' },
+      { test: /\.(ttf|png|jpg|svg|webp)$/, type: 'asset/resource' },
       {
         test: /\.(ts|tsx)$/,
         use: {

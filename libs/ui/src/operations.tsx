@@ -12,6 +12,7 @@ import {
   type TextInputProps,
 } from 'react-native'
 import { Icon, type IconName } from './icons'
+import { BrandLogo } from './logo'
 
 export const tokens = {
   primary: '#000615',
@@ -543,33 +544,8 @@ export function AppHeader({
         elevation.sm,
       ]}
     >
-      <Icon name="shieldCheck" size={26} color={tokens.primary} />
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text
-          accessibilityRole="header"
-          numberOfLines={1}
-          style={{
-            fontFamily: 'InterBold',
-            fontWeight: '700',
-            fontSize: 18,
-            lineHeight: 22,
-            letterSpacing: -0.3,
-            color: tokens.primary,
-          }}
-        >
-          FIRST GLOBAL
-        </Text>
-        <Text
-          style={{
-            fontFamily: 'Inter',
-            fontSize: 10,
-            letterSpacing: 1.2,
-            textTransform: 'uppercase',
-            color: tokens.muted,
-          }}
-        >
-          Operations
-        </Text>
+        <BrandLogo height={32} />
       </View>
       <Pressable
         ref={anchor}

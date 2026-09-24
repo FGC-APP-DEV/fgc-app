@@ -21,6 +21,8 @@ import {
   Heading,
   humanize,
   Loading,
+  LoginCard,
+  LoginShell,
   Notice,
   Screen,
   layout,
@@ -61,10 +63,11 @@ function Login() {
       await auth.verify(otp)
     })
   return (
-    <Screen>
-      <Heading>FIRST GLOBAL</Heading>
-      <Body>Competition operations</Body>
-      <Card title="Welcome to FGC">
+    <LoginShell>
+      <LoginCard
+        title="Welcome to FGC"
+        subtitle="Sign in to continue to competition operations."
+      >
         {auth.error && <Notice text={auth.error} error />}
         {auth.hasAuthLink && (
           <Button
@@ -132,9 +135,16 @@ function Login() {
           <>
             <Field
               label="Mentor access code"
+              icon="lock"
               value={code}
               onChangeText={setCode}
               autoCapitalize="characters"
+              style={{
+                minHeight: 56,
+                textAlign: 'center',
+                fontSize: 20,
+                letterSpacing: 2,
+              }}
             />
             <Button
               label="Open team messages"
@@ -143,14 +153,14 @@ function Login() {
             />
           </>
         )}
-      </Card>
+      </LoginCard>
       <MockAccounts
         infoUrl={mockInfoUrl}
         disabled={busy || !auth.installationId}
         onStaff={quickStaff}
         onMentor={(value) => void run(() => auth.redeem(value))}
       />
-    </Screen>
+    </LoginShell>
   )
 }
 function Shell() {
