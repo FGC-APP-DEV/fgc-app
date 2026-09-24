@@ -192,7 +192,6 @@
     "dist/",
     "coverage/",
     "*.config.js",
-    "*.config.ts",
-    "fgc-judges-app.jsx"
+    "*.config.ts"
   ]
 }
