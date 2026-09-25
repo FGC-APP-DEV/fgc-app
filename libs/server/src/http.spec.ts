@@ -1,3 +1,4 @@
+import { Router } from 'express'
 import request from 'supertest'
 import * as server from './http'
 
@@ -88,4 +89,36 @@ it('allows same-origin mentor CSRF bootstrap, but rejects foreign and unproven o
         .set('Referer', 'https://example.org/')
     ).status,
   ).toBe(403)
+})
+
+describe('trust proxy', () => {
+  function ipApp(trustProxyHops?: number) {
+    const devRouter = Router()
+    devRouter.get('/ip', (req, res) => res.json({ ip: req.ip }))
+    const rpc = jest.fn(async () => [])
+    return server.createApi({
+      gateway: {
+        staff: () => ({ rpc }),
+        service: { rpc },
+        verify: async () => ({ id }),
+        ready: async () => true,
+      },
+      allowedOrigins: ['http://localhost:3000'],
+      mentorSecret: 'test-secret-with-enough-entropy',
+      development: true,
+      devRouter,
+      trustProxyHops,
+    })
+  }
+  const forwarded = '203.0.113.7, 198.51.100.2'
+  const ipOf = async (app: ReturnType<typeof ipApp>) =>
+    (await request(app).get('/__mock/ip').set('X-Forwarded-For', forwarded)).body.ip
+  it('ignores X-Forwarded-For by default so clients cannot spoof their IP', async () => {
+    expect(await ipOf(ipApp())).not.toContain('203.0.113.7')
+    expect(await ipOf(ipApp(0))).not.toContain('198.51.100.2')
+  })
+  it('uses the entry added by the trusted proxies only', async () => {
+    expect(await ipOf(ipApp(1))).toBe('198.51.100.2')
+    expect(await ipOf(ipApp(2))).toBe('203.0.113.7')
+  })
 })
