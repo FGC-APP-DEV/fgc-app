@@ -9,6 +9,15 @@ import {
   createSupabaseAuthStore,
 } from './auth'
 
+export function trustProxyHops(env: NodeJS.ProcessEnv): number {
+  const raw = env.TRUST_PROXY_HOPS?.trim()
+  if (!raw) return 0
+  const hops = Number(raw)
+  if (!/^\d+$/.test(raw) || hops > 5)
+    throw new Error('TRUST_PROXY_HOPS must be an integer from 0 to 5.')
+  return hops
+}
+
 export function configuredApi(env: NodeJS.ProcessEnv) {
   const required = (key: string) => {
     const value = env[key]
@@ -92,6 +101,7 @@ export function configuredApi(env: NodeJS.ProcessEnv) {
     allowedOrigins: origins,
     mentorSecret: required('MENTOR_HMAC_SECRET'),
     development,
+    trustProxyHops: trustProxyHops(env),
     authRouter,
     workerRouter: createWorkerRouter(gateway.service, required('WORKER_SECRET')),
   })
