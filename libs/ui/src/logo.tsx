@@ -1,3 +1,5 @@
+// Ambient asset typings must reach every consumer that compiles this file from source.
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./assets.d.ts" />
 import React from 'react'
 import { Image, View } from 'react-native'
