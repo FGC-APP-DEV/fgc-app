@@ -6,3 +6,9 @@ coverage
 *.log
 .DS_Store
 .nx/
+test-results/
+playwright-report/
+.expo/
+.env
+
+/tmp

@@ -1,0 +1,29 @@
+{
+  "name": "api-client",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api-client/src",
+  "projectType": "library",
+  "tags": ["scope:api-client", "platform:client", "type:data-access"],
+  "// targets": "to see all targets run: nx show project api-client --web",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "jest.config.js",
+        "passWithNoTests": false
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/api-client/tsconfig.check.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/api-client/**/*.{ts,tsx}"]
+      }
+    }
+  }
+}

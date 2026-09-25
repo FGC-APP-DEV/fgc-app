@@ -1,0 +1,22 @@
+{
+  "name": "schedule",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/schedule/src",
+  "projectType": "library",
+  "tags": ["scope:schedule", "platform:client", "type:domain"],
+  "// targets": "to see all targets run: nx show project schedule --web",
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/schedule/tsconfig.check.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/schedule/**/*.{ts,tsx}"]
+      }
+    }
+  }
+}

@@ -3,41 +3,69 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/fgc-mobile/src",
   "projectType": "application",
-  "tags": ["scope:app", "type:mobile"],
+  "tags": [
+    "scope:fgc-mobile",
+    "platform:client",
+    "type:app"
+  ],
   "targets": {
     "start": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx react-native start",
+        "command": "npm exec -- expo start",
+        "cwd": "apps/fgc-mobile"
+      }
+    },
+    "start-go": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm exec -- expo start --go",
+        "cwd": "apps/fgc-mobile"
+      }
+    },
+    "start-dev-client": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm exec -- expo start --dev-client",
+        "cwd": "apps/fgc-mobile"
+      }
+    },
+    "export": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "options": {
+        "command": "npm exec -- expo export --output-dir dist",
         "cwd": "apps/fgc-mobile"
       }
     },
     "run-ios": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx react-native run-ios",
+        "command": "npm exec -- expo run:ios",
         "cwd": "apps/fgc-mobile"
       }
     },
     "run-android": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx react-native run-android",
+        "command": "npm exec -- expo run:android",
         "cwd": "apps/fgc-mobile"
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["apps/fgc-mobile/**/*.{ts,tsx}"]
+        "lintFilePatterns": [
+          "apps/fgc-mobile/**/*.{ts,tsx}"
+        ]
       }
     },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+    "typecheck": {
+      "executor": "nx:run-commands",
       "options": {
-        "jestConfig": "jest.config.js",
-        "passWithNoTests": true
+        "command": "tsc --noEmit -p apps/fgc-mobile/tsconfig.json"
       }
     }
   }

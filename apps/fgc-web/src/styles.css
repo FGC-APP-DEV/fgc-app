@@ -1,0 +1,45 @@
+@font-face {
+  font-family: Inter;
+  src: url('../../../node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf')
+    format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: InterBold;
+  src: url('../../../node_modules/@expo-google-fonts/inter/700Bold/Inter_700Bold.ttf')
+    format('truetype');
+  font-weight: 700 900;
+  font-display: swap;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #f8fafc;
+  font-family: Inter, system-ui, sans-serif;
+}
+#root {
+  display: flex;
+  flex-direction: column;
+}
+* {
+  box-sizing: border-box;
+}
+[role='button']:focus-visible {
+  outline: 3px solid #4059aa;
+  outline-offset: 3px;
+}
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(64, 89, 170, 0.18);
+  outline-offset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}

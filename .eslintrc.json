@@ -15,24 +15,177 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "security"],
+  "plugins": ["@typescript-eslint", "security", "@nx"],
   "rules": {
     "prefer-const": "error",
     "no-var": "error",
-    "no-console": ["warn", { "allow": ["warn", "error", "log"] }],
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error", "log"]
+      }
+    ],
     "eqeqeq": ["error", "always"],
     "@typescript-eslint/no-unused-vars": [
       "warn",
-      { "argsIgnorePattern": "^_" }
+      {
+        "argsIgnorePattern": "^_"
+      }
     ],
-    "@typescript-eslint/no-explicit-any": "warn"
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@nx/enforce-module-boundaries": [
+      "error",
+      {
+        "enforceBuildableLibDependency": false,
+        "depConstraints": [
+          {
+            "sourceTag": "platform:client",
+            "onlyDependOnLibsWithTags": ["platform:client", "platform:shared"],
+            "bannedExternalImports": ["@supabase/*", "express", "exceljs", "node:*"]
+          },
+          {
+            "sourceTag": "platform:shared",
+            "onlyDependOnLibsWithTags": ["platform:shared"],
+            "bannedExternalImports": [
+              "react",
+              "react-native",
+              "@supabase/*",
+              "express",
+              "node:*"
+            ]
+          },
+          {
+            "sourceTag": "scope:shared",
+            "onlyDependOnLibsWithTags": ["scope:__none__"]
+          },
+          {
+            "sourceTag": "scope:contracts",
+            "onlyDependOnLibsWithTags": ["scope:shared"]
+          },
+          {
+            "sourceTag": "scope:api-client",
+            "onlyDependOnLibsWithTags": ["scope:contracts", "scope:shared"]
+          },
+          {
+            "sourceTag": "scope:auth",
+            "onlyDependOnLibsWithTags": [
+              "scope:contracts",
+              "scope:api-client",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:ui",
+            "onlyDependOnLibsWithTags": ["scope:shared"]
+          },
+          {
+            "sourceTag": "scope:database",
+            "onlyDependOnLibsWithTags": ["scope:contracts", "scope:shared"]
+          },
+          {
+            "sourceTag": "scope:server",
+            "onlyDependOnLibsWithTags": [
+              "scope:database",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:notifications",
+            "onlyDependOnLibsWithTags": ["scope:contracts", "scope:shared"]
+          },
+          {
+            "sourceTag": "scope:judging",
+            "onlyDependOnLibsWithTags": [
+              "scope:ui",
+              "scope:auth",
+              "scope:api-client",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:filming",
+            "onlyDependOnLibsWithTags": [
+              "scope:ui",
+              "scope:auth",
+              "scope:api-client",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:admin",
+            "onlyDependOnLibsWithTags": [
+              "scope:ui",
+              "scope:auth",
+              "scope:api-client",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:mentor",
+            "onlyDependOnLibsWithTags": [
+              "scope:ui",
+              "scope:auth",
+              "scope:api-client",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:imports",
+            "onlyDependOnLibsWithTags": [
+              "scope:ui",
+              "scope:auth",
+              "scope:api-client",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:schedule",
+            "onlyDependOnLibsWithTags": [
+              "scope:ui",
+              "scope:auth",
+              "scope:api-client",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:messaging",
+            "onlyDependOnLibsWithTags": [
+              "scope:ui",
+              "scope:auth",
+              "scope:api-client",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          },
+          {
+            "sourceTag": "scope:fgc-api",
+            "onlyDependOnLibsWithTags": [
+              "scope:server",
+              "scope:contracts",
+              "scope:shared"
+            ]
+          }
+        ]
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@fgc/*/*"],
+            "message": "Use the public package export, not an internal path."
+          }
+        ]
+      }
+    ]
   },
-  "ignorePatterns": [
-    "node_modules/",
-    "dist/",
-    "coverage/",
-    "*.config.js",
-    "*.config.ts",
-    "fgc-judges-app.jsx"
-  ]
+  "ignorePatterns": ["node_modules/", "dist/", "coverage/", "*.config.js", "*.config.ts"]
 }

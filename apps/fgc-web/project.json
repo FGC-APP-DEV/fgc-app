@@ -3,11 +3,17 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/fgc-web/src",
   "projectType": "application",
-  "tags": ["scope:app", "type:web"],
+  "tags": [
+    "scope:fgc-web",
+    "platform:client",
+    "type:app"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/fgc-web",
         "main": "apps/fgc-web/src/index.tsx",
@@ -19,7 +25,8 @@
           "optimization": true,
           "extractLicenses": true
         }
-      }
+      },
+      "dependsOn": []
     },
     "serve": {
       "executor": "@nx/webpack:dev-server",
@@ -31,15 +38,24 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["apps/fgc-web/**/*.{ts,tsx}"]
+        "lintFilePatterns": [
+          "apps/fgc-web/**/*.{ts,tsx}"
+        ]
       }
     },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+    "typecheck": {
+      "executor": "nx:run-commands",
       "options": {
-        "jestConfig": "jest.config.js",
-        "passWithNoTests": true
+        "command": "tsc --noEmit -p apps/fgc-web/tsconfig.app.json"
+      }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "build"
+      ],
+      "options": {
+        "command": "playwright test"
       }
     }
   }

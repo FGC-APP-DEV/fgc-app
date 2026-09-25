@@ -1,0 +1,303 @@
+// ISO 3166-1 alpha-2 country code -> continent. Keyed off Team.countryCode
+// (the real 2-letter code countryCodeToFlag also relies on — Team.country
+// is FIRST Global's own short team code, e.g. "AFG"/"ASA", not this).
+// Grouped the way FIRST Global itself groups teams for ceremonies: five
+// continents, Americas combining North + Central + South + Caribbean.
+
+export type Continent = 'Africa' | 'Asia' | 'Europe' | 'Oceania' | 'Americas'
+
+export const CONTINENTS: Continent[] = ['Africa', 'Asia', 'Europe', 'Oceania', 'Americas']
+
+const AFRICA = [
+  'DZ',
+  'AO',
+  'BJ',
+  'BW',
+  'BF',
+  'BI',
+  'CV',
+  'CM',
+  'CF',
+  'TD',
+  'KM',
+  'CG',
+  'CD',
+  'CI',
+  'DJ',
+  'EG',
+  'GQ',
+  'ER',
+  'SZ',
+  'ET',
+  'GA',
+  'GM',
+  'GH',
+  'GN',
+  'GW',
+  'KE',
+  'LS',
+  'LR',
+  'LY',
+  'MG',
+  'MW',
+  'ML',
+  'MR',
+  'MU',
+  'YT',
+  'MA',
+  'MZ',
+  'NA',
+  'NE',
+  'NG',
+  'RE',
+  'RW',
+  'SH',
+  'ST',
+  'SN',
+  'SC',
+  'SL',
+  'SO',
+  'ZA',
+  'SS',
+  'SD',
+  'TZ',
+  'TG',
+  'TN',
+  'UG',
+  'EH',
+  'ZM',
+  'ZW',
+]
+
+const ASIA = [
+  'AF',
+  'AM',
+  'AZ',
+  'BH',
+  'BD',
+  'BT',
+  'BN',
+  'KH',
+  'CN',
+  'CY',
+  'GE',
+  'HK',
+  'IN',
+  'ID',
+  'IR',
+  'IQ',
+  'IL',
+  'JP',
+  'JO',
+  'KZ',
+  'KP',
+  'KR',
+  'KW',
+  'KG',
+  'LA',
+  'LB',
+  'MO',
+  'MY',
+  'MV',
+  'MN',
+  'MM',
+  'NP',
+  'OM',
+  'PK',
+  'PS',
+  'PH',
+  'QA',
+  'SA',
+  'SG',
+  'LK',
+  'SY',
+  'TW',
+  'TJ',
+  'TH',
+  'TL',
+  'TR',
+  'TM',
+  'AE',
+  'UZ',
+  'VN',
+  'YE',
+]
+
+const EUROPE = [
+  'AL',
+  'AD',
+  'AT',
+  'BY',
+  'BE',
+  'BA',
+  'BG',
+  'HR',
+  'CZ',
+  'DK',
+  'EE',
+  'FO',
+  'FI',
+  'FR',
+  'DE',
+  'GI',
+  'GR',
+  'GG',
+  'VA',
+  'HU',
+  'IS',
+  'IE',
+  'IM',
+  'IT',
+  'JE',
+  'XK',
+  'LV',
+  'LI',
+  'LT',
+  'LU',
+  'MT',
+  'MD',
+  'MC',
+  'ME',
+  'NL',
+  'MK',
+  'NO',
+  'PL',
+  'PT',
+  'RO',
+  'RU',
+  'SM',
+  'RS',
+  'SK',
+  'SI',
+  'ES',
+  'SJ',
+  'SE',
+  'CH',
+  'UA',
+  'GB',
+]
+
+const OCEANIA = [
+  'AS',
+  'AU',
+  'CK',
+  'FJ',
+  'PF',
+  'GU',
+  'KI',
+  'MH',
+  'FM',
+  'NR',
+  'NC',
+  'NZ',
+  'NU',
+  'NF',
+  'MP',
+  'PW',
+  'PG',
+  'PN',
+  'WS',
+  'SB',
+  'TK',
+  'TO',
+  'TV',
+  'VU',
+  'WF',
+]
+
+const AMERICAS = [
+  'AI',
+  'AG',
+  'AR',
+  'AW',
+  'BS',
+  'BB',
+  'BZ',
+  'BM',
+  'BO',
+  'BR',
+  'VG',
+  'CA',
+  'KY',
+  'CL',
+  'CO',
+  'CR',
+  'CU',
+  'CW',
+  'DM',
+  'DO',
+  'EC',
+  'SV',
+  'FK',
+  'GF',
+  'GL',
+  'GD',
+  'GP',
+  'GT',
+  'GY',
+  'HT',
+  'HN',
+  'JM',
+  'MQ',
+  'MX',
+  'MS',
+  'NI',
+  'PA',
+  'PY',
+  'PE',
+  'PR',
+  'BL',
+  'KN',
+  'LC',
+  'MF',
+  'PM',
+  'VC',
+  'SX',
+  'SR',
+  'TT',
+  'TC',
+  'US',
+  'UY',
+  'VE',
+  'VI',
+]
+
+const CONTINENT_BY_CODE: Record<string, Continent> = Object.fromEntries([
+  ...AFRICA.map((c) => [c, 'Africa'] as const),
+  ...ASIA.map((c) => [c, 'Asia'] as const),
+  ...EUROPE.map((c) => [c, 'Europe'] as const),
+  ...OCEANIA.map((c) => [c, 'Oceania'] as const),
+  ...AMERICAS.map((c) => [c, 'Americas'] as const),
+])
+
+// Falls back to null (not a guess) for any code outside this map, so
+// callers can surface "unknown" instead of silently mis-bucketing a team.
+export function countryCodeToContinent(code: string): Continent | null {
+  return CONTINENT_BY_CODE[code.toUpperCase()] ?? null
+}
+
+// A couple of real FGC entries don't carry a real ISO countryCode: Chinese
+// Taipei's is a placeholder digit string ("15"), and the composite Hope
+// (Refugees) team has no single country at all. Team.country is FIRST
+// Global's own short code (not always ISO) — used only as the fallback key
+// for these known exceptions, checked when countryCode doesn't resolve.
+// Hope (Refugees) deliberately stays unmapped (null) rather than guessed
+// into an arbitrary continent — it'll only show under "All continents".
+const FGC_CODE_OVERRIDES: Record<string, Continent> = {
+  TPE: 'Asia', // Chinese Taipei
+}
+
+export function teamContinent(country: string, countryCode: string): Continent | null {
+  return countryCodeToContinent(countryCode) ?? FGC_CODE_OVERRIDES[country] ?? null
+}
+
+/** English country name for an ISO code (search only); falls back to the code where Intl lacks data. */
+export function countryName(code: string): string {
+  try {
+    return (
+      new Intl.DisplayNames(['en'], { type: 'region' }).of(code.toUpperCase()) ?? code
+    )
+  } catch {
+    return code
+  }
+}

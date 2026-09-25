@@ -3,17 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/auth/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:feature"],
+  "tags": ["scope:auth", "platform:client", "type:domain"],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/auth",
-        "main": "libs/auth/src/index.ts",
-        "tsConfig": "libs/auth/tsconfig.lib.json"
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
@@ -26,6 +17,12 @@
       "options": {
         "jestConfig": "jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/auth/tsconfig.check.json"
       }
     }
   }

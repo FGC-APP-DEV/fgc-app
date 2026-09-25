@@ -1,0 +1,32 @@
+name: Migration verification
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  local-contracts:
+    runs-on: windows-latest
+    env:
+      NX_DAEMON: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test -- --runInBand
+      - run: npm run test:sql
+      - run: npm run build
+      - run: npm run test:e2e
+      - run: npm exec -- nx run fgc-mobile:export
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failure-evidence
+          path: test-results
+          if-no-files-found: ignore

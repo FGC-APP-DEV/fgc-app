@@ -1,0 +1,36 @@
+{
+  "name": "server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/server/src",
+  "projectType": "library",
+  "tags": ["scope:server", "platform:server", "type:domain"],
+  "// targets": "to see all targets run: nx show project server --web",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "jest.config.js",
+        "passWithNoTests": false,
+        "runInBand": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/server/tsconfig.check.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/server/**/*.{ts,tsx}"]
+      }
+    },
+    "openapi": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx scripts/generate-openapi.ts"
+      }
+    }
+  }
+}

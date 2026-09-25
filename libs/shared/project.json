@@ -3,29 +3,24 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:util"],
+  "tags": [
+    "scope:shared",
+    "platform:shared",
+    "type:domain"
+  ],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/shared",
-        "main": "libs/shared/src/index.ts",
-        "tsConfig": "libs/shared/tsconfig.lib.json"
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/shared/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/shared/**/*.{ts,tsx}"
+        ]
       }
     },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+    "typecheck": {
+      "executor": "nx:run-commands",
       "options": {
-        "jestConfig": "jest.config.js",
-        "passWithNoTests": true
+        "command": "tsc --noEmit -p libs/shared/tsconfig.check.json"
       }
     }
   }

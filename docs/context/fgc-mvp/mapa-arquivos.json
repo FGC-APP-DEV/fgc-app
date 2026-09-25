@@ -1,0 +1,1205 @@
+{
+  "revision": "70d3355014ffa27963455a589a24ff48ad151900",
+  "files": [
+    {
+      "id": "AR-001",
+      "source": ".env.example",
+      "domain": "configuração",
+      "target": "exemplos por app e Supabase",
+      "action": "adaptar",
+      "adaptation": "Somente nomes de variáveis; segredos exclusivamente no servidor."
+    },
+    {
+      "id": "AR-002",
+      "source": ".gitignore",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-003",
+      "source": "AGENTS.md",
+      "domain": "documentação",
+      "target": "contexts/fgc-mvp + documentação da migração",
+      "action": "referência",
+      "adaptation": "Preservar origem; regras atuais prevalecem sobre instruções históricas."
+    },
+    {
+      "id": "AR-004",
+      "source": "CLAUDE.md",
+      "domain": "documentação",
+      "target": "contexts/fgc-mvp + documentação da migração",
+      "action": "referência",
+      "adaptation": "Preservar origem; regras atuais prevalecem sobre instruções históricas."
+    },
+    {
+      "id": "AR-005",
+      "source": "LEARNING.md",
+      "domain": "documentação",
+      "target": "contexts/fgc-mvp + documentação da migração",
+      "action": "referência",
+      "adaptation": "Preservar origem; regras atuais prevalecem sobre instruções históricas."
+    },
+    {
+      "id": "AR-006",
+      "source": "README.md",
+      "domain": "documentação",
+      "target": "contexts/fgc-mvp + documentação da migração",
+      "action": "referência",
+      "adaptation": "Preservar origem; regras atuais prevalecem sobre instruções históricas."
+    },
+    {
+      "id": "AR-007",
+      "source": "components.json",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-008",
+      "source": "docs/OVERVIEW.md",
+      "domain": "documentação",
+      "target": "contexts/fgc-mvp + documentação da migração",
+      "action": "referência",
+      "adaptation": "Preservar origem; regras atuais prevalecem sobre instruções históricas."
+    },
+    {
+      "id": "AR-009",
+      "source": "eslint.config.mjs",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-010",
+      "source": "next.config.ts",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-011",
+      "source": "package-lock.json",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-012",
+      "source": "package.json",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-013",
+      "source": "postcss.config.mjs",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-014",
+      "source": "prisma.config.ts",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-015",
+      "source": "prisma/dev-grant-role.ts",
+      "domain": "dados",
+      "target": "supabase/seed.sql ou tools/migration/dev-grant-role.ts",
+      "action": "adaptar",
+      "adaptation": "Separar fixtures de dados reais; sync externo posterior; atribuição de roles não permite bypass."
+    },
+    {
+      "id": "AR-016",
+      "source": "prisma/dev-join-panel.ts",
+      "domain": "dados",
+      "target": "supabase/seed.sql ou tools/migration/dev-join-panel.ts",
+      "action": "adaptar",
+      "adaptation": "Separar fixtures de dados reais; sync externo posterior; atribuição de roles não permite bypass."
+    },
+    {
+      "id": "AR-017",
+      "source": "prisma/migrations/20260621195926_init/migration.sql",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-018",
+      "source": "prisma/migrations/20260622153936_make_user_full_name_nullable/migration.sql",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-019",
+      "source": "prisma/migrations/20260623194418_filming_shot_items/migration.sql",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-020",
+      "source": "prisma/migrations/20260624185050_judges_module_v1/migration.sql",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-021",
+      "source": "prisma/migrations/20260708012031_schedule_entries/migration.sql",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-022",
+      "source": "prisma/migrations/20260708163658_judging_round/migration.sql",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-023",
+      "source": "prisma/migrations/20260708170751_panel_award/migration.sql",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-024",
+      "source": "prisma/migrations/migration_lock.toml",
+      "domain": "dados",
+      "target": "arquivo de referência do legado; novas migrations SQL Supabase",
+      "action": "referência",
+      "adaptation": "Não reaplicar migrations Prisma sobre o destino; extrair relações/constraints necessárias."
+    },
+    {
+      "id": "AR-025",
+      "source": "prisma/schema.prisma",
+      "domain": "dados",
+      "target": "supabase/migrations/*.sql + libs/database/src/database.types.ts",
+      "action": "substituir",
+      "adaptation": "Todos os modelos mapeados em modelos-legado.md; sem Prisma/Drizzle no destino."
+    },
+    {
+      "id": "AR-026",
+      "source": "prisma/seed-mock-schedule.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-027",
+      "source": "prisma/seed.ts",
+      "domain": "dados",
+      "target": "supabase/seed.sql ou tools/migration/seed.ts",
+      "action": "adaptar",
+      "adaptation": "Separar fixtures de dados reais; sync externo posterior; atribuição de roles não permite bypass."
+    },
+    {
+      "id": "AR-028",
+      "source": "prisma/sync-matches.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-029",
+      "source": "prisma/sync-rankings.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-030",
+      "source": "prisma/sync-teams.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-031",
+      "source": "public/file.svg",
+      "domain": "assets",
+      "target": "apps/fgc-web/public/file.svg ou libs/ui/src/assets/file.svg",
+      "action": "avaliar",
+      "adaptation": "Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença."
+    },
+    {
+      "id": "AR-032",
+      "source": "public/globe.svg",
+      "domain": "assets",
+      "target": "apps/fgc-web/public/globe.svg ou libs/ui/src/assets/globe.svg",
+      "action": "avaliar",
+      "adaptation": "Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença."
+    },
+    {
+      "id": "AR-033",
+      "source": "public/icons/app-icon-192.png",
+      "domain": "assets",
+      "target": "apps/fgc-web/public/icons/app-icon-192.png ou libs/ui/src/assets/app-icon-192.png",
+      "action": "avaliar",
+      "adaptation": "Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença."
+    },
+    {
+      "id": "AR-034",
+      "source": "public/icons/app-icon-512.png",
+      "domain": "assets",
+      "target": "apps/fgc-web/public/icons/app-icon-512.png ou libs/ui/src/assets/app-icon-512.png",
+      "action": "avaliar",
+      "adaptation": "Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença."
+    },
+    {
+      "id": "AR-035",
+      "source": "public/next.svg",
+      "domain": "assets",
+      "target": "apps/fgc-web/public/next.svg ou libs/ui/src/assets/next.svg",
+      "action": "avaliar",
+      "adaptation": "Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença."
+    },
+    {
+      "id": "AR-036",
+      "source": "public/vercel.svg",
+      "domain": "assets",
+      "target": "apps/fgc-web/public/vercel.svg ou libs/ui/src/assets/vercel.svg",
+      "action": "avaliar",
+      "adaptation": "Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença."
+    },
+    {
+      "id": "AR-037",
+      "source": "public/window.svg",
+      "domain": "assets",
+      "target": "apps/fgc-web/public/window.svg ou libs/ui/src/assets/window.svg",
+      "action": "avaliar",
+      "adaptation": "Preservar assets usados; logos de template só com necessidade confirmada; conferir resolução/licença."
+    },
+    {
+      "id": "AR-038",
+      "source": "src/app/(auth)/sign-in/actions.ts",
+      "domain": "auth",
+      "target": "libs/server/src/auth/(auth)/sign-in/actions.ts",
+      "action": "adaptar",
+      "adaptation": "Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02."
+    },
+    {
+      "id": "AR-039",
+      "source": "src/app/(auth)/sign-in/page.tsx",
+      "domain": "auth",
+      "target": "libs/auth/src/screens/(auth)/sign-in.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-040",
+      "source": "src/app/admin/page.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/screens/admin.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-041",
+      "source": "src/app/api/cron/sync-matches/route.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-042",
+      "source": "src/app/api/health/route.ts",
+      "domain": "server",
+      "target": "apps/fgc-api/src/api/health.ts",
+      "action": "adaptar",
+      "adaptation": "Health/cron autenticados; sync de horários permanece evolução conforme D05–D06."
+    },
+    {
+      "id": "AR-043",
+      "source": "src/app/apple-icon.png",
+      "domain": "shell",
+      "target": "apps/fgc-web + apps/fgc-mobile + libs/ui",
+      "action": "adaptar",
+      "adaptation": "Separar layout/metadados/PWA web de assets, tema e configuração nativa."
+    },
+    {
+      "id": "AR-044",
+      "source": "src/app/auth/callback/actions.ts",
+      "domain": "auth",
+      "target": "libs/server/src/auth/auth/callback/actions.ts",
+      "action": "adaptar",
+      "adaptation": "Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02."
+    },
+    {
+      "id": "AR-045",
+      "source": "src/app/auth/callback/page.tsx",
+      "domain": "auth",
+      "target": "libs/auth/src/screens/auth/callback.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-046",
+      "source": "src/app/complete-profile/actions.ts",
+      "domain": "auth",
+      "target": "libs/server/src/auth/complete-profile/actions.ts",
+      "action": "adaptar",
+      "adaptation": "Separar comando seguro de navegação Next; protocolo REST/sessão T01/T02."
+    },
+    {
+      "id": "AR-047",
+      "source": "src/app/complete-profile/page.tsx",
+      "domain": "auth",
+      "target": "libs/auth/src/screens/complete-profile.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-048",
+      "source": "src/app/filming/page.tsx",
+      "domain": "filming",
+      "target": "libs/filming/src/screens/filming.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-049",
+      "source": "src/app/globals.css",
+      "domain": "shell",
+      "target": "apps/fgc-web + apps/fgc-mobile + libs/ui",
+      "action": "adaptar",
+      "adaptation": "Separar layout/metadados/PWA web de assets, tema e configuração nativa."
+    },
+    {
+      "id": "AR-050",
+      "source": "src/app/icon.png",
+      "domain": "shell",
+      "target": "apps/fgc-web + apps/fgc-mobile + libs/ui",
+      "action": "adaptar",
+      "adaptation": "Separar layout/metadados/PWA web de assets, tema e configuração nativa."
+    },
+    {
+      "id": "AR-051",
+      "source": "src/app/judges/advisor/page.tsx",
+      "domain": "judging",
+      "target": "libs/judging/src/screens/judges/advisor.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-052",
+      "source": "src/app/judges/page.tsx",
+      "domain": "judging",
+      "target": "libs/judging/src/screens/judges.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-053",
+      "source": "src/app/layout.tsx",
+      "domain": "shell",
+      "target": "apps/fgc-web + apps/fgc-mobile + libs/ui",
+      "action": "adaptar",
+      "adaptation": "Separar layout/metadados/PWA web de assets, tema e configuração nativa."
+    },
+    {
+      "id": "AR-054",
+      "source": "src/app/manifest.ts",
+      "domain": "shell",
+      "target": "apps/fgc-web + apps/fgc-mobile + libs/ui",
+      "action": "adaptar",
+      "adaptation": "Separar layout/metadados/PWA web de assets, tema e configuração nativa."
+    },
+    {
+      "id": "AR-055",
+      "source": "src/app/mentor/page.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/screens/mentor.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-056",
+      "source": "src/app/opengraph-image.tsx",
+      "domain": "shell",
+      "target": "apps/fgc-web + apps/fgc-mobile + libs/ui",
+      "action": "adaptar",
+      "adaptation": "Separar layout/metadados/PWA web de assets, tema e configuração nativa."
+    },
+    {
+      "id": "AR-057",
+      "source": "src/app/page.tsx",
+      "domain": "auth",
+      "target": "libs/auth/src/screens/page.tsx.tsx + apps/fgc-{web,mobile}",
+      "action": "adaptar",
+      "adaptation": "Registrar rota em cada shell; ajustar Judging e horários às decisões atuais."
+    },
+    {
+      "id": "AR-058",
+      "source": "src/app/pit-admin/page.tsx",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-059",
+      "source": "src/app/twitter-image.tsx",
+      "domain": "shell",
+      "target": "apps/fgc-web + apps/fgc-mobile + libs/ui",
+      "action": "adaptar",
+      "adaptation": "Separar layout/metadados/PWA web de assets, tema e configuração nativa."
+    },
+    {
+      "id": "AR-060",
+      "source": "src/components/admin/add-users-panel.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/components/add-users-panel.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-061",
+      "source": "src/components/admin/admin-dashboard.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/components/admin-dashboard.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-062",
+      "source": "src/components/admin/confirm-admin-dialog.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/components/confirm-admin-dialog.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-063",
+      "source": "src/components/admin/pending-approved-list.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/components/pending-approved-list.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-064",
+      "source": "src/components/admin/users-list.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/components/users-list.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-065",
+      "source": "src/components/announcement/recent-announcements-list.tsx",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-066",
+      "source": "src/components/announcement/send-to-all-button.tsx",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-067",
+      "source": "src/components/announcement/send-to-all-dialog.tsx",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-068",
+      "source": "src/components/filming/mark-shot-dialog.tsx",
+      "domain": "filming",
+      "target": "libs/filming/src/components/mark-shot-dialog.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-069",
+      "source": "src/components/filming/shot-list.tsx",
+      "domain": "filming",
+      "target": "libs/filming/src/components/shot-list.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-070",
+      "source": "src/components/filming/step-and-repeat-tracker.tsx",
+      "domain": "filming",
+      "target": "libs/filming/src/components/step-and-repeat-tracker.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-071",
+      "source": "src/components/judges/advisor-dashboard.tsx",
+      "domain": "judging",
+      "target": "libs/judging/src/components/advisor-dashboard.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-072",
+      "source": "src/components/judges/evaluation-dialog.tsx",
+      "domain": "judging",
+      "target": "libs/judging/src/components/evaluation-dialog.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-073",
+      "source": "src/components/judges/judges-tabs.tsx",
+      "domain": "judging",
+      "target": "libs/judging/src/components/judges-tabs.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-074",
+      "source": "src/components/judges/match-list.tsx",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-075",
+      "source": "src/components/judges/panel-view.tsx",
+      "domain": "judging",
+      "target": "libs/judging/src/components/panel-view.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-076",
+      "source": "src/components/locator/team-map.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/TeamMap.tsx",
+      "action": "adaptar",
+      "adaptation": "Apresentação sem acesso a dados; shells compõem dados autorizados; design-system.md."
+    },
+    {
+      "id": "AR-077",
+      "source": "src/components/mentor/code-entry-form.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/components/code-entry-form.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-078",
+      "source": "src/components/mentor/day-picker.tsx",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-079",
+      "source": "src/components/mentor/filming-view.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/components/filming-view.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-080",
+      "source": "src/components/mentor/home-view.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/components/home-view.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-081",
+      "source": "src/components/mentor/live-refresh.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/components/live-refresh.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-082",
+      "source": "src/components/mentor/matches-view.tsx",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-083",
+      "source": "src/components/mentor/mentor-announcements-list.tsx",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-084",
+      "source": "src/components/mentor/mentor-pages-list.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/components/mentor-pages-list.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-085",
+      "source": "src/components/mentor/pull-to-refresh.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/components/pull-to-refresh.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-086",
+      "source": "src/components/mentor/schedule-view.tsx",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-087",
+      "source": "src/components/mentor/shell.tsx",
+      "domain": "mentor",
+      "target": "libs/mentor/src/components/shell.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-088",
+      "source": "src/components/page-team/page-team-button.tsx",
+      "domain": "messaging",
+      "target": "libs/messaging/src/components/page-team-button.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-089",
+      "source": "src/components/page-team/page-team-dialog.tsx",
+      "domain": "messaging",
+      "target": "libs/messaging/src/components/page-team-dialog.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-090",
+      "source": "src/components/page-team/recent-pages-list.tsx",
+      "domain": "messaging",
+      "target": "libs/messaging/src/components/recent-pages-list.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-091",
+      "source": "src/components/pit-admin/mentor-codes-panel.tsx",
+      "domain": "admin",
+      "target": "libs/admin/src/components/mentor-codes-panel.tsx",
+      "action": "adaptar",
+      "adaptation": "Tela mínima do administrador conforme D70/D71; sem módulo Pit Admin."
+    },
+    {
+      "id": "AR-092",
+      "source": "src/components/pit-admin/pit-admin-tabs.tsx",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-093",
+      "source": "src/components/ui/app-shell.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/app-shell.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-094",
+      "source": "src/components/ui/badge.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/badge.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-095",
+      "source": "src/components/ui/button.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/button.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-096",
+      "source": "src/components/ui/card.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/card.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-097",
+      "source": "src/components/ui/checkbox.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/checkbox.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-098",
+      "source": "src/components/ui/command.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/command.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-099",
+      "source": "src/components/ui/dialog.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/dialog.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-100",
+      "source": "src/components/ui/input-otp.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/input-otp.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-101",
+      "source": "src/components/ui/input.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/input.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-102",
+      "source": "src/components/ui/label.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/label.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-103",
+      "source": "src/components/ui/popover.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/popover.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-104",
+      "source": "src/components/ui/progress.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/progress.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-105",
+      "source": "src/components/ui/separator.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/separator.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-106",
+      "source": "src/components/ui/sonner.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/sonner.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-107",
+      "source": "src/components/ui/table.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/table.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-108",
+      "source": "src/components/ui/tabs.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/tabs.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-109",
+      "source": "src/components/ui/textarea.tsx",
+      "domain": "ui",
+      "target": "libs/ui/src/components/textarea.tsx",
+      "action": "adaptar",
+      "adaptation": "Reescrever DOM/Next/Tailwind em RN/RN Web; preservar fluxo conforme catálogo."
+    },
+    {
+      "id": "AR-110",
+      "source": "src/lib/admin/actions.ts",
+      "domain": "admin",
+      "target": "libs/server/src/admin/actions.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-111",
+      "source": "src/lib/admin/approve-emails.ts",
+      "domain": "admin",
+      "target": "libs/server/src/admin/approve-emails.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-112",
+      "source": "src/lib/announcements/list.ts",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-113",
+      "source": "src/lib/announcements/presets.ts",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-114",
+      "source": "src/lib/announcements/send.ts",
+      "domain": "fora do escopo",
+      "target": "referência futura de Pit Admin/anúncios",
+      "action": "adiar",
+      "adaptation": "Escopo confirmado: Filming/Judging e dependências; não migrar módulo completo."
+    },
+    {
+      "id": "AR-115",
+      "source": "src/lib/auth.ts",
+      "domain": "auth",
+      "target": "libs/auth/src + libs/server/src/auth + apps/fgc-api/src",
+      "action": "adaptar",
+      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md."
+    },
+    {
+      "id": "AR-116",
+      "source": "src/lib/db.ts",
+      "domain": "dados",
+      "target": "supabase/migrations + acesso Supabase tipado",
+      "action": "substituir",
+      "adaptation": "Eliminar cliente Prisma; não introduzir Drizzle."
+    },
+    {
+      "id": "AR-117",
+      "source": "src/lib/events.ts",
+      "domain": "shared",
+      "target": "libs/server/src/shared/events.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-118",
+      "source": "src/lib/filming/categories.ts",
+      "domain": "filming",
+      "target": "libs/server/src/filming/categories.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-119",
+      "source": "src/lib/filming/list.ts",
+      "domain": "filming",
+      "target": "libs/server/src/filming/list.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-120",
+      "source": "src/lib/filming/mark-shot.ts",
+      "domain": "filming",
+      "target": "libs/server/src/filming/mark-shot.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-121",
+      "source": "src/lib/filming/shot-items.ts",
+      "domain": "filming",
+      "target": "libs/server/src/filming/shot-items.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-122",
+      "source": "src/lib/filming/team-status.ts",
+      "domain": "filming",
+      "target": "libs/server/src/filming/team-status.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-123",
+      "source": "src/lib/format.ts",
+      "domain": "shared",
+      "target": "libs/shared/src/format.ts",
+      "action": "adaptar",
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
+    },
+    {
+      "id": "AR-124",
+      "source": "src/lib/geo.ts",
+      "domain": "shared",
+      "target": "libs/shared/src/geo.ts",
+      "action": "adaptar",
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
+    },
+    {
+      "id": "AR-125",
+      "source": "src/lib/judges/advisor-actions.ts",
+      "domain": "judging",
+      "target": "libs/server/src/judging/advisor-actions.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-126",
+      "source": "src/lib/judges/advisor.ts",
+      "domain": "judging",
+      "target": "libs/server/src/judging/advisor.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-127",
+      "source": "src/lib/judges/evaluation-actions.ts",
+      "domain": "judging",
+      "target": "libs/server/src/judging/evaluation-actions.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-128",
+      "source": "src/lib/judges/labels.ts",
+      "domain": "judging",
+      "target": "libs/server/src/judging/labels.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-129",
+      "source": "src/lib/judges/list.ts",
+      "domain": "judging",
+      "target": "libs/server/src/judging/list.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-130",
+      "source": "src/lib/judges/match-list.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-131",
+      "source": "src/lib/labels.ts",
+      "domain": "shared",
+      "target": "libs/shared/src/labels.ts",
+      "action": "adaptar",
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
+    },
+    {
+      "id": "AR-132",
+      "source": "src/lib/mentor/code-format.ts",
+      "domain": "mentor",
+      "target": "libs/server/src/mentor/code-format.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-133",
+      "source": "src/lib/mentor/codes.ts",
+      "domain": "mentor",
+      "target": "libs/server/src/mentor/codes.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-134",
+      "source": "src/lib/mentor/issue.ts",
+      "domain": "mentor",
+      "target": "libs/server/src/mentor/issue.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-135",
+      "source": "src/lib/mentor/list.ts",
+      "domain": "mentor",
+      "target": "libs/server/src/mentor/list.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-136",
+      "source": "src/lib/mentor/redeem.ts",
+      "domain": "mentor",
+      "target": "libs/server/src/mentor/redeem.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-137",
+      "source": "src/lib/mentor/respond.ts",
+      "domain": "mentor",
+      "target": "libs/server/src/mentor/respond.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-138",
+      "source": "src/lib/mentor/session.ts",
+      "domain": "mentor",
+      "target": "libs/server/src/mentor/session.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-139",
+      "source": "src/lib/pages/list.ts",
+      "domain": "messaging",
+      "target": "libs/server/src/messaging/list.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-140",
+      "source": "src/lib/pages/presets.ts",
+      "domain": "messaging",
+      "target": "libs/messaging/src/presets.ts",
+      "action": "adaptar",
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
+    },
+    {
+      "id": "AR-141",
+      "source": "src/lib/pages/queries.ts",
+      "domain": "messaging",
+      "target": "libs/server/src/messaging/queries.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-142",
+      "source": "src/lib/pages/send.ts",
+      "domain": "messaging",
+      "target": "libs/server/src/messaging/send.ts",
+      "action": "adaptar",
+      "adaptation": "Casos de uso em @fgc/server; REST em apps/fgc-api; SQL/RPC em @fgc/database e supabase/migrations; contratos T01/T04."
+    },
+    {
+      "id": "AR-143",
+      "source": "src/lib/schedule/matches.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-144",
+      "source": "src/lib/schedule/sync.ts",
+      "domain": "programação",
+      "target": "backlog: libs/schedule; MVP: link externo",
+      "action": "adiar",
+      "adaptation": "D05–D06: horários integrados e sync não entram no MVP; preservar fonte sem ativar."
+    },
+    {
+      "id": "AR-145",
+      "source": "src/lib/supabase/client.ts",
+      "domain": "auth",
+      "target": "libs/auth/src + libs/server/src/auth + apps/fgc-api/src",
+      "action": "adaptar",
+      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md."
+    },
+    {
+      "id": "AR-146",
+      "source": "src/lib/supabase/server.ts",
+      "domain": "auth",
+      "target": "libs/auth/src + libs/server/src/auth + apps/fgc-api/src",
+      "action": "adaptar",
+      "adaptation": "Supabase Auth; separar cliente/servidor; sem bypass admin em Judging; contrato T02/T03 em contratos-tecnicos.md."
+    },
+    {
+      "id": "AR-147",
+      "source": "src/lib/utils.ts",
+      "domain": "shared",
+      "target": "libs/shared/src/utils.ts",
+      "action": "adaptar",
+      "adaptation": "Reutilizar lógica pura conforme contratos T01/T04; tipos públicos em @fgc/contracts e utilitários em @fgc/shared."
+    },
+    {
+      "id": "AR-148",
+      "source": "src/proxy.ts",
+      "domain": "auth",
+      "target": "libs/auth/src/session + shells web/mobile",
+      "action": "substituir",
+      "adaptation": "Refresh/cookies Next viram adaptadores por plataforma; contrato T02/T03 em contratos-tecnicos.md."
+    },
+    {
+      "id": "AR-149",
+      "source": "tsconfig.json",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    },
+    {
+      "id": "AR-150",
+      "source": "vercel.json",
+      "domain": "configuração",
+      "target": "configuração Nx/RN/Supabase equivalente",
+      "action": "substituir",
+      "adaptation": "Não copiar setup Next/Prisma ou lockfile para o monorepo; verificar necessidade individual."
+    }
+  ]
+}

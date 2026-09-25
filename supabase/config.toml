@@ -1,0 +1,11 @@
+project_id = "fgc-app"
+
+[api]
+enabled = true
+schemas = ["api"]
+extra_search_path = ["extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+jwt_expiry = 900

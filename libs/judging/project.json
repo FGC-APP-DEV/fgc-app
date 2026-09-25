@@ -3,17 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/judging/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:feature"],
+  "tags": ["scope:judging", "platform:client", "type:domain"],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/judging",
-        "main": "libs/judging/src/index.ts",
-        "tsConfig": "libs/judging/tsconfig.lib.json"
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
@@ -26,6 +17,12 @@
       "options": {
         "jestConfig": "jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/judging/tsconfig.check.json"
       }
     }
   }

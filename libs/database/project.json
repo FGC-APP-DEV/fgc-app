@@ -3,31 +3,40 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/database/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:data-access"],
+  "tags": [
+    "scope:database",
+    "platform:server",
+    "type:data-access"
+  ],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/database",
-        "main": "libs/database/src/index.ts",
-        "tsConfig": "libs/database/tsconfig.lib.json",
-        "packageJson": "libs/database/package.json",
-        "assets": ["libs/database/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/database/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/database/**/*.{ts,tsx}"
+        ]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/database/tsconfig.check.json"
+      }
+    },
+    "test-sql": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node supabase/tests/run-pglite.mjs node_modules/@electric-sql/pglite/dist/index.js"
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "jest.config.js",
-        "passWithNoTests": true
+        "passWithNoTests": false
       }
     }
   }

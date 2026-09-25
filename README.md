@@ -1,43 +1,88 @@
-# FGC — Coordination & Judging (Nx Monorepo)
+# FGC — competition operations
 
-Nx workspace with **fgc-web** (React + react-native-web), **fgc-api** (Express + Apollo Server), **fgc-mobile** (React Native), and shared libraries (**database**, **graphql**, **shared**, **ui**, **auth**, **judging**).
+Nx/npm workspace for the approved firstglobal-ops migration: React Native Web,
+Express REST `/api/v1`, Supabase SQL/Auth and Expo SDK57 Android/iOS.
 
-## Prerequisites
+**Migration remains in progress.** See [execution status](docs/firstglobal-ops/execution-status.md)
+for verified checks, incomplete parity and external acceptance requirements.
+Canonical product/design decisions live in the parent workspace `contexts/`.
 
-- Node.js 20+
-- Docker (for local PostgreSQL)
+## Local setup
 
-## Setup
+Use Node >=22.13.0 and run commands from this repository. Install locked packages
+with `npm ci`. Copy `.env.local.example` to `.env.local` and fill provisioned
+server values. The API reads this file; the browser never receives service keys.
+There is no passwordless demo login or local Drizzle database path. To explore the
+complete app **without any external service**, use the mock environment below.
 
-```bash
-cp .env.local.example .env.local
-npm install
-npm run docker:up
-npm run db:push
-npm run db:seed
+The new Supabase project must be configured from `supabase/migrations` in order.
+Expose only `api`. Configure Auth email templates/SMTP, active event, initial
+administrator preapproval and Step & Repeat template using the approved event
+information. Read [SQL report](docs/firstglobal-ops/sql-report.md) and
+[Auth setup](docs/firstglobal-ops/auth-report.md) before provisioning.
+Do not use real Judging content until the physical 24-hour retention requirement
+is proven for the database, backups, logs and copies.
+
+## Mock environment (no Supabase, SMTP or devices needed)
+
+```powershell
+npm run dev:mock
 ```
 
-Demo login (GraphQL `login`): use any seeded user email, e.g. `sarah.chen@fgc.local` (no password required in dev).
+Open http://localhost:3000. The mock API (`apps/fgc-api/src/mock`) runs the real
+SQL migrations on in-memory PostgreSQL (PGlite) and the real REST API and auth
+router, seeded with synthetic data: 24 teams, two judging panels, an
+observation, a flag, Filming shots and shot-list items, three mentor codes and
+pending pagers. Only the identity provider is replaced: every account signs in
+with code `123456`, and no email is sent. The login screen shows a **Mock
+accounts** panel for one-tap sign-in (admin, judge advisor, judges, filmmaker,
+mixed-role users, mentor codes). Data resets whenever the process restarts.
+Details and limits: [docs/mock-development.md](docs/mock-development.md).
 
-## Development
+## Development and verification
 
-```bash
-# API (http://localhost:4000)
+```powershell
 npm run dev:api
-
-# Web (http://localhost:3000)
 npm run dev:web
-
-# Mobile Metro
 npm run dev:mobile
+npm run dev:mock
+npm run typecheck
+npm test
+npm run test:e2e
+npm run build
+npm exec -- nx run fgc-mobile:export
 ```
 
-## Legacy prototype
+Web uses port 3000 and proxies `/api` and `/health` to API port 4000. Check existing
+listeners before starting a server. The API refuses startup if required secrets
+are absent. It never runs migrations or seeds on startup.
 
-The original single-file prototype remains at [`fgc-judges-app.jsx`](./fgc-judges-app.jsx) for reference.
+For native development, configure `apps/fgc-mobile/.env.local` with a reachable
+`EXPO_PUBLIC_API_BASE_URL` including `/api/v1`; device localhost is not the
+workstation. Supply actual bundle identifiers, scheme/domain and EAS project in
+the Expo environment. `fgc-mobile:start-go` is for compatible UI checks;
+`fgc-mobile:start-dev-client` and installed builds are needed for push and links.
+`fgc-mobile:export` compiles bundles only, without signing or publishing.
 
-## Troubleshooting
+Unit/HTTP tests use synthetic data. `fgc-web:e2e` runs two Playwright projects in
+Edge: `contract` (static server on 127.0.0.1:3000, intercepted API) and
+`fullstack` (127.0.0.1:3100: real UI, REST API and SQL on the mock stack). Neither
+is acceptance against real Supabase/SMTP/devices. The SQL harness executes actual migrations
+in disposable PGlite with synthetic Supabase Auth functions. Its invocation and
+limitations are documented in the SQL report.
 
-- **`NX Could not find Nx modules` / incomplete `node_modules/nx`:** Close editors/terminals locking files, delete `node_modules` and `package-lock.json`, then run `npm install` again from this folder.
-- **Windows `EPERM` during `npm install`:** Often antivirus or another Node process is holding `node_modules`; retry after a reboot or exclude the project folder from real-time scanning.
-- **React Native:** `fgc-mobile` expects a standard RN native project (`android/` / `ios/`). If those folders are missing, generate them with `npx @react-native-community/cli init` in a temp folder and copy native projects, or run `npx react-native init` and merge sources — this repo ships the JS/TS shell and Metro config only.
+An external scheduler must call authenticated `POST /internal/tick`. The worker
+rechecks delivery authorization, sends generic content only, and runs due purge.
+Do not replace the scheduler with an in-process timer. Production scheduler,
+Vault configuration and monitoring still need operational verification.
+
+## Boundaries
+
+Shared `contracts` define strict inputs, capabilities, DTOs and receipts.
+`api-client` never silently retries writes. Client feature libraries consume
+`auth`, `contracts` and `ui`; app shells compose features and platform adapters.
+`server` owns HTTP/auth/import/worker orchestration; `database` owns Supabase
+transport. Versioned SQL owns transactions, permissions and current-session checks.
+
+No commit, PR or deployment is implied by local verification. Required device,
+Supabase, security and full parity gates remain listed in the execution status.

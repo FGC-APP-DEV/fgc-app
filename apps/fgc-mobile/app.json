@@ -1,4 +1,9 @@
 {
-  "name": "FgcMobile",
-  "displayName": "FGC"
+  "expo": {
+    "name": "FGC",
+    "slug": "fgc-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic"
+  }
 }
