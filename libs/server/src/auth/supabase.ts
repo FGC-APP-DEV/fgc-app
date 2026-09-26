@@ -21,7 +21,21 @@ const tokens = (session: Session | null): Tokens => {
     email: session.user.email.toLowerCase(),
   }
 }
-function providerError(error: { status?: number } | null) {
+/** Operators need the upstream cause; the client only ever sees a generic message. */
+function reportDependency(
+  operation: string,
+  error: { status?: number; code?: string; message?: string },
+) {
+  console.error('auth dependency failure', {
+    operation,
+    status: error.status,
+    code: error.code,
+    message: error.message?.slice(0, 300),
+  })
+}
+function providerError(operation: string, error: { status?: number } | null) {
+  if (error && (!error.status || error.status >= 500))
+    reportDependency(operation, error)
   if (error)
     throw new AuthFailure(
       !error.status || error.status >= 500 ? 'DEPENDENCY_UNAVAILABLE' : 'UNAUTHENTICATED',
@@ -43,8 +57,10 @@ export function createSupabaseAuthProvider(
         options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
       })
       // Equal public outcome for unknown/disallowed/rate-limited email; infrastructure errors remain operational failures.
-      if (error && (!error.status || error.status >= 500))
+      if (error && (!error.status || error.status >= 500)) {
+        reportDependency('signInWithOtp', error)
         throw new AuthFailure('DEPENDENCY_UNAVAILABLE')
+      }
     },
     async verifyCode(email, code) {
       const { data, error } = await client().auth.verifyOtp({
@@ -52,7 +68,7 @@ export function createSupabaseAuthProvider(
         token: code,
         type: 'email',
       })
-      providerError(error)
+      providerError('verifyOtp:code', error)
       return tokens(data.session)
     },
     async verifyLink(tokenHash) {
@@ -60,20 +76,21 @@ export function createSupabaseAuthProvider(
         token_hash: tokenHash,
         type: 'email',
       })
-      providerError(error)
+      providerError('verifyOtp:link', error)
       return tokens(data.session)
     },
     async refresh(refreshToken) {
       const { data, error } = await client().auth.refreshSession({
         refresh_token: refreshToken,
       })
-      providerError(error)
+      providerError('refreshSession', error)
       return tokens(data.session)
     },
     async revoke(accessToken) {
       const { error } = await admin.auth.admin.signOut(accessToken, 'local')
       // Already expired/revoked sessions are a successful idempotent logout.
-      if (error && ![401, 403, 404].includes(error.status ?? 0)) providerError(error)
+      if (error && ![401, 403, 404].includes(error.status ?? 0))
+        providerError('signOut', error)
     },
   }
 }
@@ -86,7 +103,10 @@ export function createSupabaseAuthStore(
   const client = createClient(url, serviceKey, { ...options, db: { schema: 'api' } })
   async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T> {
     const { data, error } = await client.rpc(name, args)
-    if (error) throw new AuthFailure('DEPENDENCY_UNAVAILABLE')
+    if (error) {
+      reportDependency(`rpc:${name}`, error)
+      throw new AuthFailure('DEPENDENCY_UNAVAILABLE')
+    }
     return data as T
   }
   return {
