@@ -39,9 +39,20 @@ export function configuredApi(env: NodeJS.ProcessEnv) {
       try {
         return await client.rpc(name, args)
       } catch (error) {
-        if (error instanceof DatabaseFailure)
-          throw fromRpc({ code: error.code, message: error.detail })
-        throw new DomainError('DEPENDENCY_UNAVAILABLE')
+        const domain =
+          error instanceof DatabaseFailure
+            ? fromRpc({ code: error.code, message: error.detail })
+            : new DomainError('DEPENDENCY_UNAVAILABLE')
+        // Only unclassified failures are logged: expected outcomes (FORBIDDEN,
+        // VERSION_CONFLICT, ...) are normal traffic, and clients get no detail.
+        if (domain.code === 'DEPENDENCY_UNAVAILABLE')
+          console.error('database rpc failure', {
+            rpc: name,
+            code: error instanceof DatabaseFailure ? error.code : undefined,
+            message:
+              error instanceof Error ? error.message.slice(0, 300) : 'unknown error',
+          })
+        throw domain
       }
     },
   })
