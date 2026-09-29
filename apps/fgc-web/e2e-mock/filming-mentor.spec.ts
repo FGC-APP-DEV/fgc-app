@@ -17,7 +17,8 @@ test('filmmaker captures a shot, an admin issues a mentor code, the mentor answe
   const admin = await (await browser.newContext()).newPage()
   await signIn(admin, 'admin@fgc.test', 'Ada Admin')
   await admin.getByRole('button', { name: 'Open administration' }).click()
-  await admin.getByRole('textbox', { name: 'Find team for mentor code' }).fill('Ghana')
+  await admin.getByRole('button', { name: 'Open Mentor access codes' }).click()
+  await admin.getByRole('textbox', { name: 'Filter by team name' }).fill('Ghana')
   await admin.getByRole('button', { name: 'Issue code for Team Ghana' }).click()
   const notice = await admin.getByText(/Copy this code now/).innerText()
   const code = /shown only once\. Team Ghana: (\S+)/.exec(notice)?.[1]

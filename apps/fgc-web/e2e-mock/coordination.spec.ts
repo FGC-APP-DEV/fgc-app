@@ -55,7 +55,8 @@ test('a scheduled pager stays hidden from the mentor until it is due', async ({
   const admin = await (await browser.newContext()).newPage()
   await signIn(admin, 'admin@fgc.test')
   await admin.getByRole('button', { name: 'Open administration' }).click()
-  await admin.getByRole('textbox', { name: 'Find team for mentor code' }).fill('Spain')
+  await admin.getByRole('button', { name: 'Open Mentor access codes' }).click()
+  await admin.getByRole('textbox', { name: 'Filter by team name' }).fill('Spain')
   await admin.getByRole('button', { name: 'Issue code for Team Spain' }).click()
   const code = /Team Spain: (\S+)/.exec(
     await admin.getByText(/Copy this code now/).innerText(),
