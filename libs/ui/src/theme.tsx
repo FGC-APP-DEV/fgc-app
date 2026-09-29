@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { Appearance } from 'react-native'
 import { applyTheme, type ThemeMode } from './operations'
 
@@ -40,6 +47,8 @@ export function ThemeProvider({
     return initial
   })
   const [ready, setReady] = useState(!storage)
+  // True once the user has chosen a mode (stored or toggled); system changes then no longer apply.
+  const explicit = useRef(false)
   useEffect(() => {
     if (!storage) return
     let live = true
@@ -47,6 +56,7 @@ export function ThemeProvider({
       try {
         const saved = await storage.get(THEME_STORAGE_KEY)
         if (live && (saved === 'dark' || saved === 'light')) {
+          explicit.current = true
           applyTheme(saved)
           setMode(saved)
         }
@@ -61,8 +71,19 @@ export function ThemeProvider({
     }
   }, [storage])
   useEffect(() => onChange?.(mode), [mode, onChange])
+  // Follow the system scheme (Appearance maps to matchMedia on web) until a choice is made.
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      if (explicit.current) return
+      const next: ThemeMode = colorScheme === 'dark' ? 'dark' : 'light'
+      applyTheme(next)
+      setMode(next)
+    })
+    return () => subscription.remove()
+  }, [])
   const toggle = useCallback(() => {
     const next: ThemeMode = mode === 'dark' ? 'light' : 'dark'
+    explicit.current = true
     applyTheme(next)
     setMode(next)
     void Promise.resolve()
