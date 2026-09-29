@@ -62,8 +62,9 @@ test('a scheduled pager stays hidden from the mentor until it is due', async ({
   )?.[1]
   const mentor = await (await browser.newContext()).newPage()
   await mentor.goto('/')
-  await mentor.getByRole('button', { name: 'Mentor access', exact: true }).click()
-  await mentor.getByRole('textbox', { name: 'Mentor access code' }).fill(code as string)
+  await mentor
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill(code as string)
   await mentor.getByRole('button', { name: 'Open team messages' }).click()
   await expect(mentor.getByRole('button', { name: 'Refresh', exact: true })).toBeVisible()
   await expect(mentor.getByText('Scheduled interview in an hour.')).toHaveCount(0)

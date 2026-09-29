@@ -3,17 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/fgc-web/src",
   "projectType": "application",
-  "tags": [
-    "scope:fgc-web",
-    "platform:client",
-    "type:app"
-  ],
+  "tags": ["scope:fgc-web", "platform:client", "type:app"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/fgc-web",
         "main": "apps/fgc-web/src/index.tsx",
@@ -38,9 +32,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": [
-          "apps/fgc-web/**/*.{ts,tsx}"
-        ]
+        "lintFilePatterns": ["apps/fgc-web/**/*.{ts,tsx}"]
       }
     },
     "typecheck": {
@@ -51,9 +43,7 @@
     },
     "e2e": {
       "executor": "nx:run-commands",
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "options": {
         "command": "playwright test"
       }

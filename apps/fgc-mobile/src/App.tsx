@@ -1,7 +1,7 @@
 import { MentorNotifications } from './MentorNotifications'
 import React, { useEffect, useState, useCallback } from 'react'
 import { BackHandler, View } from 'react-native'
-import { AuthProvider, useAuth } from '@fgc/auth'
+import { AuthProvider, classifyLoginInput, loginFailureMessage, useAuth } from '@fgc/auth'
 import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
 import { ImportScreen } from '@fgc/imports'
@@ -42,8 +42,9 @@ const mockInfoUrl =
     : undefined
 function Login() {
   const auth = useAuth()
-  const [mode, setMode] = useState<'staff' | 'mentor'>('staff')
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
+  const [problem, setProblem] = useState('')
+  const input = classifyLoginInput(identifier)
   const [code, setCode] = useState('')
   const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -51,8 +52,9 @@ function Login() {
     setBusy(true)
     try {
       await work()
-    } catch {
-      /* Auth context presents the error. */
+    } catch (e) {
+      // Operational errors come from the auth context; unmatched credentials get one generic message.
+      setProblem(loginFailureMessage(e) ?? '')
     } finally {
       setBusy(false)
     }
@@ -68,7 +70,7 @@ function Login() {
         title="Welcome to FGC-Ops"
         subtitle="Sign in to continue to competition operations."
       >
-        {auth.error && <Notice text={auth.error} error />}
+        {(problem || auth.error) && <Notice text={problem || auth.error} error />}
         {auth.hasAuthLink && (
           <Button
             label="Confirm email sign-in"
@@ -76,80 +78,58 @@ function Login() {
             onPress={() => void run(auth.confirmLink)}
           />
         )}
-        <View style={layout.row}>
-          <Button
-            label="Staff sign-in"
-            variant={mode === 'staff' ? 'primary' : 'secondary'}
-            onPress={() => {
-              setMode('staff')
-              setCode('')
-            }}
-          />
-          <Button
-            label="Mentor access"
-            variant={mode === 'mentor' ? 'primary' : 'secondary'}
-            onPress={() => {
-              setMode('mentor')
-              setCode('')
-            }}
-          />
-        </View>
-        {mode === 'staff' ? (
+        <Field
+          label="Email or mentor access code"
+          value={identifier}
+          onChangeText={(value) => {
+            setIdentifier(value)
+            setProblem('')
+            setSent(false)
+            setCode('')
+          }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+        />
+        {input.kind === 'email' && !input.valid && (
+          <Notice text="Enter a valid email address." error />
+        )}
+        <Button
+          label={
+            busy
+              ? 'Please wait…'
+              : input.kind === 'code'
+                ? 'Open team messages'
+                : 'Send sign-in email'
+          }
+          disabled={
+            busy ||
+            input.kind === 'empty' ||
+            (input.kind === 'email' && !input.valid) ||
+            (input.kind === 'code' && !auth.installationId)
+          }
+          onPress={() =>
+            void run(async () => {
+              if (input.kind === 'email') {
+                await auth.sendEmail(input.email)
+                setSent(true)
+              } else if (input.kind === 'code') await auth.redeem(input.code)
+            })
+          }
+        />
+        {sent && input.kind === 'email' && (
           <>
+            <Notice text="Check your email. Enter the code on this device or confirm the sign-in link. If no email arrives, this address may not be registered: contact an administrator." />
             <Field
-              label="Email address"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-            <Button
-              label={busy ? 'Please wait…' : 'Send sign-in email'}
-              disabled={busy || !email.trim()}
-              onPress={() =>
-                void run(async () => {
-                  await auth.sendEmail(email)
-                  setSent(true)
-                })
-              }
-            />
-            {sent && (
-              <>
-                <Notice text="Check your email. Enter the code on this device or confirm the sign-in link." />
-                <Field
-                  label="Email code"
-                  value={code}
-                  onChangeText={setCode}
-                  keyboardType="number-pad"
-                />
-                <Button
-                  label="Verify code"
-                  disabled={busy || !code}
-                  onPress={() => void run(() => auth.verify(code))}
-                />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <Field
-              label="Mentor access code"
-              icon="lock"
+              label="Email code"
               value={code}
               onChangeText={setCode}
-              autoCapitalize="characters"
-              style={{
-                minHeight: 56,
-                textAlign: 'center',
-                fontSize: 20,
-                letterSpacing: 2,
-              }}
+              keyboardType="number-pad"
             />
             <Button
-              label="Open team messages"
-              disabled={busy || !code || !auth.installationId}
-              onPress={() => void run(() => auth.redeem(code))}
+              label="Verify code"
+              disabled={busy || !code}
+              onPress={() => void run(() => auth.verify(code))}
             />
           </>
         )}
