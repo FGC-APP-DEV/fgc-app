@@ -107,9 +107,8 @@ export function MentorCodesPage() {
             const has = codes.some((c) => c.teamId === team.id)
             return (
               <View key={team.id} style={layout.row}>
-                <Body>
-                  {team.name} · {team.countryCode}
-                </Body>
+                <Body>{team.name}</Body>
+                <Body>{team.countryCode}</Body>
                 <Button
                   label={`${has ? 'Regenerate' : 'Issue'} code for ${team.name}`}
                   disabled={busy}
