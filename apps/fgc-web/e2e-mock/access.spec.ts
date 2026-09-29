@@ -45,9 +45,9 @@ test('admin plus Judging roles never reach Judging', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Open judging' })).toHaveCount(0)
 })
 
-test('the official schedule link is shown when configured', async ({ page }) => {
+test('the official information link is shown when configured', async ({ page }) => {
   await signIn(page, 'film@fgc.test', 'Fran Filmmaker')
-  await expect(page.getByText('Official schedule')).toBeVisible()
+  await expect(page.getByText('Official information')).toBeVisible()
 })
 
 test('an administrator searches users and replaces the roles of a selection in one save', async ({

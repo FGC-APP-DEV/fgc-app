@@ -9,7 +9,6 @@ import { FilmingScreen } from '@fgc/filming'
 import { JudgingScreen } from '@fgc/judging'
 import { PagerScreen } from '@fgc/messaging'
 import { MentorScreen } from '@fgc/mentor'
-import { ScheduleScreen } from '@fgc/schedule'
 import {
   Body,
   Button,
@@ -27,6 +26,7 @@ import {
   Screen,
   layout,
   MockAccounts,
+  openOfficialInformation,
   type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
@@ -35,7 +35,7 @@ import { useFonts } from 'expo-font'
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular'
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold'
 
-type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager' | 'schedule'
+type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager'
 const mockInfoUrl =
   process.env.EXPO_PUBLIC_FGC_MOCK === '1' && process.env.EXPO_PUBLIC_API_BASE_URL
     ? process.env.EXPO_PUBLIC_API_BASE_URL.replace(/\/api\/v1\/?$/, '') + '/__mock/info'
@@ -221,7 +221,13 @@ function Shell() {
       ? [{ id: 'filming', label: 'Filming', icon: 'video' } as const]
       : []),
     ...(caps.schedule
-      ? [{ id: 'schedule', label: 'Schedule', icon: 'calendar' } as const]
+      ? [
+          {
+            id: 'official-information',
+            label: 'Official information',
+            icon: 'calendar',
+          } as const,
+        ]
       : []),
   ]
   const activeNav =
@@ -303,9 +309,9 @@ function Shell() {
               )}
               {caps.schedule && (
                 <Button
-                  label="Official schedule"
+                  label="Official information"
                   variant="secondary"
-                  onPress={() => navigate('schedule')}
+                  onPress={openOfficialInformation}
                 />
               )}
             </Screen>
@@ -330,11 +336,14 @@ function Shell() {
                 onBack={() => navigate(pageSource === 'judges' ? 'judging' : 'filming')}
               />
             )}
-          {route === 'schedule' && caps.schedule && <ScheduleScreen />}
           <BottomNav
             items={navItems}
             active={activeNav}
-            onSelect={(id) => navigate(id as Route)}
+            onSelect={(id) =>
+              id === 'official-information'
+                ? openOfficialInformation()
+                : navigate(id as Route)
+            }
           />
         </>
       )}

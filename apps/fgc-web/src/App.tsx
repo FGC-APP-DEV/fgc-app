@@ -8,7 +8,6 @@ import { FilmingScreen } from '@fgc/filming'
 import { JudgingScreen } from '@fgc/judging'
 import { PagerScreen } from '@fgc/messaging'
 import { MentorScreen } from '@fgc/mentor'
-import { ScheduleScreen } from '@fgc/schedule'
 import {
   Body,
   Button,
@@ -26,12 +25,13 @@ import {
   Screen,
   layout,
   MockAccounts,
+  openOfficialInformation,
   WIDE_BREAKPOINT,
   type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 
-type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager' | 'schedule'
+type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager'
 const mockInfoUrl = process.env.FGC_MOCK ? '/__mock/info' : undefined
 function Login() {
   const auth = useAuth()
@@ -213,7 +213,13 @@ function Shell() {
       ? [{ id: 'filming', label: 'Filming', icon: 'video' } as const]
       : []),
     ...(caps.schedule
-      ? [{ id: 'schedule', label: 'Schedule', icon: 'calendar' } as const]
+      ? [
+          {
+            id: 'official-information',
+            label: 'Official information',
+            icon: 'calendar',
+          } as const,
+        ]
       : []),
   ]
   const activeNav =
@@ -262,71 +268,80 @@ function Shell() {
       ) : (
         <View style={{ flex: 1, flexDirection: wide ? 'row-reverse' : 'column' }}>
           <View style={{ flex: 1, minWidth: 0 }}>
-          {route === 'home' && (
-            <Screen>
-              <Heading>Welcome, {auth.user.name}</Heading>
-              <Body>Choose your workspace.</Body>
-              {!caps.schedule && (
-                <Notice text="Your email is verified. Ask an administrator to enable access." />
-              )}
-              {caps.admin && (
-                <Card title="Administration">
-                  <Body>Staff access, shared team register and mentor codes.</Body>
-                  <Button label="Open administration" onPress={() => navigate('admin')} />
-                </Card>
-              )}
-              {caps.judging && (
-                <Card title="Judging">
-                  <Body>
-                    {caps.advisor
-                      ? 'Manage panels and competition progress.'
-                      : 'Your panel, teams and observations.'}
-                  </Body>
-                  <Button label="Open judging" onPress={() => navigate('judging')} />
-                </Card>
-              )}
-              {caps.filming && (
-                <Card title="Filming">
-                  <Body>Step & Repeat coverage, shot list and team pager.</Body>
-                  <Button label="Open filming" onPress={() => navigate('filming')} />
-                </Card>
-              )}
-              {caps.schedule && (
-                <Button
-                  label="Official schedule"
-                  variant="secondary"
-                  onPress={() => navigate('schedule')}
-                />
-              )}
-            </Screen>
-          )}
-          {route === 'admin' && caps.admin && (
-            <AdminScreen onImports={() => navigate('imports')} />
-          )}
-          {route === 'imports' && caps.admin && (
-            <ImportScreen pickFile={pickFile} onBack={() => navigate('admin')} />
-          )}
-          {route === 'filming' && caps.filming && (
-            <FilmingScreen onPage={(id) => page('filming', id)} />
-          )}
-          {route === 'judging' && caps.judging && (
-            <JudgingScreen onPage={(id) => page('judges', id)} onDirtyChange={setDirty} />
-          )}
-          {route === 'pager' &&
-            (pageSource === 'judges' ? caps.judging : caps.filming) && (
-              <PagerScreen
-                source={pageSource}
-                initialTeamId={teamId}
-                onBack={() => navigate(pageSource === 'judges' ? 'judging' : 'filming')}
+            {route === 'home' && (
+              <Screen>
+                <Heading>Welcome, {auth.user.name}</Heading>
+                <Body>Choose your workspace.</Body>
+                {!caps.schedule && (
+                  <Notice text="Your email is verified. Ask an administrator to enable access." />
+                )}
+                {caps.admin && (
+                  <Card title="Administration">
+                    <Body>Staff access, shared team register and mentor codes.</Body>
+                    <Button
+                      label="Open administration"
+                      onPress={() => navigate('admin')}
+                    />
+                  </Card>
+                )}
+                {caps.judging && (
+                  <Card title="Judging">
+                    <Body>
+                      {caps.advisor
+                        ? 'Manage panels and competition progress.'
+                        : 'Your panel, teams and observations.'}
+                    </Body>
+                    <Button label="Open judging" onPress={() => navigate('judging')} />
+                  </Card>
+                )}
+                {caps.filming && (
+                  <Card title="Filming">
+                    <Body>Step & Repeat coverage, shot list and team pager.</Body>
+                    <Button label="Open filming" onPress={() => navigate('filming')} />
+                  </Card>
+                )}
+                {caps.schedule && (
+                  <Button
+                    label="Official information"
+                    variant="secondary"
+                    onPress={openOfficialInformation}
+                  />
+                )}
+              </Screen>
+            )}
+            {route === 'admin' && caps.admin && (
+              <AdminScreen onImports={() => navigate('imports')} />
+            )}
+            {route === 'imports' && caps.admin && (
+              <ImportScreen pickFile={pickFile} onBack={() => navigate('admin')} />
+            )}
+            {route === 'filming' && caps.filming && (
+              <FilmingScreen onPage={(id) => page('filming', id)} />
+            )}
+            {route === 'judging' && caps.judging && (
+              <JudgingScreen
+                onPage={(id) => page('judges', id)}
+                onDirtyChange={setDirty}
               />
             )}
-          {route === 'schedule' && caps.schedule && <ScheduleScreen />}
+            {route === 'pager' &&
+              (pageSource === 'judges' ? caps.judging : caps.filming) && (
+                <PagerScreen
+                  source={pageSource}
+                  initialTeamId={teamId}
+                  onBack={() => navigate(pageSource === 'judges' ? 'judging' : 'filming')}
+                />
+              )}
           </View>
           <BottomNav
             side={wide}
             items={navItems}
             active={activeNav}
-            onSelect={(id) => navigate(id as Route)}
+            onSelect={(id) =>
+              id === 'official-information'
+                ? openOfficialInformation()
+                : navigate(id as Route)
+            }
           />
         </View>
       )}
