@@ -24,6 +24,7 @@ import { PanelsDashboard } from './PanelsDashboard'
 import {
   conflictsWithTeam,
   distributeJudges,
+  panelsForTeam,
   judgeConflictsWithPanel,
   panelCountries,
 } from './panel-planning'
@@ -92,6 +93,7 @@ export function JudgingScreen({
   const [panelName, setPanelName] = useState('')
   const [panelMode, setPanelMode] = useState<'dashboard' | 'manage'>('dashboard')
   const [panelCount, setPanelCount] = useState('4')
+  const [planNotice, setPlanNotice] = useState('')
   const [memberIds, setMemberIds] = useState<string[]>([])
   const [leaderId, setLeaderId] = useState('')
   const [transferJudge, setTransferJudge] = useState('')
@@ -246,10 +248,17 @@ export function JudgingScreen({
     const sizes = new Map(
       panels.map((p) => [p.id, teams.filter((t) => t.panelId === p.id).length]),
     )
+    const stuck: string[] = []
+    setPlanNotice('')
     for (const t of unassignedTeams) {
-      const target = [...panels].sort(
+      // Same predicate as manual assignment: no judge on the panel may conflict.
+      const target = panelsForTeam(t, panels, judges).sort(
         (a, b) => (sizes.get(a.id) ?? 0) - (sizes.get(b.id) ?? 0),
       )[0]
+      if (!target) {
+        stuck.push(`${t.team.officialId} ${t.team.name}`)
+        continue
+      }
       const receipt = await api.command<Receipt>(`/judging/panels/${target.id}/teams`, {
         teamId: t.teamId,
         expectedVersion: versions.get(target.id),
@@ -257,6 +266,10 @@ export function JudgingScreen({
       versions.set(target.id, receipt.resultingVersion)
       sizes.set(target.id, (sizes.get(target.id) ?? 0) + 1)
     }
+    if (stuck.length)
+      setPlanNotice(
+        `No eligible panel (judge conflict) for ${stuck.length} team(s): ${stuck.join(', ')}. Assign them manually.`,
+      )
   }
   const planJudges = () => {
     const plan = distributeJudges(judges, panels, teams)
@@ -378,6 +391,7 @@ export function JudgingScreen({
         />
       </View>
       {error && <Notice error text={error} />}
+      {planNotice && tab === 'panels' && <Notice text={planNotice} />}
       {!loaded && <Loading />}
       {loaded && !cycle && (
         <Notice text="There is no active judging cycle. Operational records are unavailable; advisors can review the temporary audit before its expiry." />
@@ -851,21 +865,38 @@ export function JudgingScreen({
                           key={j.id}
                           label={j.name ?? j.email}
                           variant={transferJudge === j.id ? 'primary' : 'secondary'}
-                          onPress={() => setTransferJudge(j.id)}
+                          onPress={() => {
+                            setTransferJudge(j.id)
+                            setTargetId('')
+                          }}
                         />
                       ))}
                   </View>
                   <View style={layout.row}>
                     {panels
                       .filter((p) => p.id !== panelId)
-                      .map((p) => (
-                        <Button
-                          key={p.id}
-                          label={`To ${p.name}`}
-                          variant={targetId === p.id ? 'primary' : 'secondary'}
-                          onPress={() => setTargetId(p.id)}
-                        />
-                      ))}
+                      .map((p) => {
+                        const picked = judges.find((j) => j.id === transferJudge)
+                        const hits = picked
+                          ? judgeConflictsWithPanel(picked, p.id, teams)
+                          : []
+                        return (
+                          <React.Fragment key={p.id}>
+                            <Button
+                              label={`To ${p.name}`}
+                              variant={targetId === p.id ? 'primary' : 'secondary'}
+                              disabled={hits.length > 0}
+                              onPress={() => setTargetId(p.id)}
+                            />
+                            {hits.length > 0 && (
+                              <Badge
+                                label={`Conflict: ${hits.join(', ')}`}
+                                tone="danger"
+                              />
+                            )}
+                          </React.Fragment>
+                        )
+                      })}
                   </View>
                   <Button
                     label="Transfer selected judge"

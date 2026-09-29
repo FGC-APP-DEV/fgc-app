@@ -1,59 +1,285 @@
 import type { Participation } from '@fgc/contracts'
 
-/** ISO 3166 alpha-3 -> alpha-2, so JAs may write conflicts as "BRA" or "BR". */
+/** ISO 3166-1 alpha-3 -> alpha-2 (complete), plus XKX/XK for Kosovo used by FIRST. */
 const ALPHA3: Record<string, string> = {
+  AFG: 'AF',
+  ALA: 'AX',
+  ALB: 'AL',
+  DZA: 'DZ',
+  ASM: 'AS',
+  AND: 'AD',
+  AGO: 'AO',
+  AIA: 'AI',
+  ATA: 'AQ',
+  ATG: 'AG',
   ARG: 'AR',
+  ARM: 'AM',
+  ABW: 'AW',
   AUS: 'AU',
   AUT: 'AT',
+  AZE: 'AZ',
+  BHS: 'BS',
+  BHR: 'BH',
+  BGD: 'BD',
+  BRB: 'BB',
+  BLR: 'BY',
   BEL: 'BE',
+  BLZ: 'BZ',
+  BEN: 'BJ',
+  BMU: 'BM',
+  BTN: 'BT',
+  BOL: 'BO',
+  BES: 'BQ',
+  BIH: 'BA',
+  BWA: 'BW',
+  BVT: 'BV',
   BRA: 'BR',
+  IOT: 'IO',
+  BRN: 'BN',
+  BGR: 'BG',
+  BFA: 'BF',
+  BDI: 'BI',
+  CPV: 'CV',
+  KHM: 'KH',
+  CMR: 'CM',
   CAN: 'CA',
-  CHE: 'CH',
+  CYM: 'KY',
+  CAF: 'CF',
+  TCD: 'TD',
   CHL: 'CL',
   CHN: 'CN',
+  CXR: 'CX',
+  CCK: 'CC',
   COL: 'CO',
-  DEU: 'DE',
+  COM: 'KM',
+  COG: 'CG',
+  COD: 'CD',
+  COK: 'CK',
+  CRI: 'CR',
+  CIV: 'CI',
+  HRV: 'HR',
+  CUB: 'CU',
+  CUW: 'CW',
+  CYP: 'CY',
+  CZE: 'CZ',
   DNK: 'DK',
+  DJI: 'DJ',
+  DMA: 'DM',
+  DOM: 'DO',
+  ECU: 'EC',
   EGY: 'EG',
-  ESP: 'ES',
+  SLV: 'SV',
+  GNQ: 'GQ',
+  ERI: 'ER',
+  EST: 'EE',
+  SWZ: 'SZ',
+  ETH: 'ET',
+  FLK: 'FK',
+  FRO: 'FO',
+  FJI: 'FJ',
   FIN: 'FI',
   FRA: 'FR',
-  GBR: 'GB',
+  GUF: 'GF',
+  PYF: 'PF',
+  ATF: 'TF',
+  GAB: 'GA',
+  GMB: 'GM',
+  GEO: 'GE',
+  DEU: 'DE',
   GHA: 'GH',
+  GIB: 'GI',
   GRC: 'GR',
-  IDN: 'ID',
+  GRL: 'GL',
+  GRD: 'GD',
+  GLP: 'GP',
+  GUM: 'GU',
+  GTM: 'GT',
+  GGY: 'GG',
+  GIN: 'GN',
+  GNB: 'GW',
+  GUY: 'GY',
+  HTI: 'HT',
+  HMD: 'HM',
+  VAT: 'VA',
+  HND: 'HN',
+  HKG: 'HK',
+  HUN: 'HU',
+  ISL: 'IS',
   IND: 'IN',
+  IDN: 'ID',
+  IRN: 'IR',
+  IRQ: 'IQ',
   IRL: 'IE',
+  IMN: 'IM',
   ISR: 'IL',
   ITA: 'IT',
+  JAM: 'JM',
   JPN: 'JP',
+  JEY: 'JE',
+  JOR: 'JO',
+  KAZ: 'KZ',
   KEN: 'KE',
+  KIR: 'KI',
+  PRK: 'KP',
   KOR: 'KR',
-  MEX: 'MX',
+  KWT: 'KW',
+  KGZ: 'KG',
+  LAO: 'LA',
+  LVA: 'LV',
+  LBN: 'LB',
+  LSO: 'LS',
+  LBR: 'LR',
+  LBY: 'LY',
+  LIE: 'LI',
+  LTU: 'LT',
+  LUX: 'LU',
+  MAC: 'MO',
+  MDG: 'MG',
+  MWI: 'MW',
   MYS: 'MY',
-  NGA: 'NG',
+  MDV: 'MV',
+  MLI: 'ML',
+  MLT: 'MT',
+  MHL: 'MH',
+  MTQ: 'MQ',
+  MRT: 'MR',
+  MUS: 'MU',
+  MYT: 'YT',
+  MEX: 'MX',
+  FSM: 'FM',
+  MDA: 'MD',
+  MCO: 'MC',
+  MNG: 'MN',
+  MNE: 'ME',
+  MSR: 'MS',
+  MAR: 'MA',
+  MOZ: 'MZ',
+  MMR: 'MM',
+  NAM: 'NA',
+  NRU: 'NR',
+  NPL: 'NP',
   NLD: 'NL',
-  NOR: 'NO',
+  NCL: 'NC',
   NZL: 'NZ',
+  NIC: 'NI',
+  NER: 'NE',
+  NGA: 'NG',
+  NIU: 'NU',
+  NFK: 'NF',
+  MKD: 'MK',
+  MNP: 'MP',
+  NOR: 'NO',
+  OMN: 'OM',
+  PAK: 'PK',
+  PLW: 'PW',
+  PSE: 'PS',
+  PAN: 'PA',
+  PNG: 'PG',
+  PRY: 'PY',
   PER: 'PE',
   PHL: 'PH',
+  PCN: 'PN',
   POL: 'PL',
   PRT: 'PT',
+  PRI: 'PR',
+  QAT: 'QA',
+  REU: 'RE',
+  ROU: 'RO',
   RUS: 'RU',
+  RWA: 'RW',
+  BLM: 'BL',
+  SHN: 'SH',
+  KNA: 'KN',
+  LCA: 'LC',
+  MAF: 'MF',
+  SPM: 'PM',
+  VCT: 'VC',
+  WSM: 'WS',
+  SMR: 'SM',
+  STP: 'ST',
   SAU: 'SA',
+  SEN: 'SN',
+  SRB: 'RS',
+  SYC: 'SC',
+  SLE: 'SL',
   SGP: 'SG',
-  SWE: 'SE',
-  THA: 'TH',
-  TUR: 'TR',
-  UKR: 'UA',
-  USA: 'US',
-  VNM: 'VN',
+  SXM: 'SX',
+  SVK: 'SK',
+  SVN: 'SI',
+  SLB: 'SB',
+  SOM: 'SO',
   ZAF: 'ZA',
+  SGS: 'GS',
+  SSD: 'SS',
+  ESP: 'ES',
+  LKA: 'LK',
+  SDN: 'SD',
+  SUR: 'SR',
+  SJM: 'SJ',
+  SWE: 'SE',
+  CHE: 'CH',
+  SYR: 'SY',
+  TWN: 'TW',
+  TJK: 'TJ',
+  TZA: 'TZ',
+  THA: 'TH',
+  TLS: 'TL',
+  TGO: 'TG',
+  TKL: 'TK',
+  TON: 'TO',
+  TTO: 'TT',
+  TUN: 'TN',
+  TUR: 'TR',
+  TKM: 'TM',
+  TCA: 'TC',
+  TUV: 'TV',
+  UGA: 'UG',
+  UKR: 'UA',
+  ARE: 'AE',
+  GBR: 'GB',
+  USA: 'US',
+  UMI: 'UM',
+  URY: 'UY',
+  UZB: 'UZ',
+  VUT: 'VU',
+  VEN: 'VE',
+  VNM: 'VN',
+  VGB: 'VG',
+  VIR: 'VI',
+  WLF: 'WF',
+  ESH: 'EH',
+  YEM: 'YE',
+  ZMB: 'ZM',
+  ZWE: 'ZW',
+  XKX: 'XK',
 }
-const countryKey = (value: string) => {
+const ALPHA2 = new Set(Object.values(ALPHA3))
+let namesToCode: Map<string, string> | undefined
+/** English country name -> alpha-2, so teams imported with a country name still match. */
+function codeFromName(name: string): string | undefined {
+  if (!namesToCode) {
+    namesToCode = new Map()
+    try {
+      const display = new Intl.DisplayNames(['en'], { type: 'region' })
+      for (const code of ALPHA2) {
+        const label = display.of(code)
+        if (label && label !== code) namesToCode.set(label.toUpperCase(), code)
+      }
+    } catch {
+      // Intl.DisplayNames unavailable: codes still work, names are not resolved.
+    }
+  }
+  return namesToCode.get(name.trim().toUpperCase())
+}
+/** Canonical alpha-2 for a code (alpha-2 or alpha-3) or English name; undefined if unknown. */
+export function normalizeCountry(value: string): string | undefined {
   const key = value.trim().toUpperCase()
-  return ALPHA3[key] ?? key
+  if (ALPHA2.has(key)) return key
+  return ALPHA3[key] ?? codeFromName(key)
 }
+// Unknown values compare as themselves so nothing is silently normalised away.
+const countryKey = (value: string) =>
+  normalizeCountry(value) ?? value.trim().toUpperCase()
 
 /** Splits a free-text conflict cell into unique upper-case country codes. */
 export function parseConflicts(text: string): string[] {
@@ -65,6 +291,22 @@ export function parseConflicts(text: string): string[] {
         .map((v) => v.toUpperCase()),
     ),
   ]
+}
+
+/**
+ * Validates a conflict cell: every entry must be a known ISO 3166 code (alpha-2 or
+ * alpha-3). Returns canonical alpha-2 codes and the entries that were not recognised.
+ */
+export function validateConflicts(text: string): { codes: string[]; invalid: string[] } {
+  const codes: string[] = []
+  const invalid: string[] = []
+  for (const entry of parseConflicts(text)) {
+    const code = ALPHA2.has(entry) || ALPHA3[entry] ? normalizeCountry(entry) : undefined
+    if (code) {
+      if (!codes.includes(code)) codes.push(code)
+    } else invalid.push(entry)
+  }
+  return { codes, invalid }
 }
 
 /** Whether a conflict code names the team's country (by code, alpha-3 or name). */
@@ -154,4 +396,18 @@ export function distributeJudges(
     else unplaced.push(j.id)
   }
   return { assignments, unplaced }
+}
+
+/** Panels whose judges (leader included) have no conflict with the team's country. */
+export function panelsForTeam<P extends { id: string; judgeIds: string[] }>(
+  team: Participation,
+  panels: readonly P[],
+  judges: readonly Pick<JudgeLike, 'id' | 'conflict'>[],
+): P[] {
+  return panels.filter(
+    (p) =>
+      !judges.some(
+        (j) => p.judgeIds.includes(j.id) && conflictsWithTeam(j.conflict, team.team),
+      ),
+  )
 }

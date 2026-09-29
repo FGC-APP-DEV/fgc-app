@@ -17,7 +17,7 @@ test('a judge advisor sets conflicts, creates a panel and distributes judges awa
   await cell.fill('BRA')
   const save = page.getByRole('button', { name: 'Save conflict for Jules Judge' })
   await save.click()
-  await expect(cell).toHaveValue('BRA')
+  await expect(cell).toHaveValue('BR')
   await expect(save).toBeDisabled()
 
   // A panel is created empty (no leader), then judges are distributed.

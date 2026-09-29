@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { View } from 'react-native'
 import type { Panel, Participation } from '@fgc/contracts'
 import { Badge, Body, Button, Card, Field, Notice, layout } from '@fgc/ui'
-import { judgeConflictsWithPanel, parseConflicts } from './panel-planning'
+import { judgeConflictsWithPanel, validateConflicts } from './panel-planning'
 
 export interface SheetJudge {
   id: string
@@ -55,8 +55,8 @@ export function JudgesSheet({
       {shown.map((j) => {
         const saved = j.conflict.join(', ')
         const draft = drafts[j.id] ?? saved
-        const next = parseConflicts(draft)
-        const dirty = next.join(', ') !== saved
+        const { codes: next, invalid } = validateConflicts(draft)
+        const dirty = invalid.length > 0 || next.join(', ') !== saved
         const panel = panels.find((p) => p.id === j.panelId)
         const clash = panel
           ? judgeConflictsWithPanel({ conflict: next }, panel.id, teams)
@@ -94,11 +94,17 @@ export function JudgesSheet({
                 autoCapitalize="characters"
                 maxLength={200}
               />
+              {invalid.length > 0 && (
+                <Notice
+                  error
+                  text={`Unknown country code: ${invalid.join(', ')}. Use ISO codes such as BR or BRA.`}
+                />
+              )}
             </View>
             <Button
               label={`Save conflict for ${j.name ?? j.email}`}
               variant={dirty ? 'primary' : 'secondary'}
-              disabled={busy || !dirty}
+              disabled={busy || !dirty || invalid.length > 0}
               onPress={() => {
                 onSave(j, next)
                 setDrafts((d) => {

@@ -3,7 +3,10 @@ import {
   conflictsWithTeam,
   distributeJudges,
   judgeConflictsWithPanel,
+  normalizeCountry,
   panelProgress,
+  panelsForTeam,
+  validateConflicts,
   parseConflicts,
 } from './panel-planning'
 
@@ -94,4 +97,50 @@ test('panel progress counts evaluated of active teams', () => {
     team('c', 'JP', 'p2'),
   ]
   expect(panelProgress('p1', teams)).toEqual({ evaluated: 1, active: 2, total: 2 })
+})
+
+test('the ISO table is complete: any alpha-3 (e.g. AFG) matches its alpha-2 team', () => {
+  const afghanistan = { country: 'AF', countryCode: 'AF' }
+  expect(conflictsWithTeam(['AFG'], afghanistan)).toBe(true)
+  expect(conflictsWithTeam(['AFG'], { country: 'Afghanistan', countryCode: '' })).toBe(
+    true,
+  )
+  expect(normalizeCountry('TUV')).toBe('TV')
+  expect(normalizeCountry('XKX')).toBe('XK')
+  expect(normalizeCountry('ZWE')).toBe('ZW')
+})
+
+test('unsupported conflict codes are rejected instead of silently ignored', () => {
+  expect(validateConflicts('bra, AFG, us')).toEqual({
+    codes: ['BR', 'AF', 'US'],
+    invalid: [],
+  })
+  expect(validateConflicts('BRA, XYZ, Q')).toEqual({
+    codes: ['BR'],
+    invalid: ['XYZ', 'Q'],
+  })
+})
+
+test('team division only offers panels without a conflicting judge (leaders included)', () => {
+  const t = team('a', 'BR', null)
+  const panels = [
+    { id: 'p1', judgeIds: ['lead', 'j1'] },
+    { id: 'p2', judgeIds: ['j2'] },
+    { id: 'p3', judgeIds: [] as string[] },
+  ]
+  const judges = [
+    { id: 'lead', conflict: ['BRA'] },
+    { id: 'j1', conflict: [] },
+    { id: 'j2', conflict: [] },
+  ]
+  expect(panelsForTeam(t, panels, judges).map((p) => p.id)).toEqual(['p2', 'p3'])
+  const onlyBlocked = [{ id: 'p1', judgeIds: ['lead'] }]
+  expect(panelsForTeam(t, onlyBlocked, judges)).toEqual([])
+})
+
+test('transfer destinations exclude panels holding a team of a conflict country', () => {
+  const teams = [team('a', 'BR', 'p1'), team('b', 'US', 'p2')]
+  const j = { conflict: ['USA'] }
+  expect(judgeConflictsWithPanel(j, 'p1', teams)).toEqual([])
+  expect(judgeConflictsWithPanel(j, 'p2', teams)).toEqual(['USA'])
 })

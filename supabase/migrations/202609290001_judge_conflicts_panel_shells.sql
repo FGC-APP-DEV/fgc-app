@@ -9,6 +9,9 @@ create policy conflicts_read on judging.judge_conflicts for select to authentica
 grant select,insert,update,delete on judging.judge_conflicts to fgc_command;
 grant select on judging.judge_conflicts to authenticated;
 alter table judging.panels alter column leader_id drop not null;
+create function private.judge_conflicts_with_team(c uuid,judge uuid,team uuid) returns boolean language sql stable security definer set search_path='' as $$ select exists(select 1 from judging.judge_conflicts jc join core.teams t on t.id=team where jc.cycle_id=c and jc.user_id=judge and upper(trim(t.country))=any(jc.countries)) $$;
+alter function private.judge_conflicts_with_team(uuid,uuid,uuid) owner to fgc_command;
+grant execute on function private.judge_conflicts_with_team(uuid,uuid,uuid) to fgc_command;
 create or replace function private.judging_command(op text,p jsonb,k uuid) returns jsonb language plpgsql security definer set search_path='' as $$
 declare a uuid:=private.actor(); c uuid; r jsonb; i uuid; v integer; t judging.participations; panel judging.panels; obs judging.observations; member judging.members; fl judging.flags; target judging.panels; intent private.closure_intents; uid uuid; jc judging.judge_conflicts;
 begin
@@ -58,6 +61,8 @@ begin
   for uid in select value::uuid from jsonb_array_elements_text(p->'judgeIds') loop
    if not exists(select 1 from core.user_event_roles where event_id=private.event_id() and user_id=uid and role='judge') or exists(select 1 from core.user_event_roles where event_id=private.event_id() and user_id=uid and role='admin') then raise exception 'FORBIDDEN';end if;
    if exists(select 1 from judging.members where cycle_id=c and user_id=uid and panel_id<>panel.id) then raise exception 'STATE_CONFLICT';end if;
+   -- Conflicts of interest: a judge cannot join a panel that holds a team from a conflict country.
+   if not exists(select 1 from judging.members where cycle_id=c and user_id=uid and panel_id=panel.id) and exists(select 1 from judging.participations pt where pt.cycle_id=c and pt.panel_id=panel.id and private.judge_conflicts_with_team(c,uid,pt.team_id)) then raise exception 'STATE_CONFLICT';end if;
    insert into judging.members(cycle_id,panel_id,user_id) values(c,panel.id,uid) on conflict(cycle_id,user_id) do nothing;
   end loop;
   delete from judging.members where cycle_id=c and panel_id=panel.id and not (p->'judgeIds' ? user_id::text);
@@ -68,6 +73,7 @@ begin
   if panel.id is null or t.id is null then raise exception 'NOT_FOUND';end if;
   perform private.assert_version(panel.version,(p->>'expectedVersion')::integer);
   if t.panel_id is not null then raise exception 'STATE_CONFLICT';end if;
+  if exists(select 1 from judging.members m where m.cycle_id=c and m.panel_id=panel.id and private.judge_conflicts_with_team(c,m.user_id,t.team_id)) then raise exception 'STATE_CONFLICT';end if;
   update judging.participations set panel_id=panel.id,version=version+1 where id=t.id;
   update judging.panels set version=version+1 where id=panel.id returning id,version into i,v;
  when 'panel_delete' then
@@ -83,6 +89,7 @@ begin
   perform private.assert_version(member.version,(p->>'expectedVersion')::integer);
   select version into v from judging.panels where id=member.panel_id;perform private.assert_version(v,(p->>'sourceVersion')::integer);
   perform private.assert_version(target.version,(p->>'targetVersion')::integer);
+  if exists(select 1 from judging.participations pt where pt.cycle_id=c and pt.panel_id=target.id and private.judge_conflicts_with_team(c,member.user_id,pt.team_id)) then raise exception 'STATE_CONFLICT';end if;
   if exists(select 1 from judging.panels where id=member.panel_id and leader_id=member.user_id) then raise exception 'STATE_CONFLICT'; end if;
   update judging.members set panel_id=target.id,version=version+1 where cycle_id=c and user_id=member.user_id returning user_id,version into i,v;
   update judging.panels set version=version+1 where id in (member.panel_id,target.id);
@@ -107,6 +114,7 @@ begin
   select * into target from judging.panels where cycle_id=c and id=(p->>'targetPanelId')::uuid for update;
   if target.id is null or t.panel_id is distinct from (p->>'sourcePanelId')::uuid then raise exception 'NOT_FOUND'; end if;
   perform private.assert_version(target.version,(p->>'targetVersion')::integer);
+  if exists(select 1 from judging.members m where m.cycle_id=c and m.panel_id=target.id and private.judge_conflicts_with_team(c,m.user_id,t.team_id)) then raise exception 'STATE_CONFLICT';end if;
   if t.evaluation_state<>'pending' or exists(select 1 from judging.observations where cycle_id=c and team_id=t.team_id) then raise exception 'STATE_CONFLICT'; end if;
   select version into v from judging.panels where id=t.panel_id;perform private.assert_version(v,(p->>'sourceVersion')::integer);
   update judging.participations set panel_id=target.id,version=version+1 where id=t.id returning id,version into i,v;
