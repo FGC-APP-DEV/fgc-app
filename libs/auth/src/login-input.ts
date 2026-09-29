@@ -22,19 +22,22 @@ export function classifyLoginInput(raw: string): LoginInput {
 export const notRegisteredMessage =
   'This email or code is not registered in the system. Contact an administrator to be validated.'
 
+const unmatchedCodes: ReadonlySet<string> = new Set([
+  'UNAUTHENTICATED',
+  'FORBIDDEN',
+  'NOT_FOUND',
+  'VALIDATION_ERROR',
+])
+
 /**
- * Failures that mean "we could not match you", as opposed to operational ones
- * (rate limits, connectivity) whose own message must stay visible. The message is
- * identical for unknown emails and codes so it reveals nothing about which exist.
+ * Only genuine authentication failures from the API (unknown/invalid email code or
+ * mentor code) map to the generic message. Everything else (rate limits, connectivity,
+ * confirmation-link, PKCE or storage errors) returns null so its own actionable message
+ * stays visible. The message is identical for unknown emails and codes so it reveals
+ * nothing about which exist.
  */
 export function loginFailureMessage(error: unknown): string | null {
-  if (
-    error instanceof ApiError &&
-    (error.code === 'RATE_LIMITED' ||
-      error.code === 'NETWORK_ERROR' ||
-      error.code === 'INVALID_RESPONSE' ||
-      error.status >= 500)
-  )
-    return null
-  return notRegisteredMessage
+  return error instanceof ApiError && unmatchedCodes.has(error.code)
+    ? notRegisteredMessage
+    : null
 }

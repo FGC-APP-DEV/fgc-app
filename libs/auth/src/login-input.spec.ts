@@ -25,14 +25,26 @@ describe('classifyLoginInput', () => {
 })
 
 describe('loginFailureMessage', () => {
-  it('maps unmatched credentials to the not-registered message', () => {
-    expect(loginFailureMessage(new ApiError('NOT_FOUND', 'x', 404))).toBe(
-      notRegisteredMessage,
-    )
-    expect(loginFailureMessage(new Error('bad code'))).toBe(notRegisteredMessage)
-  })
-  it('keeps operational errors', () => {
+  it.each(['UNAUTHENTICATED', 'NOT_FOUND', 'FORBIDDEN', 'VALIDATION_ERROR'] as const)(
+    'maps %s to the not-registered message',
+    (code) => {
+      expect(loginFailureMessage(new ApiError(code, 'x', 400))).toBe(notRegisteredMessage)
+    },
+  )
+  it('keeps operational API errors visible', () => {
     expect(loginFailureMessage(new ApiError('RATE_LIMITED', 'x', 429))).toBeNull()
     expect(loginFailureMessage(new ApiError('NETWORK_ERROR', 'x'))).toBeNull()
+    expect(
+      loginFailureMessage(new ApiError('DEPENDENCY_UNAVAILABLE', 'x', 503)),
+    ).toBeNull()
+  })
+  it('keeps local errors such as confirmation-link guidance visible', () => {
+    expect(
+      loginFailureMessage(
+        new Error(
+          'Use the email code on the device that requested it, or request a new login.',
+        ),
+      ),
+    ).toBeNull()
   })
 })
