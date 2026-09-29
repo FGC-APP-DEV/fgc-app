@@ -25,12 +25,14 @@ import {
   LoginShell,
   Notice,
   Screen,
+  ThemeProvider,
   layout,
   MockAccounts,
   type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFonts } from 'expo-font'
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular'
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold'
@@ -357,6 +359,10 @@ function SessionShell() {
   const { user, mentor } = useAuth()
   return <Shell key={user?.id ?? mentor?.team.id ?? 'signed-out'} />
 }
+const themeStorage = {
+  get: (key: string) => AsyncStorage.getItem(key),
+  set: (key: string, value: string) => AsyncStorage.setItem(key, value),
+}
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
     Inter: Inter_400Regular,
@@ -376,7 +382,9 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
         <AuthProvider runtime={runtime}>
-          <SessionShell />
+          <ThemeProvider storage={themeStorage}>
+            <SessionShell />
+          </ThemeProvider>
         </AuthProvider>
       </SafeAreaView>
     </SafeAreaProvider>
