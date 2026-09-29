@@ -36,6 +36,11 @@ select api.flag_put('{"teamId":"30000000-0000-4000-8000-000000000001","type":"ab
 select api.flag_put('{"teamId":"30000000-0000-4000-8000-000000000001","type":"online","expectedVersion":0}',gen_random_uuid());
 select pg_temp.assert_true((select count(*)=2 from judging.flags),'simultaneous flags retained');
 select pg_temp.assert_true(jsonb_array_length(api.judges_list())=3,'JA eligible judge projection');
+select api.judge_conflict_put('{"judgeId":"00000000-0000-4000-8000-000000000005","countries":["br"," BR ","us"],"expectedVersion":0}',gen_random_uuid());
+select pg_temp.assert_true((select conflict='["BR","US"]'::jsonb and "conflictVersion"=1 from jsonb_to_recordset(api.judges_list()) as j(id uuid,conflict jsonb,"conflictVersion" int) where id='00000000-0000-4000-8000-000000000005'),'judge conflicts normalised and projected');
+select pg_temp.expect_error($q$select api.judge_conflict_put('{"judgeId":"00000000-0000-4000-8000-000000000005","countries":[],"expectedVersion":0}',gen_random_uuid())$q$,'VERSION_CONFLICT');
+select api.panel_create('{"name":"Shell","judgeIds":[]}',gen_random_uuid());
+select pg_temp.assert_true((select leader_id is null from judging.panels where name='Shell'),'panel shell has no leader');
 select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000005","session_id":"10000000-0000-4000-8000-000000000005"}',true);
 select api.observation_put(jsonb_build_object('teamId','30000000-0000-4000-8000-000000000001','panelId',current_setting('test.panel_a'),'expectedVersion',0,'text','Synthetic confidential note'),'60000000-0000-4000-8000-000000000001');
 select api.observation_put(jsonb_build_object('teamId','30000000-0000-4000-8000-000000000001','panelId',current_setting('test.panel_a'),'expectedVersion',0,'text','Synthetic confidential note'),'60000000-0000-4000-8000-000000000001');
