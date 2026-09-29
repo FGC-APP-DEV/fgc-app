@@ -1,6 +1,7 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const webpack = require('webpack')
 const dotenv = require('dotenv')
 
@@ -70,6 +71,9 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(appRoot, 'src/index.html'),
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: path.resolve(appRoot, 'src/favicon'), to: '.' }],
     }),
     new SubresourceIntegrityPlugin(),
     new webpack.DefinePlugin({

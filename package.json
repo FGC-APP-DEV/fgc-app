@@ -54,6 +54,7 @@
     "@babel/preset-env": "^7.23.6",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
+    "@electric-sql/pglite": "0.5.8",
     "@nx/eslint": "22.7.12",
     "@nx/eslint-plugin": "22.7.12",
     "@nx/jest": "22.7.12",
@@ -73,6 +74,7 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "babel-jest": "^29.7.0",
+    "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^6.8.1",
     "dotenv": "^16.3.1",
     "esbuild": "0.25.12",
@@ -92,8 +94,7 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "5.2.6",
     "webpack-subresource-integrity": "^5.1.0",
-    "zod-to-json-schema": "3.25.2",
-    "@electric-sql/pglite": "0.5.8"
+    "zod-to-json-schema": "3.25.2"
   },
   "engines": {
     "node": ">=22.13.0"
