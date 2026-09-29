@@ -112,6 +112,12 @@ export function createAuthRouter(config: AuthConfig): Router {
             : error instanceof AuthFailure
               ? error.code
               : 'DEPENDENCY_UNAVAILABLE'
+        if (code === 'DEPENDENCY_UNAVAILABLE' && !(error instanceof AuthFailure))
+          console.error('auth route failure', {
+            requestId,
+            path,
+            error: error instanceof Error ? `${error.name}: ${error.message}` : 'unknown',
+          })
         const message =
           code === 'DEPENDENCY_UNAVAILABLE'
             ? 'Authentication is temporarily unavailable.'

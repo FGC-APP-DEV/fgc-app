@@ -35,6 +35,12 @@ export interface ApiConfig {
   authRouter?: Router
   importsRouter?: Router
   workerRouter?: Router
+  /**
+   * Number of reverse proxies in front of the API whose X-Forwarded-For entries
+   * are trusted when deriving `req.ip`. Unset or 0 trusts none, so a client can
+   * never choose its own rate-limit identity.
+   */
+  trustProxyHops?: number
   /** Development-only routes, mounted at /__mock. Ignored unless `development` is true. */
   devRouter?: Router
 }
@@ -55,6 +61,7 @@ const wrap =
 export function createApi(config: ApiConfig) {
   const app = express()
   app.disable('x-powered-by')
+  if (config.trustProxyHops) app.set('trust proxy', config.trustProxyHops)
   app.use((_, res, next) => {
     res.locals.requestId = randomUUID()
     res.set('Cache-Control', 'no-store')

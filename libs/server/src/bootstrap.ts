@@ -9,6 +9,15 @@ import {
   createSupabaseAuthStore,
 } from './auth'
 
+export function trustProxyHops(env: NodeJS.ProcessEnv): number {
+  const raw = env.TRUST_PROXY_HOPS?.trim()
+  if (!raw) return 0
+  const hops = Number(raw)
+  if (!/^\d+$/.test(raw) || hops > 5)
+    throw new Error('TRUST_PROXY_HOPS must be an integer from 0 to 5.')
+  return hops
+}
+
 export function configuredApi(env: NodeJS.ProcessEnv) {
   const required = (key: string) => {
     const value = env[key]
@@ -30,9 +39,20 @@ export function configuredApi(env: NodeJS.ProcessEnv) {
       try {
         return await client.rpc(name, args)
       } catch (error) {
-        if (error instanceof DatabaseFailure)
-          throw fromRpc({ code: error.code, message: error.detail })
-        throw new DomainError('DEPENDENCY_UNAVAILABLE')
+        const domain =
+          error instanceof DatabaseFailure
+            ? fromRpc({ code: error.code, message: error.detail })
+            : new DomainError('DEPENDENCY_UNAVAILABLE')
+        // Only unclassified failures are logged: expected outcomes (FORBIDDEN,
+        // VERSION_CONFLICT, ...) are normal traffic, and clients get no detail.
+        if (domain.code === 'DEPENDENCY_UNAVAILABLE')
+          console.error('database rpc failure', {
+            rpc: name,
+            code: error instanceof DatabaseFailure ? error.code : undefined,
+            message:
+              error instanceof Error ? error.message.slice(0, 300) : 'unknown error',
+          })
+        throw domain
       }
     },
   })
@@ -92,6 +112,7 @@ export function configuredApi(env: NodeJS.ProcessEnv) {
     allowedOrigins: origins,
     mentorSecret: required('MENTOR_HMAC_SECRET'),
     development,
+    trustProxyHops: trustProxyHops(env),
     authRouter,
     workerRouter: createWorkerRouter(gateway.service, required('WORKER_SECRET')),
   })

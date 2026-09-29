@@ -58,7 +58,7 @@ function Login() {
   return (
     <LoginShell>
       <LoginCard
-        title="Welcome to FGC"
+        title="Welcome to FGC-Ops"
         subtitle="Sign in to continue to competition operations."
       >
         {auth.error && <Notice text={auth.error} error />}

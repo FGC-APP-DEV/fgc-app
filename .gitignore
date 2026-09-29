@@ -12,3 +12,4 @@ playwright-report/
 .env
 
 /tmp
+supabase/.temp*
