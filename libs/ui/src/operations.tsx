@@ -172,6 +172,59 @@ export function Card({
     </View>
   )
 }
+/** Compact module entry point: icon, title and one-line hint in a small tappable card. */
+export function ModuleCard({
+  title,
+  hint,
+  label,
+  icon,
+  onPress,
+}: {
+  title: string
+  hint?: string
+  /** Accessible name; defaults to the title. */
+  label?: string
+  icon: IconName
+  onPress: () => void
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label ?? title}
+      accessibilityHint={hint}
+      onPress={onPress}
+      style={({ pressed }) => [
+        {
+          flexGrow: 1,
+          flexBasis: 150,
+          minHeight: 88,
+          padding: 12,
+          gap: 6,
+          borderRadius: radius.card,
+          borderWidth: 1,
+          borderColor: tokens.border,
+          backgroundColor: tokens.surface,
+          opacity: pressed ? 0.85 : 1,
+        },
+        elevation.sm,
+      ]}
+    >
+      <Icon name={icon} size={22} color={tokens.primary} />
+      <Text
+        style={{
+          fontFamily: 'InterBold',
+          fontWeight: '700',
+          fontSize: 15,
+          lineHeight: 20,
+          color: tokens.primary,
+        }}
+      >
+        {title}
+      </Text>
+      {hint && <Text style={layout.muted}>{hint}</Text>}
+    </Pressable>
+  )
+}
 export function Button({
   label,
   onPress,

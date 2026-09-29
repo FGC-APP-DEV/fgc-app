@@ -16,6 +16,8 @@ import {
   BottomNav,
   Card,
   Confirm,
+  EventFrame,
+  ModuleCard,
   Field,
   Heading,
   humanize,
@@ -262,65 +264,77 @@ function Shell() {
       ) : (
         <View style={{ flex: 1, flexDirection: wide ? 'row-reverse' : 'column' }}>
           <View style={{ flex: 1, minWidth: 0 }}>
-          {route === 'home' && (
-            <Screen>
-              <Heading>Welcome, {auth.user.name}</Heading>
-              <Body>Choose your workspace.</Body>
-              {!caps.schedule && (
-                <Notice text="Your email is verified. Ask an administrator to enable access." />
-              )}
-              {caps.admin && (
-                <Card title="Administration">
-                  <Body>Staff access, shared team register and mentor codes.</Body>
-                  <Button label="Open administration" onPress={() => navigate('admin')} />
-                </Card>
-              )}
-              {caps.judging && (
-                <Card title="Judging">
-                  <Body>
-                    {caps.advisor
-                      ? 'Manage panels and competition progress.'
-                      : 'Your panel, teams and observations.'}
-                  </Body>
-                  <Button label="Open judging" onPress={() => navigate('judging')} />
-                </Card>
-              )}
-              {caps.filming && (
-                <Card title="Filming">
-                  <Body>Step & Repeat coverage, shot list and team pager.</Body>
-                  <Button label="Open filming" onPress={() => navigate('filming')} />
-                </Card>
-              )}
-              {caps.schedule && (
-                <Button
-                  label="Official schedule"
-                  variant="secondary"
-                  onPress={() => navigate('schedule')}
-                />
-              )}
-            </Screen>
-          )}
-          {route === 'admin' && caps.admin && (
-            <AdminScreen onImports={() => navigate('imports')} />
-          )}
-          {route === 'imports' && caps.admin && (
-            <ImportScreen pickFile={pickFile} onBack={() => navigate('admin')} />
-          )}
-          {route === 'filming' && caps.filming && (
-            <FilmingScreen onPage={(id) => page('filming', id)} />
-          )}
-          {route === 'judging' && caps.judging && (
-            <JudgingScreen onPage={(id) => page('judges', id)} onDirtyChange={setDirty} />
-          )}
-          {route === 'pager' &&
-            (pageSource === 'judges' ? caps.judging : caps.filming) && (
-              <PagerScreen
-                source={pageSource}
-                initialTeamId={teamId}
-                onBack={() => navigate(pageSource === 'judges' ? 'judging' : 'filming')}
+            {route === 'home' && (
+              <Screen>
+                <Heading>Welcome, {auth.user.name}</Heading>
+                <Body>Choose your workspace.</Body>
+                {!caps.schedule && (
+                  <Notice text="Your email is verified. Ask an administrator to enable access." />
+                )}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+                  {caps.admin && (
+                    <ModuleCard
+                      title="Administration"
+                      label="Open administration"
+                      hint="Staff, teams and mentor codes"
+                      icon="admin"
+                      onPress={() => navigate('admin')}
+                    />
+                  )}
+                  {caps.judging && (
+                    <ModuleCard
+                      title="Judging"
+                      label="Open judging"
+                      hint={caps.advisor ? 'Panels and progress' : 'Your panel and teams'}
+                      icon="judging"
+                      onPress={() => navigate('judging')}
+                    />
+                  )}
+                  {caps.filming && (
+                    <ModuleCard
+                      title="Filming"
+                      label="Open filming"
+                      hint="Coverage, shots and pager"
+                      icon="video"
+                      onPress={() => navigate('filming')}
+                    />
+                  )}
+                  {caps.schedule && (
+                    <ModuleCard
+                      title="Official schedule"
+                      hint="Event timetable"
+                      icon="calendar"
+                      onPress={() => navigate('schedule')}
+                    />
+                  )}
+                </View>
+                <EventFrame />
+              </Screen>
+            )}
+            {route === 'admin' && caps.admin && (
+              <AdminScreen onImports={() => navigate('imports')} />
+            )}
+            {route === 'imports' && caps.admin && (
+              <ImportScreen pickFile={pickFile} onBack={() => navigate('admin')} />
+            )}
+            {route === 'filming' && caps.filming && (
+              <FilmingScreen onPage={(id) => page('filming', id)} />
+            )}
+            {route === 'judging' && caps.judging && (
+              <JudgingScreen
+                onPage={(id) => page('judges', id)}
+                onDirtyChange={setDirty}
               />
             )}
-          {route === 'schedule' && caps.schedule && <ScheduleScreen />}
+            {route === 'pager' &&
+              (pageSource === 'judges' ? caps.judging : caps.filming) && (
+                <PagerScreen
+                  source={pageSource}
+                  initialTeamId={teamId}
+                  onBack={() => navigate(pageSource === 'judges' ? 'judging' : 'filming')}
+                />
+              )}
+            {route === 'schedule' && caps.schedule && <ScheduleScreen />}
           </View>
           <BottomNav
             side={wide}
