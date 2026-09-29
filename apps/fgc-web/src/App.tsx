@@ -21,6 +21,7 @@ import {
   I18nProvider,
   humanize,
   useI18n,
+  type LocaleStorage,
   Loading,
   LoginCard,
   LoginShell,
@@ -33,6 +34,22 @@ import {
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 
+const localeStorage: LocaleStorage = {
+  get: async (key) => {
+    try {
+      return localStorage.getItem(key)
+    } catch {
+      return null
+    }
+  },
+  set: async (key, value) => {
+    try {
+      localStorage.setItem(key, value)
+    } catch {
+      /* Storage unavailable: the choice lasts for this session only. */
+    }
+  },
+}
 type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager' | 'schedule'
 const mockInfoUrl = process.env.FGC_MOCK ? '/__mock/info' : undefined
 function Login() {
@@ -354,7 +371,7 @@ function SessionShell() {
 }
 export default function App() {
   return (
-    <I18nProvider>
+    <I18nProvider storage={localeStorage}>
       <AuthProvider runtime={runtime}>
         <SessionShell />
       </AuthProvider>

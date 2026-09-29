@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react'
 import { Platform, View, type ViewStyle } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   DEFAULT_LOCALE,
   LOCALE_INFO,
@@ -19,6 +18,12 @@ import {
 } from '@fgc/shared'
 
 const STORAGE_KEY = 'fgc.locale'
+
+/** Key-value store that persists the language (localStorage on web, AsyncStorage on native). */
+export interface LocaleStorage {
+  get: (key: string) => Promise<string | null>
+  set: (key: string, value: string) => Promise<void>
+}
 
 export interface I18nValue {
   locale: AppLocale
@@ -56,9 +61,9 @@ function devicePreferences(): string[] {
   }
 }
 
-async function readStored(): Promise<AppLocale | undefined> {
+async function readStored(storage?: LocaleStorage): Promise<AppLocale | undefined> {
   try {
-    const value = await AsyncStorage.getItem(STORAGE_KEY)
+    const value = (await storage?.get(STORAGE_KEY)) ?? null
     return isAppLocale(value) ? value : undefined
   } catch {
     return undefined
@@ -72,9 +77,11 @@ async function readStored(): Promise<AppLocale | undefined> {
 export function I18nProvider({
   children,
   initialLocale,
+  storage,
 }: {
   children: React.ReactNode
   initialLocale?: AppLocale
+  storage?: LocaleStorage
 }) {
   const [locale, setLocaleState] = useState<AppLocale>(
     () => initialLocale ?? detectLocale(devicePreferences()),
@@ -82,23 +89,26 @@ export function I18nProvider({
   useEffect(() => {
     if (initialLocale) return
     let live = true
-    void readStored().then((stored) => {
+    void readStored(storage).then((stored) => {
       if (live && stored) setLocaleState(stored)
     })
     return () => {
       live = false
     }
-  }, [initialLocale])
+  }, [initialLocale, storage])
   const rtl = LOCALE_INFO[locale].rtl
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return
     document.documentElement.lang = locale
     document.documentElement.dir = rtl ? 'rtl' : 'ltr'
   }, [locale, rtl])
-  const setLocale = useCallback((next: AppLocale) => {
-    setLocaleState(next)
-    void AsyncStorage.setItem(STORAGE_KEY, next).catch(() => undefined)
-  }, [])
+  const setLocale = useCallback(
+    (next: AppLocale) => {
+      setLocaleState(next)
+      void Promise.resolve(storage?.set(STORAGE_KEY, next)).catch(() => undefined)
+    },
+    [storage],
+  )
   const value = useMemo<I18nValue>(
     () => ({
       locale,

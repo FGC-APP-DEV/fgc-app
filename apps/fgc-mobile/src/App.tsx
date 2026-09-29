@@ -1,6 +1,7 @@
 import { MentorNotifications } from './MentorNotifications'
 import React, { useEffect, useState, useCallback } from 'react'
 import { BackHandler, View } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AuthProvider, useAuth } from '@fgc/auth'
 import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
@@ -22,6 +23,7 @@ import {
   I18nProvider,
   humanize,
   useI18n,
+  type LocaleStorage,
   Loading,
   LoginCard,
   LoginShell,
@@ -37,6 +39,10 @@ import { useFonts } from 'expo-font'
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular'
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold'
 
+const localeStorage: LocaleStorage = {
+  get: (key) => AsyncStorage.getItem(key),
+  set: (key, value) => AsyncStorage.setItem(key, value),
+}
 type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager' | 'schedule'
 const mockInfoUrl =
   process.env.EXPO_PUBLIC_FGC_MOCK === '1' && process.env.EXPO_PUBLIC_API_BASE_URL
@@ -378,7 +384,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <I18nProvider>
+        <I18nProvider storage={localeStorage}>
           <AuthProvider runtime={runtime}>
             <SessionShell />
           </AuthProvider>
