@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import {
   ActivityIndicator,
+  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -513,6 +514,11 @@ export function ActionTile({
   )
 }
 
+export const FEEDBACK_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSdMJs3wIxGGTpTpWAYV4had6j1bdPDGzabNC6bF3wG_k3X46A/viewform?usp=header'
+export const BUG_REPORT_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSfl2jOim05arwe98f2KHM0r0NwProcq2RossMktqWB_MmKhIA/viewform?usp=header'
+
 /**
  * Top bar shared by the web and native shells: 64 px, surface fill, hairline border,
  * brand on the left and the account menu (identity + sign out) on the right.
@@ -641,6 +647,62 @@ export function AppHeader({
                   )}
                 </View>
               )}
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Feedback"
+                onPress={() => {
+                  setMenu(null)
+                  void Linking.openURL(FEEDBACK_FORM_URL)
+                }}
+                style={({ pressed }) => ({
+                  minHeight: 48,
+                  paddingHorizontal: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
+                })}
+              >
+                <Icon name="message" size={16} color={tokens.muted} />
+                <Text
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: '700',
+                    color: tokens.text,
+                  }}
+                >
+                  Feedback
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Report a bug"
+                onPress={() => {
+                  setMenu(null)
+                  void Linking.openURL(BUG_REPORT_FORM_URL)
+                }}
+                style={({ pressed }) => ({
+                  minHeight: 48,
+                  paddingHorizontal: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
+                })}
+              >
+                <Icon name="alertTriangle" size={16} color={tokens.muted} />
+                <Text
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: '700',
+                    color: tokens.text,
+                  }}
+                >
+                  Report a bug
+                </Text>
+              </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Sign out"
