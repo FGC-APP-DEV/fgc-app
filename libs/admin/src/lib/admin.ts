@@ -21,15 +21,19 @@ export function parseAccessCsv(text: string): AccessRow[] {
   text.split(/\r?\n/).forEach((raw, index) => {
     const line = raw.trim()
     if (!line) return
-    const parts = line
+    // The email is the first field and is never rewritten; only the role
+    // fields have quotes and brackets unwrapped.
+    const [first = '', ...rest] = line.split(/[,;]/)
+    const email = first.trim().toLowerCase()
+    const parts = rest
+      .join(',')
       .replace(/[[\]"']/g, '')
       .split(/[,;]/)
       .map((part) => part.trim())
       .filter(Boolean)
-    const email = (parts[0] ?? '').toLowerCase()
     const roles: Role[] = []
     const unknown: string[] = []
-    for (const token of parts.slice(1).flatMap((part) => part.split(/\s+/))) {
+    for (const token of parts.flatMap((part) => part.split(/\s+/))) {
       const role = ROLES.find((r) => r.toLowerCase() === token.toLowerCase())
       if (!role) unknown.push(token)
       else if (!roles.includes(role)) roles.push(role)

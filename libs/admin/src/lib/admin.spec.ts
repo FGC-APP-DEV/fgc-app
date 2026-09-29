@@ -12,6 +12,16 @@ describe('parseAccessCsv', () => {
       ['c@x.test', ['admin'], undefined],
     ])
   })
+  it('never rewrites the email and still unwraps quoted or bracketed roles', () => {
+    const rows = parseAccessCsv(
+      'D\'Arcy@x.test, [judge, \'judgeAdvisor\']\no\'neil@x.test,"filmmaker"\nq@x.test, "admin"',
+    )
+    expect(rows.map((r) => [r.email, r.roles, r.error])).toEqual([
+      ["d'arcy@x.test", ['judge', 'judgeAdvisor'], undefined],
+      ["o'neil@x.test", ['filmmaker'], undefined],
+      ['q@x.test', ['admin'], undefined],
+    ])
+  })
   it('flags invalid rows', () => {
     const rows = parseAccessCsv(
       'nope, judge\na@x.test\na@x.test, boss\na@x.test, admin, judge',

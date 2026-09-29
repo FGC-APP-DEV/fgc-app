@@ -60,7 +60,9 @@ export function MentorCodesPage() {
   const filtered = (teams ?? []).filter(
     (t) =>
       (!query || `${t.officialId} ${t.name}`.toLowerCase().includes(query)) &&
-      (!cc || t.countryCode.toLowerCase().includes(cc)),
+      (!cc ||
+        t.countryCode.toLowerCase().includes(cc) ||
+        t.country.toLowerCase().includes(cc)),
   )
   const view = paginate(filtered, page)
 
@@ -91,7 +93,7 @@ export function MentorCodesPage() {
           }}
         />
         <Field
-          label="Filter by country code (e.g. BRA)"
+          label="Filter by country (e.g. BR)"
           icon="search"
           autoCapitalize="characters"
           value={country}
