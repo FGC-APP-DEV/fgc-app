@@ -14,6 +14,8 @@ import {
 } from 'react-native'
 import { Icon, type IconName } from './icons'
 import { BrandLogo } from './logo'
+import { useI18n } from './i18n'
+import { LanguageMenu } from './language-menu'
 
 export const tokens = {
   primary: '#000615',
@@ -532,6 +534,7 @@ export function AppHeader({
   userName?: string
   userRole?: string
 }) {
+  const { t, dirStyle } = useI18n()
   const anchor = useRef<View>(null)
   const { width } = useWindowDimensions()
   const [menu, setMenu] = useState<{ top: number; right: number } | null>(null)
@@ -560,10 +563,11 @@ export function AppHeader({
       <View style={{ flex: 1, minWidth: 0 }}>
         <BrandLogo height={32} />
       </View>
+      <LanguageMenu />
       <Pressable
         ref={anchor}
         accessibilityRole="button"
-        accessibilityLabel="Account menu"
+        accessibilityLabel={t('accountMenu')}
         accessibilityState={{ expanded: menu !== null }}
         onPress={openMenu}
         style={({ pressed }) => ({
@@ -587,9 +591,9 @@ export function AppHeader({
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Close account menu"
+            accessibilityLabel={t('closeAccountMenu')}
             onPress={() => setMenu(null)}
-            style={{ flex: 1, backgroundColor: '#00000010' }}
+            style={[{ flex: 1, backgroundColor: '#00000010' }, dirStyle]}
           >
             <View
               style={[
@@ -649,7 +653,7 @@ export function AppHeader({
               )}
               <Pressable
                 accessibilityRole="link"
-                accessibilityLabel="Feedback"
+                accessibilityLabel={t('feedback')}
                 onPress={() => {
                   setMenu(null)
                   void Linking.openURL(FEEDBACK_FORM_URL)
@@ -672,12 +676,12 @@ export function AppHeader({
                     color: tokens.text,
                   }}
                 >
-                  Feedback
+                  {t('feedback')}
                 </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="link"
-                accessibilityLabel="Report a bug"
+                accessibilityLabel={t('reportBug')}
                 onPress={() => {
                   setMenu(null)
                   void Linking.openURL(BUG_REPORT_FORM_URL)
@@ -700,12 +704,12 @@ export function AppHeader({
                     color: tokens.text,
                   }}
                 >
-                  Report a bug
+                  {t('reportBug')}
                 </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Sign out"
+                accessibilityLabel={t('signOut')}
                 onPress={() => {
                   setMenu(null)
                   onSignOut()
@@ -728,7 +732,7 @@ export function AppHeader({
                     color: '#B91C1C',
                   }}
                 >
-                  Sign out
+                  {t('signOut')}
                 </Text>
               </Pressable>
             </View>
@@ -757,16 +761,17 @@ export function BottomNav({
   /** Vertical rail for wide screens instead of the bottom bar. */
   side?: boolean
 }) {
+  const { t } = useI18n()
   return (
     <View
       role="navigation"
-      accessibilityLabel="Workspaces"
+      accessibilityLabel={t('workspaces')}
       style={
         side
           ? {
               width: 112,
               backgroundColor: tokens.surface,
-              borderRightWidth: 1,
+              borderEndWidth: 1,
               borderColor: tokens.border,
               padding: 12,
               gap: 8,

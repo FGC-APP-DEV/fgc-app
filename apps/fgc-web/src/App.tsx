@@ -18,7 +18,9 @@ import {
   Confirm,
   Field,
   Heading,
+  I18nProvider,
   humanize,
+  useI18n,
   Loading,
   LoginCard,
   LoginShell,
@@ -157,6 +159,7 @@ function Login() {
   )
 }
 function Shell() {
+  const { t } = useI18n()
   const auth = useAuth()
   const wide = useWindowDimensions().width >= WIDE_BREAKPOINT
   const [route, setRoute] = useState<Route>('home')
@@ -204,16 +207,16 @@ function Shell() {
   if (!auth.user && !auth.mentor) return <Login />
   const caps = capabilities(auth.user?.roles ?? [])
   const navItems: NavItem[] = [
-    { id: 'home', label: 'Home', icon: 'dashboard' },
-    ...(caps.admin ? [{ id: 'admin', label: 'Admin', icon: 'admin' } as const] : []),
+    { id: 'home', label: t('navHome'), icon: 'dashboard' },
+    ...(caps.admin ? [{ id: 'admin', label: t('navAdmin'), icon: 'admin' } as const] : []),
     ...(caps.judging
-      ? [{ id: 'judging', label: 'Judging', icon: 'judging' } as const]
+      ? [{ id: 'judging', label: t('navJudging'), icon: 'judging' } as const]
       : []),
     ...(caps.filming
-      ? [{ id: 'filming', label: 'Filming', icon: 'video' } as const]
+      ? [{ id: 'filming', label: t('navFilming'), icon: 'video' } as const]
       : []),
     ...(caps.schedule
-      ? [{ id: 'schedule', label: 'Schedule', icon: 'calendar' } as const]
+      ? [{ id: 'schedule', label: t('navSchedule'), icon: 'calendar' } as const]
       : []),
   ]
   const activeNav =
@@ -234,17 +237,17 @@ function Shell() {
       <AppHeader
         onSignOut={logout}
         userName={auth.user?.name ?? auth.mentor?.team.name}
-        userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : 'Mentor'}
+        userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
       {error && <Notice text={error} error />}
       {auth.mentor ? (
         <MentorScreen />
       ) : !auth.user?.name ? (
         <Screen>
-          <Card title="Complete your profile">
-            <Field label="Full name" value={name} onChangeText={setName} />
+          <Card title={t('completeProfile')}>
+            <Field label={t('fullName')} value={name} onChangeText={setName} />
             <Button
-              label="Save profile"
+              label={t('saveProfile')}
               disabled={!name.trim()}
               onPress={() => {
                 void auth.api
@@ -264,36 +267,36 @@ function Shell() {
           <View style={{ flex: 1, minWidth: 0 }}>
           {route === 'home' && (
             <Screen>
-              <Heading>Welcome, {auth.user.name}</Heading>
-              <Body>Choose your workspace.</Body>
+              <Heading>{t('welcome', { name: auth.user.name })}</Heading>
+              <Body>{t('chooseWorkspace')}</Body>
               {!caps.schedule && (
-                <Notice text="Your email is verified. Ask an administrator to enable access." />
+                <Notice text={t('noAccess')} />
               )}
               {caps.admin && (
-                <Card title="Administration">
-                  <Body>Staff access, shared team register and mentor codes.</Body>
-                  <Button label="Open administration" onPress={() => navigate('admin')} />
+                <Card title={t('administration')}>
+                  <Body>{t('administrationBody')}</Body>
+                  <Button label={t('openAdministration')} onPress={() => navigate('admin')} />
                 </Card>
               )}
               {caps.judging && (
-                <Card title="Judging">
+                <Card title={t('judging')}>
                   <Body>
                     {caps.advisor
-                      ? 'Manage panels and competition progress.'
-                      : 'Your panel, teams and observations.'}
+                      ? t('judgingBodyAdvisor')
+                      : t('judgingBodyJudge')}
                   </Body>
-                  <Button label="Open judging" onPress={() => navigate('judging')} />
+                  <Button label={t('openJudging')} onPress={() => navigate('judging')} />
                 </Card>
               )}
               {caps.filming && (
-                <Card title="Filming">
-                  <Body>Step & Repeat coverage, shot list and team pager.</Body>
-                  <Button label="Open filming" onPress={() => navigate('filming')} />
+                <Card title={t('filming')}>
+                  <Body>{t('filmingBody')}</Body>
+                  <Button label={t('openFilming')} onPress={() => navigate('filming')} />
                 </Card>
               )}
               {caps.schedule && (
                 <Button
-                  label="Official schedule"
+                  label={t('officialSchedule')}
                   variant="secondary"
                   onPress={() => navigate('schedule')}
                 />
@@ -351,8 +354,10 @@ function SessionShell() {
 }
 export default function App() {
   return (
-    <AuthProvider runtime={runtime}>
-      <SessionShell />
-    </AuthProvider>
+    <I18nProvider>
+      <AuthProvider runtime={runtime}>
+        <SessionShell />
+      </AuthProvider>
+    </I18nProvider>
   )
 }
