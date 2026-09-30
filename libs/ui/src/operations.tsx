@@ -44,6 +44,15 @@ const lightTokens = {
   dangerBorder: '#FECACA',
   dangerText: '#991B1B',
   scrim: '#00061588',
+  /** Solid action fills keep one hue in both themes; text on them is always onFill. */
+  onFill: '#FFFFFF',
+  successFill: '#15803D',
+  dangerFill: '#B91C1C',
+  successTint: '#22C55E1A',
+  warningTint: '#F59E0B1A',
+  dangerTint: '#EF44441A',
+  dangerPress: '#EF44440D',
+  backdrop: '#00000010',
 }
 const darkTokens: typeof lightTokens = {
   primary: '#E6EBF5',
@@ -68,6 +77,14 @@ const darkTokens: typeof lightTokens = {
   dangerBorder: '#5B2A2E',
   dangerText: '#FCA5A5',
   scrim: '#000000AA',
+  onFill: '#FFFFFF',
+  successFill: '#15803D',
+  dangerFill: '#B91C1C',
+  successTint: '#22C55E26',
+  warningTint: '#F59E0B26',
+  dangerTint: '#EF444426',
+  dangerPress: '#EF444426',
+  backdrop: '#00000040',
 }
 /**
  * Live colour tokens. The object is mutated in place by `applyTheme`, so components read the
@@ -297,9 +314,9 @@ export function Button({
     variant === 'primary'
       ? tokens.primaryContainer
       : variant === 'danger'
-        ? '#B91C1C'
+        ? tokens.dangerFill
         : tokens.surface
-  const ink = variant === 'secondary' ? tokens.link : '#FFFFFF'
+  const ink = variant === 'secondary' ? tokens.link : tokens.onFill
   return (
     <Pressable
       accessibilityRole="button"
@@ -431,11 +448,11 @@ type Tone = 'neutral' | 'success' | 'warning' | 'danger'
 function toneColors(tone: Tone) {
   switch (tone) {
     case 'success':
-      return { fill: '#22C55E1A', text: tokens.successInk }
+      return { fill: tokens.successTint, text: tokens.successInk }
     case 'warning':
-      return { fill: '#F59E0B1A', text: tokens.warningInk }
+      return { fill: tokens.warningTint, text: tokens.warningInk }
     case 'danger':
-      return { fill: '#EF44441A', text: tokens.dangerInk }
+      return { fill: tokens.dangerTint, text: tokens.dangerInk }
     default:
       return { fill: tokens.surfaceLow, text: tokens.link }
   }
@@ -555,9 +572,17 @@ type TileTone = 'success' | 'danger' | 'warning' | 'primary'
 function tileColors(tone: TileTone) {
   switch (tone) {
     case 'success':
-      return { fill: '#15803D', border: '#15803D', ink: '#FFFFFF' }
+      return {
+        fill: tokens.successFill,
+        border: tokens.successFill,
+        ink: tokens.onFill,
+      }
     case 'danger':
-      return { fill: '#B91C1C', border: '#B91C1C', ink: '#FFFFFF' }
+      return {
+        fill: tokens.dangerFill,
+        border: tokens.dangerFill,
+        ink: tokens.onFill,
+      }
     case 'warning':
       return { fill: tokens.surface, border: tokens.warning, ink: tokens.warningInk }
     default:
@@ -725,7 +750,7 @@ export function AppHeader({
             accessibilityRole="button"
             accessibilityLabel={t('closeAccountMenu')}
             onPress={() => setMenu(null)}
-            style={[{ flex: 1, backgroundColor: '#00000010' }, dirStyle]}
+            style={[{ flex: 1, backgroundColor: tokens.backdrop }, dirStyle]}
           >
             <View
               style={[
@@ -852,7 +877,7 @@ export function AppHeader({
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 12,
-                  backgroundColor: pressed ? '#EF44440D' : 'transparent',
+                  backgroundColor: pressed ? tokens.dangerPress : 'transparent',
                 })}
               >
                 <Icon name="logOut" size={16} color={tokens.dangerInk} />
@@ -923,7 +948,7 @@ export function BottomNav({
     >
       {items.map((item) => {
         const on = item.id === active
-        const ink = on ? '#FFFFFF' : tokens.muted
+        const ink = on ? tokens.onFill : tokens.muted
         return (
           <Pressable
             key={item.id}
