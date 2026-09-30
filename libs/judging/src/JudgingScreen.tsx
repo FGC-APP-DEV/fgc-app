@@ -1,4 +1,4 @@
-import { sortTeams } from '@fgc/shared'
+import { SHELL_MESSAGES, sortTeams, type ShellMessageKey } from '@fgc/shared'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
@@ -16,6 +16,7 @@ import {
   ProgressBar,
   Screen,
   layout,
+  useI18n,
   useToast,
   useToastOn,
 } from '@fgc/ui'
@@ -83,6 +84,11 @@ export function JudgingScreen({
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState('')
   const toast = useToast()
+  const { t: tr } = useI18n()
+  const statusLabel = (value: string) => {
+    const key = `jdSt_${value}` as ShellMessageKey
+    return SHELL_MESSAGES.en[key] ? tr(key) : value
+  }
   useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
   const [tab, setTab] = useState<'teams' | 'panels' | 'judges' | 'closure'>('teams')
@@ -132,7 +138,7 @@ export function JudgingScreen({
         setGlobalTeams(allTeams)
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Judging could not be loaded. Try again.')
+      setError(e instanceof Error ? e.message : tr('jdLoadError'))
     } finally {
       setLoaded(true)
     }
@@ -153,7 +159,7 @@ export function JudgingScreen({
     setObservationLoaded(false)
     if (selected)
       void loadObservations().catch((e) =>
-        setError(e instanceof Error ? e.message : 'Observations could not be loaded.'),
+        setError(e instanceof Error ? e.message : tr('jdObsLoadError')),
       )
   }, [selected, loadObservations])
   useEffect(() => {
@@ -172,14 +178,10 @@ export function JudgingScreen({
     setError('')
     try {
       await work()
-      toast.success('Changes saved')
+      toast.success(tr('jdSaved'))
       await load()
     } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : 'The change was not confirmed. Refresh and review before retrying.',
-      )
+      setError(e instanceof Error ? e.message : tr('jdNotConfirmed'))
     } finally {
       setBusy(false)
     }
@@ -187,8 +189,8 @@ export function JudgingScreen({
   const navigate = (work: () => void) => {
     if (dirty)
       setConfirmation({
-        title: 'Leave unsaved observation?',
-        description: 'Discard the unsaved text and continue, or cancel to keep editing.',
+        title: tr('jdLeaveTitle'),
+        description: tr('jdLeaveBody'),
         work: async () => {
           reportDirty(false)
           work()
@@ -220,14 +222,14 @@ export function JudgingScreen({
   ) =>
     setConfirmation({
       title,
-      description: `Apply this change to ${current?.team.name}?`,
+      description: tr('jdApplyChange', { team: current?.team.name ?? '' }),
       work: async () => {
         await commandTeam(suffix, body)
       },
     })
   const judgeName = (id: string) => {
     const j = judges.find((x) => x.id === id)
-    return j ? (j.name ?? j.email) : 'Unknown judge'
+    return j ? (j.name ?? j.email) : tr('jdUnknownJudge')
   }
   const unassignedTeams = teams.filter(
     (t) => !t.panelId && t.participationStatus === 'active',
@@ -273,7 +275,7 @@ export function JudgingScreen({
     }
     if (stuck.length)
       setPlanNotice(
-        `No eligible panel (judge conflict) for ${stuck.length} team(s): ${stuck.join(', ')}. Assign them manually.`,
+        tr('jdNoEligiblePanel', { count: stuck.length, teams: stuck.join(', ') }),
       )
   }
   const planJudges = () => {
@@ -285,12 +287,12 @@ export function JudgingScreen({
       )
     })
     setConfirmation({
-      title: 'Distribute judges across panels?',
-      description: `${judges.length} judges are spread evenly over ${panels.length} panels, avoiding conflicts of interest. Panel leaders stay in place; other members may move.${
-        plan.unplaced.length
-          ? ` Left unassigned because of conflicts: ${plan.unplaced.map(judgeName).join(', ')}.`
-          : ''
-      }`,
+      title: tr('jdDistributeTitle'),
+      description:
+        tr('jdDistributeBody', { judges: judges.length, panels: panels.length }) +
+        (plan.unplaced.length
+          ? tr('jdUnplaced', { judges: plan.unplaced.map(judgeName).join(', ') })
+          : ''),
       work: async () => {
         const versions = new Map(panels.map((p) => [p.id, p.version]))
         const send = async (p: Panel, judgeIds: string[]) => {
@@ -329,16 +331,16 @@ export function JudgingScreen({
   if (!user || user.roles.includes('admin') || !(user.roles.includes('judge') || advisor))
     return (
       <Screen>
-        <Notice error text="You do not have access to Judging." />
+        <Notice error text={tr('jdNoAccess')} />
       </Screen>
     )
   return (
     <Screen>
-      <Heading>Judging</Heading>
-      <Body>Panel coordination and shared observations.</Body>
+      <Heading>{tr('jdTitle')}</Heading>
+      <Body>{tr('jdIntro')}</Body>
       <View style={layout.row}>
         <Button
-          label="Teams"
+          label={tr('jdTabTeams')}
           variant={tab === 'teams' ? 'primary' : 'secondary'}
           onPress={() =>
             navigate(() => {
@@ -350,7 +352,7 @@ export function JudgingScreen({
         {advisor && (
           <>
             <Button
-              label="Panels"
+              label={tr('jdTabPanels')}
               variant={tab === 'panels' ? 'primary' : 'secondary'}
               onPress={() =>
                 navigate(() => {
@@ -361,7 +363,7 @@ export function JudgingScreen({
               }
             />
             <Button
-              label="Judges"
+              label={tr('jdTabJudges')}
               variant={tab === 'judges' ? 'primary' : 'secondary'}
               onPress={() =>
                 navigate(() => {
@@ -371,7 +373,7 @@ export function JudgingScreen({
               }
             />
             <Button
-              label="Close & audit"
+              label={tr('jdTabClosure')}
               variant={tab === 'closure' ? 'primary' : 'secondary'}
               onPress={() =>
                 navigate(() => {
@@ -383,45 +385,44 @@ export function JudgingScreen({
           </>
         )}
         <Button
-          label="Team pager"
+          label={tr('pagerTitle')}
           variant="secondary"
           icon="send"
           disabled={busy}
           onPress={() => navigate(() => onPage())}
         />
         <Button
-          label="Refresh judging"
+          label={tr('jdRefresh')}
           variant="secondary"
           disabled={busy}
           onPress={() => {
             void load()
             if (selected)
-              void loadObservations().catch(() =>
-                setError('Could not refresh observations.'),
-              )
+              void loadObservations().catch(() => setError(tr('jdObsRefreshError')))
           }}
         />
       </View>
       {Boolean(planNotice) && tab === 'panels' && <Notice text={planNotice} />}
       {!loaded && <Loading />}
-      {loaded && !cycle && (
-        <Notice text="There is no active judging cycle. Operational records are unavailable; advisors can review the temporary audit before its expiry." />
-      )}
+      {loaded && !cycle && <Notice text={tr('jdNoCycle')} />}
       {tab === 'teams' && (
         <>
-          <Card title="Progress">
+          <Card title={tr('jdProgress')}>
             <Body>
-              {summary.evaluated} of {summary.active} active teams evaluated
+              {tr('jdEvaluated', {
+                evaluated: summary.evaluated,
+                active: summary.active,
+              })}
             </Body>
             <ProgressBar
               value={summary.evaluated}
               max={summary.active}
-              label="Teams evaluated"
+              label={tr('jdTeamsEvaluated')}
             />
-            <Body>{summary.withdrawn} withdrawn</Body>
+            <Body>{tr('jdWithdrawn', { count: summary.withdrawn })}</Body>
           </Card>
           <Field
-            label="Search judging teams"
+            label={tr('jdSearchTeams')}
             icon="search"
             value={search}
             onChangeText={setSearch}
@@ -441,52 +442,52 @@ export function JudgingScreen({
                 >
                   <Body>
                     {t.team.country} ·{' '}
-                    {panels.find((p) => p.id === t.panelId)?.name ?? 'Unassigned'}
+                    {panels.find((p) => p.id === t.panelId)?.name ?? tr('jdUnassigned')}
                   </Body>
                   <View style={layout.row}>
-                    <Badge label={t.evaluationStatus} />
-                    <Badge label={t.participationStatus} />
+                    <Badge label={statusLabel(t.evaluationStatus)} />
+                    <Badge label={statusLabel(t.participationStatus)} />
                     {t.flags.map((f) => (
-                      <Badge key={f.type} label={f.type} />
+                      <Badge key={f.type} label={statusLabel(f.type)} />
                     ))}
                   </View>
                   <Button
-                    label={`Open ${t.team.name}`}
+                    label={tr('jdOpenTeam', { team: t.team.name })}
                     onPress={() => setSelected(t.teamId)}
                   />
                 </Card>
               ))}
-          {!selected && loaded && !teams.length && (
-            <Notice text="No teams are available in Judging." />
-          )}
+          {!selected && loaded && !teams.length && <Notice text={tr('jdNoTeams')} />}
           {current && access && (
             <>
               <Card
                 title={`${current.team.officialId} · ${current.team.name}`}
                 accent={teamAccent(current)}
               >
-                <Body>{currentPanel?.name ?? 'No panel assigned'}</Body>
+                <Body>{currentPanel?.name ?? tr('jdNoPanel')}</Body>
                 <View style={layout.row}>
-                  <Badge label={current.evaluationStatus} />
-                  <Badge label={current.participationStatus} />
+                  <Badge label={statusLabel(current.evaluationStatus)} />
+                  <Badge label={statusLabel(current.participationStatus)} />
                 </View>
                 {Boolean(current.withdrawalReason) && (
-                  <Body>Withdrawal: {current.withdrawalReason}</Body>
+                  <Body>
+                    {tr('jdWithdrawal', { reason: current.withdrawalReason ?? '' })}
+                  </Body>
                 )}
                 {current.flags.map((f) => (
                   <Body key={f.type}>
-                    {f.type}
+                    {statusLabel(f.type)}
                     {f.reason ? `: ${f.reason}` : ''}
                   </Body>
                 ))}
                 <View style={layout.row}>
                   <Button
-                    label="Back to teams"
+                    label={tr('jdBackTeams')}
                     variant="secondary"
                     onPress={() => navigate(() => setSelected(null))}
                   />
                   <Button
-                    label="Page this team"
+                    label={tr('jdPageTeam')}
                     variant="secondary"
                     icon="send"
                     disabled={!current.panelId}
@@ -511,14 +512,14 @@ export function JudgingScreen({
                 ) : (
                   <Loading />
                 ))}
-              <Card title="Evaluation">
+              <Card title={tr('jdEvaluation')}>
                 <View style={layout.row}>
                   {access.complete && (
                     <Button
-                      label="Complete evaluation"
+                      label={tr('jdComplete')}
                       disabled={busy || dirty || !observationLoaded}
                       onPress={() =>
-                        confirmTeam('Complete this evaluation?', 'complete', {
+                        confirmTeam(tr('jdCompleteQ'), 'complete', {
                           confirmed: true,
                         })
                       }
@@ -526,22 +527,18 @@ export function JudgingScreen({
                   )}
                   {access.reopen && (
                     <Button
-                      label="Reopen evaluation"
+                      label={tr('jdReopen')}
                       disabled={busy || dirty}
-                      onPress={() => confirmTeam('Reopen this evaluation?', 'reopen')}
+                      onPress={() => confirmTeam(tr('jdReopenQ'), 'reopen')}
                     />
                   )}
                 </View>
-                <Body>
-                  {current.hasHistory
-                    ? 'This team has evaluation history and cannot be removed from Judging.'
-                    : 'Pending teams may be removed only when they have no observations or evaluation history.'}
-                </Body>
+                <Body>{current.hasHistory ? tr('jdHistory') : tr('jdNoHistory')}</Body>
               </Card>
               {advisor && (
-                <Card title="Team coordination">
+                <Card title={tr('jdCoordination')}>
                   <Field
-                    label="Reason for withdrawal or other flag"
+                    label={tr('jdReasonField')}
                     value={reason}
                     onChangeText={setReason}
                     maxLength={500}
@@ -550,18 +547,18 @@ export function JudgingScreen({
                   <View style={layout.row}>
                     {current.participationStatus === 'active' ? (
                       <Button
-                        label="Withdraw team"
+                        label={tr('jdWithdraw')}
                         variant="danger"
                         disabled={busy || dirty || !reason.trim()}
                         onPress={() =>
-                          confirmTeam('Withdraw team?', 'withdraw', { reason })
+                          confirmTeam(tr('jdWithdrawQ'), 'withdraw', { reason })
                         }
                       />
                     ) : (
                       <Button
-                        label="Reactivate team"
+                        label={tr('jdReactivate')}
                         disabled={busy || dirty}
-                        onPress={() => confirmTeam('Reactivate team?', 'reactivate')}
+                        onPress={() => confirmTeam(tr('jdReactivateQ'), 'reactivate')}
                       />
                     )}
                     {(['absent', 'online', 'other'] as const).map((type) => {
@@ -569,7 +566,7 @@ export function JudgingScreen({
                       return (
                         <Button
                           key={type}
-                          label={`${flagged ? 'Clear' : 'Flag'} ${type}`}
+                          label={tr(flagged ? 'jdClearFlag' : 'jdFlag', { type })}
                           variant="secondary"
                           disabled={
                             busy ||
@@ -601,13 +598,13 @@ export function JudgingScreen({
                       observationLoaded &&
                       observations.length === 0 && (
                         <Button
-                          label="Remove from Judging"
+                          label={tr('jdRemoveJudging')}
                           variant="danger"
                           disabled={busy || dirty}
                           onPress={() =>
                             setConfirmation({
-                              title: 'Remove team from Judging?',
-                              description: 'The shared team registration will remain.',
+                              title: tr('jdRemoveJudgingQ'),
+                              description: tr('jdRegistrationStays'),
                               work: async () => {
                                 await api.command(
                                   `/judging/participations/${current.teamId}`,
@@ -622,9 +619,7 @@ export function JudgingScreen({
                       )}
                   </View>
                   <Body>
-                    {current.panelId
-                      ? 'Transfer to another panel (pending with no observations).'
-                      : 'Assign this team to a panel.'}
+                    {current.panelId ? tr('jdTransferHint') : tr('jdAssignHint')}
                   </Body>
                   <View style={layout.row}>
                     {panels
@@ -632,7 +627,7 @@ export function JudgingScreen({
                       .map((p) => (
                         <Button
                           key={p.id}
-                          label={`Assign to ${p.name}`}
+                          label={tr('jdAssignTo', { panel: p.name })}
                           disabled={
                             busy ||
                             dirty ||
@@ -672,9 +667,9 @@ export function JudgingScreen({
             </>
           )}
           {!selected && advisor && cycle && (
-            <Card title="Include an imported team">
+            <Card title={tr('jdIncludeTitle')}>
               <Field
-                label="Find registered team"
+                label={tr('jdFindRegistered')}
                 icon="search"
                 value={search}
                 onChangeText={setSearch}
@@ -691,7 +686,7 @@ export function JudgingScreen({
                 .map((t) => (
                   <Button
                     key={t.id}
-                    label={`Include ${t.officialId} · ${t.name}`}
+                    label={tr('jdInclude', { team: `${t.officialId} · ${t.name}` })}
                     disabled={busy}
                     variant="secondary"
                     onPress={() =>
@@ -701,7 +696,7 @@ export function JudgingScreen({
                     }
                   />
                 ))}
-              <Body>Showing up to 30 matches. Use search to find a team.</Body>
+              <Body>{tr('jdShowing30')}</Body>
             </Card>
           )}
         </>
@@ -728,7 +723,7 @@ export function JudgingScreen({
           )}
           {panelMode === 'manage' && (
             <Button
-              label="Back to panels"
+              label={tr('jdBackPanels')}
               variant="secondary"
               onPress={() => {
                 choosePanel()
@@ -737,16 +732,22 @@ export function JudgingScreen({
             />
           )}
           {panelMode === 'manage' && (
-            <Card title={editingPanel ? `Manage ${editingPanel.name}` : 'Create panel'}>
+            <Card
+              title={
+                editingPanel
+                  ? tr('jdManage', { panel: editingPanel.name })
+                  : tr('jdCreatePanelTitle')
+              }
+            >
               {!editingPanel && (
                 <Field
-                  label="Panel name"
+                  label={tr('jdPanelName')}
                   maxLength={80}
                   value={panelName}
                   onChangeText={setPanelName}
                 />
               )}
-              <Body>Select panel members. Choose a leader from the selected judges.</Body>
+              <Body>{tr('jdSelectMembers')}</Body>
               {judges
                 .filter((j) => !j.panelId || j.panelId === panelId)
                 .map((j) => {
@@ -754,7 +755,9 @@ export function JudgingScreen({
                   return (
                     <View key={j.id} style={layout.row}>
                       <Button
-                        label={`${memberIds.includes(j.id) ? 'Selected' : 'Select'} ${j.name ?? j.email}`}
+                        label={tr(memberIds.includes(j.id) ? 'jdSelected' : 'jdSelect', {
+                          judge: j.name ?? j.email,
+                        })}
                         variant={memberIds.includes(j.id) ? 'primary' : 'secondary'}
                         disabled={hits.length > 0 && !memberIds.includes(j.id)}
                         onPress={() => {
@@ -768,13 +771,18 @@ export function JudgingScreen({
                       />
                       {memberIds.includes(j.id) && (
                         <Button
-                          label={`${leaderId === j.id ? 'Leader' : 'Make leader'}: ${j.name ?? j.email}`}
+                          label={tr(leaderId === j.id ? 'jdLeader' : 'jdMakeLeader', {
+                            judge: j.name ?? j.email,
+                          })}
                           variant={leaderId === j.id ? 'primary' : 'secondary'}
                           onPress={() => setLeaderId(j.id)}
                         />
                       )}
                       {hits.length > 0 && (
-                        <Badge label={`Conflict: ${hits.join(', ')}`} tone="danger" />
+                        <Badge
+                          label={tr('jdConflict', { countries: hits.join(', ') })}
+                          tone="danger"
+                        />
                       )}
                     </View>
                   )
@@ -783,7 +791,7 @@ export function JudgingScreen({
                 {editingPanel ? (
                   <>
                     <Button
-                      label="Save panel members"
+                      label={tr('jdSaveMembers')}
                       disabled={
                         busy ||
                         Boolean(
@@ -801,7 +809,9 @@ export function JudgingScreen({
                       }
                     />
                     <Button
-                      label={editingPanel.leaderId ? 'Replace leader' : 'Set leader'}
+                      label={
+                        editingPanel.leaderId ? tr('jdReplaceLeader') : tr('jdSetLeader')
+                      }
                       disabled={
                         busy ||
                         !leaderId ||
@@ -818,14 +828,13 @@ export function JudgingScreen({
                       }
                     />
                     <Button
-                      label="Delete empty panel"
+                      label={tr('jdDeletePanel')}
                       variant="danger"
                       disabled={busy || teams.some((t) => t.panelId === panelId)}
                       onPress={() =>
                         setConfirmation({
-                          title: 'Delete empty panel?',
-                          description:
-                            'Only a panel with no teams or observations can be deleted.',
+                          title: tr('jdDeletePanelQ'),
+                          description: tr('jdDeletePanelBody'),
                           work: async () => {
                             await api.command(
                               `/judging/panels/${panelId}`,
@@ -841,7 +850,7 @@ export function JudgingScreen({
                   </>
                 ) : (
                   <Button
-                    label="Create panel"
+                    label={tr('jdCreatePanel')}
                     disabled={
                       busy ||
                       !panelName.trim() ||
@@ -863,10 +872,8 @@ export function JudgingScreen({
               </View>
               {editingPanel && (
                 <>
-                  <Body>
-                    Replace the leader before removing or transferring that judge.
-                  </Body>
-                  <Body>Transfer a judge</Body>
+                  <Body>{tr('jdReplaceFirst')}</Body>
+                  <Body>{tr('jdTransferJudge')}</Body>
                   <View style={layout.row}>
                     {judges
                       .filter(
@@ -895,14 +902,14 @@ export function JudgingScreen({
                         return (
                           <React.Fragment key={p.id}>
                             <Button
-                              label={`To ${p.name}`}
+                              label={tr('jdToPanel', { panel: p.name })}
                               variant={targetId === p.id ? 'primary' : 'secondary'}
                               disabled={hits.length > 0}
                               onPress={() => setTargetId(p.id)}
                             />
                             {hits.length > 0 && (
                               <Badge
-                                label={`Conflict: ${hits.join(', ')}`}
+                                label={tr('jdConflict', { countries: hits.join(', ') })}
                                 tone="danger"
                               />
                             )}
@@ -911,7 +918,7 @@ export function JudgingScreen({
                       })}
                   </View>
                   <Button
-                    label="Transfer selected judge"
+                    label={tr('jdTransferSelected')}
                     disabled={busy || !transferJudge || !targetId}
                     onPress={() =>
                       void run(async () => {
@@ -934,12 +941,15 @@ export function JudgingScreen({
             </Card>
           )}
           {panelMode === 'manage' && editingPanel && (
-            <Card title={`${editingPanel.name} teams`}>
+            <Card title={tr('jdPanelTeams', { panel: editingPanel.name })}>
               <Body>
-                Leader:{' '}
-                {editingPanel.leaderId ? judgeName(editingPanel.leaderId) : 'Not set'} ·
-                Countries:{' '}
-                {panelCountries(editingPanel.id, teams).join(', ') || 'none yet'}
+                {tr('jdLeaderCountries', {
+                  leader: editingPanel.leaderId
+                    ? judgeName(editingPanel.leaderId)
+                    : tr('jdNotSet'),
+                  countries:
+                    panelCountries(editingPanel.id, teams).join(', ') || tr('jdNoneYet'),
+                })}
               </Body>
               {teams
                 .filter((t) => t.panelId === editingPanel.id)
@@ -948,9 +958,9 @@ export function JudgingScreen({
                     <Body>
                       {t.team.officialId} · {t.team.name} ({t.team.country})
                     </Body>
-                    <Badge label={t.evaluationStatus} />
+                    <Badge label={statusLabel(t.evaluationStatus)} />
                     <Button
-                      label={`Review ${t.team.name}`}
+                      label={tr('jdReview', { team: t.team.name })}
                       variant="secondary"
                       onPress={() =>
                         navigate(() => {
@@ -962,7 +972,7 @@ export function JudgingScreen({
                   </View>
                 ))}
               {!teams.some((t) => t.panelId === editingPanel.id) && (
-                <Notice text="No teams in this panel yet." />
+                <Notice text={tr('jdNoTeamsInPanel')} />
               )}
             </Card>
           )}
@@ -987,32 +997,26 @@ export function JudgingScreen({
       )}
       {tab === 'closure' && advisor && (
         <>
-          <Card title="Close Judging">
-            <Body>
-              Closing removes all operational Judging access. The temporary audit is
-              available only to advisors, and all Judging data must be permanently
-              discarded within 24 hours. Other modules remain available.
-            </Body>
+          <Card title={tr('jdCloseTitle')}>
+            <Body>{tr('jdCloseBody')}</Body>
             <Button
-              label="Begin closure"
+              label={tr('jdBeginClosure')}
               variant="danger"
               disabled={busy || !cycle}
               onPress={() => {
                 if (!cycle) return
                 const closing = cycle
                 setConfirmation({
-                  title: 'First confirmation: close Judging?',
-                  description:
-                    'Continue to the final confirmation. Cancel now to keep Judging open.',
+                  title: tr('jdFirstConfirm'),
+                  description: tr('jdFirstConfirmBody'),
                   work: async () => {
                     const receipt = await api.command<Receipt>(
                       '/judging/closure-intents',
                       { expectedVersion: closing.version, confirmed: true },
                     )
                     setConfirmation({
-                      title: 'Final confirmation: close Judging now?',
-                      description:
-                        'All operational Judging access will end immediately. This confirmation expires in five minutes.',
+                      title: tr('jdFinalConfirm'),
+                      description: tr('jdFinalConfirmBody'),
                       work: async () => {
                         await api.command('/judging/close', {
                           expectedVersion: closing.version,
@@ -1029,9 +1033,9 @@ export function JudgingScreen({
               }}
             />
           </Card>
-          <Card title="Temporary audit">
+          <Card title={tr('jdAuditTitle')}>
             <Button
-              label="Load temporary audit"
+              label={tr('jdLoadAudit')}
               variant="secondary"
               disabled={busy}
               onPress={() =>
@@ -1044,18 +1048,16 @@ export function JudgingScreen({
               <>
                 {audit.cycles.map((c) => (
                   <Body key={c.id}>
-                    Closed {c.closed_at}. Disposal deadline: {c.purge_due_at}.
+                    {tr('jdAuditCycle', { closed: c.closed_at, due: c.purge_due_at })}
                   </Body>
                 ))}
                 {audit.observations.map((o) => (
-                  <Card key={o.id} title={`Team ${o.team_id}`}>
+                  <Card key={o.id} title={tr('jdAuditTeam', { id: o.team_id })}>
                     <Body>{o.notes}</Body>
                   </Card>
                 ))}
-                <Body>{audit.entries.length} audit entries</Body>
-                {!audit.cycles.length && (
-                  <Notice text="No temporary audit is available." />
-                )}
+                <Body>{tr('jdAuditEntries', { count: audit.entries.length })}</Body>
+                {!audit.cycles.length && <Notice text={tr('jdNoAudit')} />}
               </>
             )}
           </Card>

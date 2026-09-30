@@ -1,7 +1,17 @@
 import React from 'react'
 import { View } from 'react-native'
 import type { Panel, Participation } from '@fgc/contracts'
-import { Badge, Body, Button, Card, Field, Notice, ProgressBar, layout } from '@fgc/ui'
+import {
+  Badge,
+  Body,
+  Button,
+  Card,
+  Field,
+  Notice,
+  ProgressBar,
+  layout,
+  useI18n,
+} from '@fgc/ui'
 import { panelCountries, panelProgress } from './panel-planning'
 
 interface JudgeName {
@@ -36,6 +46,7 @@ const cell = { flexGrow: 1, flexShrink: 1, flexBasis: 280, minWidth: 0 } as cons
  */
 export function PanelsDashboard(props: PanelsDashboardProps) {
   const { panels, teams, judges, busy } = props
+  const { t } = useI18n()
   const nameOf = (id: string | null) => {
     const j = judges.find((x) => x.id === id)
     return j ? (j.name ?? j.email) : null
@@ -46,15 +57,12 @@ export function PanelsDashboard(props: PanelsDashboardProps) {
   const judgesReady = judges.length > 0 && panels.length > 0
   return (
     <>
-      <Card title="Set up panels">
-        <Body>
-          1. Create the panels and divide the teams. 2. List judge conflicts on the Judges
-          tab. 3. Distribute the judges, then pick a leader for each panel.
-        </Body>
+      <Card title={t('jdSetup')}>
+        <Body>{t('jdSetupSteps')}</Body>
         <View style={layout.row}>
           <View style={{ minWidth: 140, flexGrow: 1, flexBasis: 140 }}>
             <Field
-              label="Number of panels"
+              label={t('jdPanelCount')}
               value={props.panelCount}
               onChangeText={(v) => props.onPanelCount(v.replace(/\D/g, '').slice(0, 2))}
               keyboardType="numeric"
@@ -62,35 +70,35 @@ export function PanelsDashboard(props: PanelsDashboardProps) {
             />
           </View>
           <Button
-            label="Create panels"
+            label={t('jdCreatePanels')}
             disabled={busy || !props.panelCount}
             onPress={props.onCreatePanels}
           />
-          <Button label="New panel" variant="secondary" onPress={props.onNew} />
+          <Button label={t('jdNewPanel')} variant="secondary" onPress={props.onNew} />
         </View>
         <View style={layout.row}>
           {props.notIncludedTeams > 0 && (
             <Button
-              label={`Include ${props.notIncludedTeams} registered teams`}
+              label={t('jdIncludeN', { count: props.notIncludedTeams })}
               variant="secondary"
               disabled={busy}
               onPress={props.onIncludeAll}
             />
           )}
           <Button
-            label={`Divide ${props.unassignedTeams} teams evenly`}
+            label={t('jdDivideN', { count: props.unassignedTeams })}
             variant="secondary"
             disabled={busy || !panels.length || !props.unassignedTeams}
             onPress={props.onDivideTeams}
           />
           <Button
-            label="Distribute judges"
+            label={t('jdDistributeJudges')}
             disabled={busy || !judgesReady}
             onPress={props.onDistributeJudges}
           />
         </View>
       </Card>
-      {!panels.length && <Notice text="No panels yet. Create panels to begin." />}
+      {!panels.length && <Notice text={t('jdNoPanels')} />}
       <View
         style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16, alignItems: 'stretch' }}
       >
@@ -110,26 +118,36 @@ export function PanelsDashboard(props: PanelsDashboardProps) {
                       : 'neutral'
                 }
               >
-                <Body>Leader: {leader ?? 'Not set'}</Body>
+                <Body>{t('jdLeaderOf', { leader: leader ?? t('jdNotSet') })}</Body>
                 <Body>
-                  Countries: {countries.length ? countries.join(', ') : 'No teams yet'}
+                  {t('jdCountriesOf', {
+                    countries: countries.length
+                      ? countries.join(', ')
+                      : t('jdNoTeamsYet'),
+                  })}
                 </Body>
                 <Body>
-                  {p.judgeIds.length} judges · {progress.total} teams
+                  {t('jdJudgesTeams', {
+                    judges: p.judgeIds.length,
+                    teams: progress.total,
+                  })}
                 </Body>
                 <ProgressBar
                   value={progress.evaluated}
                   max={progress.active}
-                  label={`${p.name} interviewed`}
+                  label={t('jdInterviewed', { panel: p.name })}
                 />
                 <View style={layout.row}>
                   <Body>
-                    Interviewed {progress.evaluated}/{progress.active}
+                    {t('jdInterviewedCount', {
+                      done: progress.evaluated,
+                      total: progress.active,
+                    })}
                   </Body>
-                  {!p.leaderId && <Badge label="No leader" tone="warning" />}
+                  {!p.leaderId && <Badge label={t('jdNoLeader')} tone="warning" />}
                 </View>
                 <Button
-                  label={`Open ${p.name}`}
+                  label={t('jdOpenTeam', { team: p.name })}
                   variant="secondary"
                   onPress={() => props.onOpen(p)}
                 />

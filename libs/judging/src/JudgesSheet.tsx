@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { View } from 'react-native'
 import type { Panel, Participation } from '@fgc/contracts'
-import { Badge, Body, Button, Card, Field, Notice, layout } from '@fgc/ui'
+import { Badge, Body, Button, Card, Field, Notice, layout, useI18n } from '@fgc/ui'
 import { judgeConflictsWithPanel, validateConflicts } from './panel-planning'
 
 export interface SheetJudge {
@@ -31,6 +31,7 @@ export function JudgesSheet({
   busy: boolean
   onSave(judge: SheetJudge, countries: string[]): void
 }) {
+  const { t } = useI18n()
   const [search, setSearch] = useState('')
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const shown = judges.filter((j) =>
@@ -39,14 +40,10 @@ export function JudgesSheet({
       .includes(search.trim().toLowerCase()),
   )
   return (
-    <Card title="Judges">
-      <Body>
-        Add the country codes (for example BR or BRA, separated by commas) each judge is
-        related to. Leave blank when there is no conflict. Judges are kept off panels that
-        include those countries.
-      </Body>
+    <Card title={t('jdJudgesSheet')}>
+      <Body>{t('jdSheetHelp')}</Body>
       <Field
-        label="Search judges"
+        label={t('jdSearchJudges')}
         icon="search"
         value={search}
         onChangeText={setSearch}
@@ -74,13 +71,13 @@ export function JudgesSheet({
             <View style={{ flexGrow: 1, flexBasis: 200, minWidth: 0, gap: 4 }}>
               <Body>{j.name ?? j.email}</Body>
               <View style={layout.row}>
-                <Badge label={panel?.name ?? 'No panel'} tone="neutral" />
+                <Badge label={panel?.name ?? t('jdNoPanelBadge')} tone="neutral" />
                 {panel && panel.leaderId === j.id && (
-                  <Badge label="Leader" tone="success" />
+                  <Badge label={t('jdLeaderBadge')} tone="success" />
                 )}
                 {clash.length > 0 && (
                   <Badge
-                    label={`Conflict with panel: ${clash.join(', ')}`}
+                    label={t('jdClash', { countries: clash.join(', ') })}
                     tone="danger"
                   />
                 )}
@@ -88,21 +85,18 @@ export function JudgesSheet({
             </View>
             <View style={{ flexGrow: 2, flexBasis: 220, minWidth: 0 }}>
               <Field
-                label={`Conflict for ${j.name ?? j.email}`}
+                label={t('jdConflictFor', { judge: j.name ?? j.email })}
                 value={draft}
                 onChangeText={(v) => setDrafts((d) => ({ ...d, [j.id]: v }))}
                 autoCapitalize="characters"
                 maxLength={200}
               />
               {invalid.length > 0 && (
-                <Notice
-                  error
-                  text={`Unknown country code: ${invalid.join(', ')}. Use ISO codes such as BR or BRA.`}
-                />
+                <Notice error text={t('jdUnknownCode', { codes: invalid.join(', ') })} />
               )}
             </View>
             <Button
-              label={`Save conflict for ${j.name ?? j.email}`}
+              label={t('jdSaveConflict', { judge: j.name ?? j.email })}
               variant={dirty ? 'primary' : 'secondary'}
               disabled={busy || !dirty || invalid.length > 0}
               onPress={() => {
@@ -117,9 +111,7 @@ export function JudgesSheet({
         )
       })}
       {!shown.length && (
-        <Notice
-          text={judges.length ? 'No judges match this search.' : 'No judges yet.'}
-        />
+        <Notice text={judges.length ? t('jdNoJudgesMatch') : t('jdNoJudges')} />
       )}
     </Card>
   )
