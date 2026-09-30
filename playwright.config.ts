@@ -1,5 +1,10 @@
 import { defineConfig } from '@playwright/test'
-const device = { viewport: { width: 390, height: 844 }, channel: 'msedge' }
+const device = {
+  viewport: { width: 390, height: 844 },
+  channel: 'msedge',
+  // The embedded event page must never hit the network in tests (specs stub it where needed).
+  launchOptions: { args: ['--host-resolver-rules=MAP first.global ~NOTFOUND'] },
+}
 export default defineConfig({
   fullyParallel: false,
   workers: 1,

@@ -15,6 +15,8 @@ import {
   BottomNav,
   Card,
   Confirm,
+  EventFrame,
+  ModuleCard,
   Field,
   Heading,
   I18nProvider,
@@ -190,7 +192,9 @@ function Shell() {
   const caps = capabilities(auth.user?.roles ?? [])
   const navItems: NavItem[] = [
     { id: 'home', label: t('navHome'), icon: 'dashboard' },
-    ...(caps.admin ? [{ id: 'admin', label: t('navAdmin'), icon: 'admin' } as const] : []),
+    ...(caps.admin
+      ? [{ id: 'admin', label: t('navAdmin'), icon: 'admin' } as const]
+      : []),
     ...(caps.judging
       ? [{ id: 'judging', label: t('navJudging'), icon: 'judging' } as const]
       : []),
@@ -257,41 +261,49 @@ function Shell() {
               <Screen>
                 <Heading>{t('welcome', { name: auth.user.name })}</Heading>
                 <Body>{t('chooseWorkspace')}</Body>
-                {!caps.schedule && (
-                  <Notice text={t('noAccess')} />
-                )}
-                {caps.admin && (
-                  <Card title={t('administration')}>
-                    <Body>{t('administrationBody')}</Body>
-                    <Button
+                {!caps.schedule && <Notice text={t('noAccess')} />}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+                  {caps.admin && (
+                    <ModuleCard
+                      title={t('administration')}
                       label={t('openAdministration')}
+                      hint={t('moduleHintAdministration')}
+                      icon="admin"
                       onPress={() => navigate('admin')}
                     />
-                  </Card>
-                )}
-                {caps.judging && (
-                  <Card title={t('judging')}>
-                    <Body>
-                      {caps.advisor
-                        ? t('judgingBodyAdvisor')
-                        : t('judgingBodyJudge')}
-                    </Body>
-                    <Button label={t('openJudging')} onPress={() => navigate('judging')} />
-                  </Card>
-                )}
-                {caps.filming && (
-                  <Card title={t('filming')}>
-                    <Body>{t('filmingBody')}</Body>
-                    <Button label={t('openFilming')} onPress={() => navigate('filming')} />
-                  </Card>
-                )}
-                {caps.schedule && (
-                  <Button
-                    label={t('officialSchedule')}
-                    variant="secondary"
-                    onPress={openOfficialInformation}
-                  />
-                )}
+                  )}
+                  {caps.judging && (
+                    <ModuleCard
+                      title={t('judging')}
+                      label={t('openJudging')}
+                      hint={t(
+                        caps.advisor
+                          ? 'moduleHintJudgingAdvisor'
+                          : 'moduleHintJudgingJudge',
+                      )}
+                      icon="judging"
+                      onPress={() => navigate('judging')}
+                    />
+                  )}
+                  {caps.filming && (
+                    <ModuleCard
+                      title={t('filming')}
+                      label={t('openFilming')}
+                      hint={t('moduleHintFilming')}
+                      icon="video"
+                      onPress={() => navigate('filming')}
+                    />
+                  )}
+                  {caps.schedule && (
+                    <ModuleCard
+                      title={t('officialSchedule')}
+                      hint={t('moduleHintOfficial')}
+                      icon="calendar"
+                      onPress={openOfficialInformation}
+                    />
+                  )}
+                </View>
+                <EventFrame />
               </Screen>
             )}
             {route === 'admin' && caps.admin && (
