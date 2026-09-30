@@ -5,7 +5,7 @@ test('the home event frame always offers Reload and Open in browser below it', a
   page,
 }) => {
   await signIn(page, 'film@fgc.test', 'Fran Filmmaker')
-  await expect(page.getByText('Event information')).toBeVisible()
+  await expect(page.getByText('Watch Live!')).toBeVisible()
   await expect(page.getByText('Page not loading? Open it in your browser.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Reload' })).toBeVisible()
 
