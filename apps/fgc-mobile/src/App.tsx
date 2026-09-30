@@ -30,6 +30,7 @@ import {
   Notice,
   Screen,
   ThemeProvider,
+  ToastProvider,
   layout,
   MockAccounts,
   type NavItem,
@@ -392,7 +393,9 @@ export default function App() {
         <I18nProvider storage={localeStorage}>
           <AuthProvider runtime={runtime}>
             <ThemeProvider storage={themeStorage}>
-              <SessionShell />
+              <ToastProvider>
+                <SessionShell />
+              </ToastProvider>
             </ThemeProvider>
           </AuthProvider>
         </I18nProvider>

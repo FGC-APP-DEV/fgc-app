@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '@fgc/auth'
 import type { User } from '@fgc/contracts'
-import { Body, Button, Card, Field, Notice } from '@fgc/ui'
+import { Body, Button, Card, Field, Notice, useToast, useToastOn } from '@fgc/ui'
 import { parseAccessCsv } from './lib/admin'
 
 export function ApproveAccessPage() {
@@ -10,6 +10,8 @@ export function ApproveAccessPage() {
   const [result, setResult] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
 
   const submit = async () => {
     setError('')
@@ -41,6 +43,7 @@ export function ApproveAccessPage() {
         if (receipt?.error) failed.push(row.email)
       }
       setResult(lines.join('\n'))
+      if (failed.length < byEmail.size) toast.success('Access saved')
       // Keep only the rows that failed so they can be corrected and resent.
       setText(
         rows
@@ -70,7 +73,6 @@ export function ApproveAccessPage() {
         autoCapitalize="none"
         placeholder="email@example.org, filmmaker"
       />
-      {error && <Notice text={error} error />}
       <Button
         label="Save access"
         disabled={busy || !text.trim()}
