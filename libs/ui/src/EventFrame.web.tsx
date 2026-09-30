@@ -14,6 +14,7 @@ import { useI18n } from './i18n'
 import { EVENT_LOAD_TIMEOUT_MS } from './event-frame'
 
 /**
+ * TODO(2026-10-05): on the event days, replace this embed with the YouTube live links.
  * Official event page in an iframe (web). A cross-origin page cannot tell us whether the embed
  * was blocked (X-Frame-Options / frame-ancestors) and the browser still fires `load` for its
  * own error page, so failure cannot be detected reliably. The frame is therefore always

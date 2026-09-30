@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { Observation } from '@fgc/contracts'
-import { Body, Button, Card, Confirm, Field, Notice, layout } from '@fgc/ui'
+import { Body, Button, Card, Confirm, Field, Notice, layout, useToast } from '@fgc/ui'
 import { ObservationDraft } from './judging-state'
 
 export function ObservationEditor({
@@ -21,6 +21,7 @@ export function ObservationEditor({
   onDirtyChange?(dirty: boolean): void
 }) {
   const { api, user } = useAuth()
+  const toast = useToast()
   const own = observations.find((o) => o.authorId === user?.id)
   const draft = useRef(new ObservationDraft(own)).current
   const [, render] = useState(0)
@@ -45,6 +46,7 @@ export function ObservationEditor({
     const saved = await pending
     update()
     if (saved) {
+      toast.success('Observation saved')
       setReviewed(undefined)
       try {
         await onSaved()
@@ -96,7 +98,7 @@ export function ObservationEditor({
           {!editable && (
             <Notice text="Observations can only be changed by their author while this team is active and pending in their current panel." />
           )}
-          {(draft.error || error) && <Notice error text={draft.error || error} />}
+          {Boolean(draft.error || error) && <Notice error text={draft.error || error} />}
           {reviewed !== undefined && (
             <Card title="Current saved observation">
               <Body>

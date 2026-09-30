@@ -2,7 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { Role, User } from '@fgc/contracts'
-import { Body, Button, Card, Field, Icon, Loading, Notice, tokens, layout } from '@fgc/ui'
+import {
+  Body,
+  Button,
+  Card,
+  Field,
+  Icon,
+  Loading,
+  Notice,
+  tokens,
+  layout,
+  useToast,
+  useToastOn,
+} from '@fgc/ui'
 import { AdminModal } from './AdminModal'
 import { ROLES, filterUsers, paginate } from './lib/admin'
 
@@ -27,7 +39,8 @@ export function UsersPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState('')
   const [modalError, setModalError] = useState('')
-  const [notice, setNotice] = useState('')
+  const toast = useToast()
+  useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
 
   const load = async () => {
@@ -78,7 +91,7 @@ export function UsersPage() {
         setModalError(failed.error ?? 'The change could not be saved.')
         return
       }
-      setNotice(`${editing.email}: ${done}`)
+      toast.success(`${editing.email}: ${done}`)
       close()
       await load()
     } catch (e) {
@@ -92,8 +105,6 @@ export function UsersPage() {
 
   return (
     <View style={layout.stack}>
-      {error && <Notice text={error} error />}
-      {notice && <Notice text={notice} />}
       <Card title="Current users">
         <Field
           label="Filter by name"
@@ -215,7 +226,7 @@ export function UsersPage() {
             ))}
           </View>
           <Body>Admin and judging roles cannot be combined.</Body>
-          {modalError && <Notice text={modalError} error />}
+          {Boolean(modalError) && <Notice text={modalError} error />}
           {confirmDelete ? (
             <>
               <Notice

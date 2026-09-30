@@ -3,7 +3,18 @@ import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { Team } from '@fgc/contracts'
 import { sortTeams } from '@fgc/shared'
-import { Body, Button, Card, Confirm, Field, Loading, Notice, layout } from '@fgc/ui'
+import {
+  Body,
+  Button,
+  Card,
+  Confirm,
+  Field,
+  Loading,
+  Notice,
+  layout,
+  useToast,
+  useToastOn,
+} from '@fgc/ui'
 import { matchesCountry, paginate } from './lib/admin'
 
 type Code = { teamId: string; version: number; expiresAt: string }
@@ -20,6 +31,8 @@ export function MentorCodesPage() {
   const [secret, setSecret] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
 
   const load = async () => {
     try {
@@ -48,6 +61,7 @@ export function MentorCodesPage() {
         expectedVersion: codes.find((c) => c.teamId === team.id)?.version ?? 0,
       })
       setSecret(`${team.name}: ${data.code}`)
+      toast.success(`Access code issued for ${team.name}`)
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -65,13 +79,12 @@ export function MentorCodesPage() {
 
   return (
     <View style={layout.stack}>
-      {error && <Notice text={error} error />}
       <Card title="Mentor access codes">
         <Body>
           Codes and sessions last seven days. Regenerating revokes the previous code, all
           linked sessions and push devices.
         </Body>
-        {secret && (
+        {Boolean(secret) && (
           <Notice text={`Copy this code now. It is shown only once. ${secret}`} />
         )}
         <Button

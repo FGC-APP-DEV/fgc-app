@@ -17,6 +17,8 @@ import {
   Screen,
   TeamMap,
   layout,
+  useToast,
+  useToastOn,
 } from '@fgc/ui'
 
 export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void }) {
@@ -38,6 +40,8 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
   const [deleting, setDeleting] = useState<ShotItem | null>(null)
   const template = tracker.templates.find((t) => t.name === 'Step & Repeat')
   const shot = (team: TrackerTeam) =>
@@ -72,11 +76,12 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   useEffect(() => {
     void load()
   }, [api])
-  const run = async (work: () => Promise<unknown>) => {
+  const run = async (work: () => Promise<unknown>, done?: string) => {
     setBusy(true)
     setError('')
     try {
       await work()
+      if (done) toast.success(done)
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -86,18 +91,25 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   }
   const mark = async (state: 'captured' | 'skipped' | 'pending') => {
     if (!selected || !template) return
-    await run(async () => {
-      await api.command(
-        `/filming/teams/${selected.id}/shots/${template.id}`,
-        {
-          expectedVersion: shot(selected)?.version ?? 0,
-          ...(state !== 'pending' ? { status: state, notes } : {}),
-        },
-        { method: state === 'pending' ? 'DELETE' : 'PUT' },
-      )
-      setSelected(null)
-      setNotes('')
-    })
+    await run(
+      async () => {
+        await api.command(
+          `/filming/teams/${selected.id}/shots/${template.id}`,
+          {
+            expectedVersion: shot(selected)?.version ?? 0,
+            ...(state !== 'pending' ? { status: state, notes } : {}),
+          },
+          { method: state === 'pending' ? 'DELETE' : 'PUT' },
+        )
+        setSelected(null)
+        setNotes('')
+      },
+      state === 'captured'
+        ? 'Marked as captured'
+        : state === 'skipped'
+          ? 'Marked as skipped'
+          : 'Reset to pending',
+    )
   }
   const filtered = tracker.teams.filter(
     (t) =>
@@ -130,7 +142,6 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
         />
         <Button label="Refresh" variant="secondary" onPress={() => void load()} />
       </View>
-      {error && <Notice text={error} error />}
       {!loaded && <Loading />}
       <Field
         label="Search teams or shots"
@@ -284,7 +295,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                 void run(async () => {
                   await api.command('/filming/categories', { name: categoryName })
                   setCategoryName('')
-                })
+                }, 'Category added')
               }
             />
           </Card>
@@ -312,7 +323,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                 void run(async () => {
                   await api.command('/filming/items', { categoryId, title: itemName })
                   setItemName('')
-                })
+                }, 'Shot added')
               }
             />
           </Card>
@@ -356,12 +367,14 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                     }
                     disabled={busy}
                     onPress={() =>
-                      void run(() =>
-                        api.command(
-                          `/filming/items/${item.id}`,
-                          { expectedVersion: item.version, done: !item.doneAt },
-                          { method: 'PATCH' },
-                        ),
+                      void run(
+                        () =>
+                          api.command(
+                            `/filming/items/${item.id}`,
+                            { expectedVersion: item.version, done: !item.doneAt },
+                            { method: 'PATCH' },
+                          ),
+                        item.doneAt ? 'Shot reopened' : 'Shot completed',
                       )
                     }
                   />
@@ -384,12 +397,14 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
           onConfirm={() => {
             const item = deleting
             setDeleting(null)
-            void run(() =>
-              api.command(
-                `/filming/items/${item.id}`,
-                { expectedVersion: item.version },
-                { method: 'DELETE' },
-              ),
+            void run(
+              () =>
+                api.command(
+                  `/filming/items/${item.id}`,
+                  { expectedVersion: item.version },
+                  { method: 'DELETE' },
+                ),
+              'Shot deleted',
             )
           }}
         />
