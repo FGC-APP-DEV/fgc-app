@@ -18,7 +18,10 @@ import {
   Confirm,
   Field,
   Heading,
+  I18nProvider,
   humanize,
+  useI18n,
+  type LocaleStorage,
   Loading,
   LoginCard,
   LoginShell,
@@ -146,6 +149,7 @@ function Login() {
   )
 }
 function Shell() {
+  const { t } = useI18n()
   const [messageRevision, setMessageRevision] = useState(0)
   const onMessage = useCallback(() => setMessageRevision((value) => value + 1), [])
   const auth = useAuth()
@@ -194,19 +198,19 @@ function Shell() {
   if (!auth.user && !auth.mentor) return <Login />
   const caps = capabilities(auth.user?.roles ?? [])
   const navItems: NavItem[] = [
-    { id: 'home', label: 'Home', icon: 'dashboard' },
-    ...(caps.admin ? [{ id: 'admin', label: 'Admin', icon: 'admin' } as const] : []),
+    { id: 'home', label: t('navHome'), icon: 'dashboard' },
+    ...(caps.admin ? [{ id: 'admin', label: t('navAdmin'), icon: 'admin' } as const] : []),
     ...(caps.judging
-      ? [{ id: 'judging', label: 'Judging', icon: 'judging' } as const]
+      ? [{ id: 'judging', label: t('navJudging'), icon: 'judging' } as const]
       : []),
     ...(caps.filming
-      ? [{ id: 'filming', label: 'Filming', icon: 'video' } as const]
+      ? [{ id: 'filming', label: t('navFilming'), icon: 'video' } as const]
       : []),
     ...(caps.schedule
       ? [
           {
             id: 'official-information',
-            label: 'Official information',
+            label: t('navSchedule'),
             icon: 'calendar',
           } as const,
         ]
@@ -230,7 +234,7 @@ function Shell() {
       <AppHeader
         onSignOut={logout}
         userName={auth.user?.name ?? auth.mentor?.team.name}
-        userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : 'Mentor'}
+        userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
       {error && <Notice text={error} error />}
       {auth.mentor ? (
@@ -240,10 +244,10 @@ function Shell() {
         </>
       ) : !auth.user?.name ? (
         <Screen>
-          <Card title="Complete your profile">
-            <Field label="Full name" value={name} onChangeText={setName} />
+          <Card title={t('completeProfile')}>
+            <Field label={t('fullName')} value={name} onChangeText={setName} />
             <Button
-              label="Save profile"
+              label={t('saveProfile')}
               disabled={!name.trim()}
               onPress={() => {
                 void auth.api
@@ -262,36 +266,36 @@ function Shell() {
         <>
           {route === 'home' && (
             <Screen>
-              <Heading>Welcome, {auth.user.name}</Heading>
-              <Body>Choose your workspace.</Body>
+              <Heading>{t('welcome', { name: auth.user.name })}</Heading>
+              <Body>{t('chooseWorkspace')}</Body>
               {!caps.schedule && (
-                <Notice text="Your email is verified. Ask an administrator to enable access." />
+                <Notice text={t('noAccess')} />
               )}
               {caps.admin && (
-                <Card title="Administration">
-                  <Body>Staff access, shared team register and mentor codes.</Body>
-                  <Button label="Open administration" onPress={() => navigate('admin')} />
+                <Card title={t('administration')}>
+                  <Body>{t('administrationBody')}</Body>
+                  <Button label={t('openAdministration')} onPress={() => navigate('admin')} />
                 </Card>
               )}
               {caps.judging && (
-                <Card title="Judging">
+                <Card title={t('judging')}>
                   <Body>
                     {caps.advisor
-                      ? 'Manage panels and competition progress.'
-                      : 'Your panel, teams and observations.'}
+                      ? t('judgingBodyAdvisor')
+                      : t('judgingBodyJudge')}
                   </Body>
-                  <Button label="Open judging" onPress={() => navigate('judging')} />
+                  <Button label={t('openJudging')} onPress={() => navigate('judging')} />
                 </Card>
               )}
               {caps.filming && (
-                <Card title="Filming">
-                  <Body>Step & Repeat coverage, shot list and team pager.</Body>
-                  <Button label="Open filming" onPress={() => navigate('filming')} />
+                <Card title={t('filming')}>
+                  <Body>{t('filmingBody')}</Body>
+                  <Button label={t('openFilming')} onPress={() => navigate('filming')} />
                 </Card>
               )}
               {caps.schedule && (
                 <Button
-                  label="Official information"
+                  label={t('officialSchedule')}
                   variant="secondary"
                   onPress={openOfficialInformation}
                 />
@@ -348,6 +352,10 @@ function SessionShell() {
   const { user, mentor } = useAuth()
   return <Shell key={user?.id ?? mentor?.team.id ?? 'signed-out'} />
 }
+const localeStorage: LocaleStorage = {
+  get: (key) => AsyncStorage.getItem(key),
+  set: (key, value) => AsyncStorage.setItem(key, value),
+}
 const themeStorage = {
   get: (key: string) => AsyncStorage.getItem(key),
   set: (key: string, value: string) => AsyncStorage.setItem(key, value),
@@ -370,11 +378,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <AuthProvider runtime={runtime}>
-          <ThemeProvider storage={themeStorage}>
-            <SessionShell />
-          </ThemeProvider>
-        </AuthProvider>
+        <I18nProvider storage={localeStorage}>
+          <AuthProvider runtime={runtime}>
+            <ThemeProvider storage={themeStorage}>
+              <SessionShell />
+            </ThemeProvider>
+          </AuthProvider>
+        </I18nProvider>
       </SafeAreaView>
     </SafeAreaProvider>
   )

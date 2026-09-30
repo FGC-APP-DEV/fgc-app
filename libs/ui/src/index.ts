@@ -1,5 +1,6 @@
 export * from './operations'
 export * from './icons'
+export * from './i18n'
 export * from './logo'
 export * from './brand'
 export * from './TeamMap'

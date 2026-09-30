@@ -16,6 +16,8 @@ import {
 import { Icon, type IconName } from './icons'
 import { BrandLogo } from './logo'
 import { useTheme } from './theme'
+import { useI18n } from './i18n'
+import { LanguageMenu } from './language-menu'
 
 export type ThemeMode = 'light' | 'dark'
 const lightTokens = {
@@ -593,6 +595,7 @@ export function AppHeader({
   userName?: string
   userRole?: string
 }) {
+  const { t, dirStyle } = useI18n()
   const anchor = useRef<View>(null)
   const { mode, toggle } = useTheme()
   const { width } = useWindowDimensions()
@@ -622,10 +625,11 @@ export function AppHeader({
       <View style={{ flex: 1, minWidth: 0 }}>
         <BrandLogo height={32} />
       </View>
+      <LanguageMenu />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={
-          mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+          mode === 'dark' ? t('switchToLightMode') : t('switchToDarkMode')
         }
         onPress={toggle}
         style={({ pressed }) => ({
@@ -642,7 +646,7 @@ export function AppHeader({
       <Pressable
         ref={anchor}
         accessibilityRole="button"
-        accessibilityLabel="Account menu"
+        accessibilityLabel={t('accountMenu')}
         accessibilityState={{ expanded: menu !== null }}
         onPress={openMenu}
         style={({ pressed }) => ({
@@ -666,9 +670,9 @@ export function AppHeader({
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Close account menu"
+            accessibilityLabel={t('closeAccountMenu')}
             onPress={() => setMenu(null)}
-            style={{ flex: 1, backgroundColor: '#00000010' }}
+            style={[{ flex: 1, backgroundColor: '#00000010' }, dirStyle]}
           >
             <View
               style={[
@@ -728,7 +732,7 @@ export function AppHeader({
               )}
               <Pressable
                 accessibilityRole="link"
-                accessibilityLabel="Feedback"
+                accessibilityLabel={t('feedback')}
                 onPress={() => {
                   setMenu(null)
                   void Linking.openURL(FEEDBACK_FORM_URL)
@@ -751,12 +755,12 @@ export function AppHeader({
                     color: tokens.text,
                   }}
                 >
-                  Feedback
+                  {t('feedback')}
                 </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="link"
-                accessibilityLabel="Report a bug"
+                accessibilityLabel={t('reportBug')}
                 onPress={() => {
                   setMenu(null)
                   void Linking.openURL(BUG_REPORT_FORM_URL)
@@ -779,12 +783,12 @@ export function AppHeader({
                     color: tokens.text,
                   }}
                 >
-                  Report a bug
+                  {t('reportBug')}
                 </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Sign out"
+                accessibilityLabel={t('signOut')}
                 onPress={() => {
                   setMenu(null)
                   onSignOut()
@@ -807,7 +811,7 @@ export function AppHeader({
                     color: tokens.dangerInk,
                   }}
                 >
-                  Sign out
+                  {t('signOut')}
                 </Text>
               </Pressable>
             </View>
@@ -836,16 +840,17 @@ export function BottomNav({
   /** Vertical rail for wide screens instead of the bottom bar. */
   side?: boolean
 }) {
+  const { t } = useI18n()
   return (
     <View
       role="navigation"
-      accessibilityLabel="Workspaces"
+      accessibilityLabel={t('workspaces')}
       style={
         side
           ? {
               width: 112,
               backgroundColor: tokens.surface,
-              borderRightWidth: 1,
+              borderEndWidth: 1,
               borderColor: tokens.border,
               padding: 12,
               gap: 8,
