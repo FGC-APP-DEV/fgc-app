@@ -257,7 +257,7 @@ test('import previews invalid rows and commits only ready rows after explicit co
 }) => {
   const writes = await fixture(page, 'admin')
   await page.getByRole('button', { name: 'Open administration' }).click()
-  await page.getByRole('button', { name: 'Import teams', exact: true }).click()
+  await page.getByRole('button', { name: 'Open Import teams', exact: true }).click()
   const chooser = page.waitForEvent('filechooser')
   await page.getByRole('button', { name: 'Choose file', exact: true }).click()
   await (

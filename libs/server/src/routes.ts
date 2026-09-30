@@ -65,6 +65,14 @@ export const commands: CommandRoute[] = [
     params: { id: 'judgeId' },
   },
   {
+    method: 'put',
+    path: '/judging/judges/:id/conflict',
+    rpc: 'judge_conflict_put',
+    schema: c.judgeConflictInput,
+    capability: 'advisor',
+    params: { id: 'judgeId' },
+  },
+  {
     method: 'post',
     path: '/judging/teams/:id/transfer',
     rpc: 'team_transfer',
