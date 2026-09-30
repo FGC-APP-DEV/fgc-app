@@ -102,7 +102,7 @@ export function ImportScreen({
         Upload, map, review, then confirm. Existing identifiers are never overwritten.
       </Body>
       <Notice text="XLSX, UTF-8 CSV/TXT or flat JSON arrays. Maximum 5 MiB, 5,000 records, 50 columns and 2,000 characters per field. Official identifier, name and country are provisional fields pending the official sample." />
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       <Card title="Choose and map your file">
         <Button
           label={file ? 'Choose another file' : 'Choose file'}
@@ -184,7 +184,7 @@ export function ImportScreen({
           />
         </Card>
       )}
-      {result && (
+      {Boolean(result) && (
         <Card title="Import results">
           <Body>{result}</Body>
         </Card>

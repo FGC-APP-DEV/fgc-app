@@ -79,7 +79,7 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
       <Heading>{mentor?.team.name ?? 'Team messages'}</Heading>
       <Body>Messages and filming status for your team.</Body>
       <Button label="Refresh" variant="secondary" onPress={() => void refresh()} />
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       {!pages.length && <Notice text="No messages for your team." />}
       {pages.map((page) => (
         <Card

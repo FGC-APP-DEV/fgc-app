@@ -108,7 +108,7 @@ export function PagerScreen({
         Send a message to one team. Saving a message does not confirm delivery to a
         device.
       </Body>
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       {sent && (
         <Notice text="Message recorded. Check the history for the team's response." />
       )}
@@ -214,7 +214,7 @@ export function PagerScreen({
                   : 'Awaiting response')
               }
             />
-            {page.deliveryStatus && (
+            {!!page.deliveryStatus && (
               <Body>
                 {deliveryLabels[page.deliveryStatus] ?? 'Push status unavailable'}
               </Body>

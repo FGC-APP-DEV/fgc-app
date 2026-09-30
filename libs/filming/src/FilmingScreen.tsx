@@ -130,7 +130,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
         />
         <Button label="Refresh" variant="secondary" onPress={() => void load()} />
       </View>
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       {!loaded && <Loading />}
       <Field
         label="Search teams or shots"

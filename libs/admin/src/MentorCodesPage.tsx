@@ -68,13 +68,13 @@ export function MentorCodesPage() {
 
   return (
     <View style={layout.stack}>
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       <Card title="Mentor access codes">
         <Body>
           Codes and sessions last seven days. Regenerating revokes the previous code, all
           linked sessions and push devices.
         </Body>
-        {secret && (
+        {Boolean(secret) && (
           <Notice text={`Copy this code now. It is shown only once. ${secret}`} />
         )}
         <Button

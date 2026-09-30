@@ -92,8 +92,8 @@ export function UsersPage() {
 
   return (
     <View style={layout.stack}>
-      {error && <Notice text={error} error />}
-      {notice && <Notice text={notice} />}
+      {Boolean(error) && <Notice text={error} error />}
+      {Boolean(notice) && <Notice text={notice} />}
       <Card title="Current users">
         <Field
           label="Filter by name"
@@ -215,7 +215,7 @@ export function UsersPage() {
             ))}
           </View>
           <Body>Admin and judging roles cannot be combined.</Body>
-          {modalError && <Notice text={modalError} error />}
+          {Boolean(modalError) && <Notice text={modalError} error />}
           {confirmDelete ? (
             <>
               <Notice

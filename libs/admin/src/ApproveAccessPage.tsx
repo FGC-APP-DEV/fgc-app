@@ -70,13 +70,13 @@ export function ApproveAccessPage() {
         autoCapitalize="none"
         placeholder="email@example.org, filmmaker"
       />
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       <Button
         label="Save access"
         disabled={busy || !text.trim()}
         onPress={() => void submit()}
       />
-      {result && <Notice text={result} />}
+      {Boolean(result) && <Notice text={result} />}
     </Card>
   )
 }
