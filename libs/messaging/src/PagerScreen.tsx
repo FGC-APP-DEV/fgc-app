@@ -1,4 +1,9 @@
-import { countryName, sortTeams } from '@fgc/shared'
+import {
+  MENTOR_RESPONSE_KEYS,
+  countryName,
+  sortTeams,
+  type ShellMessageKey,
+} from '@fgc/shared'
 import { createPageAttempt } from './page-attempt'
 import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
@@ -15,16 +20,19 @@ import {
   Notice,
   Screen,
   layout,
+  useI18n,
+  useToast,
+  useToastOn,
 } from '@fgc/ui'
 
-const deliveryLabels: Record<string, string> = {
-  scheduled: 'Scheduled',
-  queued: 'Push queued',
-  accepted: 'Accepted by push provider — device delivery unconfirmed',
-  failed: 'Push failed — message remains in the team pager',
-  cancelled: 'Push cancelled',
-  responded: 'Team responded',
-  no_devices: 'No registered push device — available in team pager',
+const deliveryKeys: Record<string, ShellMessageKey> = {
+  scheduled: 'deliveryScheduled',
+  queued: 'deliveryQueued',
+  accepted: 'deliveryAccepted',
+  failed: 'deliveryFailed',
+  cancelled: 'deliveryCancelled',
+  responded: 'deliveryResponded',
+  no_devices: 'deliveryNoDevices',
 }
 export function PagerScreen({
   source,
@@ -36,10 +44,12 @@ export function PagerScreen({
   onBack: () => void
 }) {
   const { api } = useAuth()
+  const { t, locale } = useI18n()
   const [teams, setTeams] = useState<Team[]>([])
   const [historySearch, setHistorySearch] = useState('')
   const [pages, setPages] = useState<Page[]>([])
   const [teamId, setTeam] = useState(initialTeamId ?? '')
+  const [changing, setChanging] = useState(!initialTeamId)
   const [search, setSearch] = useState('')
   const [message, setMessage] = useState('')
   const [minutes, setMinutes] = useState(0)
@@ -47,7 +57,8 @@ export function PagerScreen({
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const attemptRef = useRef<ReturnType<typeof createPageAttempt> | null>(null)
-  const [sent, setSent] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
   const load = async () => {
     try {
       const [all, history] = await Promise.all([
@@ -68,7 +79,6 @@ export function PagerScreen({
   const edit = (fn: () => void) => {
     fn()
     attemptRef.current = null
-    setSent(false)
   }
   const submit = async () => {
     setBusy(true)
@@ -78,14 +88,11 @@ export function PagerScreen({
       createPageAttempt({ teamId, source, message, minutes }, api.newKey())
     attemptRef.current = attempt
     try {
-      if (Date.now() - attempt.createdAt >= 86400000)
-        throw new Error(
-          'This attempt expired. Refresh message history, then edit the message before creating a new request.',
-        )
+      if (Date.now() - attempt.createdAt >= 86400000) throw new Error(t('pagerExpired'))
       await api.command('/pages', attempt.body, { key: attempt.key })
       setMessage('')
       attemptRef.current = null
-      setSent(true)
+      toast.success(t('pagerRecorded'))
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -93,6 +100,7 @@ export function PagerScreen({
       setBusy(false)
     }
   }
+  const selectedTeam = teams.find((t) => t.id === teamId)
   const shownPages = pages.filter((page) =>
     (teams.find((t) => t.id === page.teamId)?.name ?? '')
       .toLowerCase()
@@ -100,25 +108,34 @@ export function PagerScreen({
   )
   return (
     <Screen>
-      <Button label="Back" variant="secondary" onPress={onBack} />
-      <Heading>Team pager</Heading>
-      <Body>
-        Send a message to one team. Saving a message does not confirm delivery to a
-        device.
-      </Body>
-      {error && <Notice text={error} error />}
-      {sent && (
-        <Notice text="Message recorded. Check the history for the team's response." />
-      )}
-      <Card title="New message">
-        <Field
-          label="Find a team"
-          icon="search"
-          value={search}
-          onChangeText={setSearch}
-        />
+      <Button label={t('back')} variant="secondary" onPress={onBack} />
+      <Heading>{t('pagerTitle')}</Heading>
+      <Body>{t('pagerIntro')}</Body>
+      <Card title={t('pagerNewMessage')}>
+        {selectedTeam && !changing && (
+          <View style={layout.row}>
+            <Badge
+              label={t('pagerTo', {
+                team: `${selectedTeam.officialId} · ${selectedTeam.name}`,
+              })}
+            />
+            <Button
+              label={t('pagerChangeTeam')}
+              variant="secondary"
+              onPress={() => setChanging(true)}
+            />
+          </View>
+        )}
+        {(changing || !selectedTeam) && (
+          <Field
+            label={t('pagerFindTeam')}
+            icon="search"
+            value={search}
+            onChangeText={setSearch}
+          />
+        )}
         <View style={layout.row}>
-          {teams
+          {(changing || !selectedTeam ? teams : [])
             .filter((t) =>
               `${t.officialId} ${t.name} ${t.country} ${countryName(t.country)}`
                 .toLowerCase()
@@ -130,7 +147,10 @@ export function PagerScreen({
                 key={t.id}
                 label={`${t.officialId} · ${t.name}`}
                 variant={teamId === t.id ? 'primary' : 'secondary'}
-                onPress={() => edit(() => setTeam(t.id))}
+                onPress={() => {
+                  edit(() => setTeam(t.id))
+                  setChanging(false)
+                }}
               />
             ))}
         </View>
@@ -145,7 +165,7 @@ export function PagerScreen({
           ))}
         </View>
         <Field
-          label="Message (500 characters maximum)"
+          label={t('pagerMessageLabel')}
           multiline
           maxLength={500}
           value={message}
@@ -155,22 +175,28 @@ export function PagerScreen({
           {[0, source === 'judges' ? 15 : 10, 30, 60].map((offset) => (
             <Button
               key={offset}
-              label={offset ? `In ${offset} min` : 'Send now'}
+              label={
+                offset ? t('pagerInMinutes', { minutes: offset }) : t('pagerSendNow')
+              }
               variant={minutes === offset ? 'primary' : 'secondary'}
               onPress={() => edit(() => setMinutes(offset))}
             />
           ))}
         </View>
         <Button
-          label={busy ? 'Sending…' : 'Send message'}
+          label={busy ? t('pagerSending') : t('pagerSend')}
           disabled={busy || !teamId || !message.trim()}
           onPress={() => void submit()}
         />
       </Card>
-      <Heading>Message history</Heading>
-      <Button label="Refresh messages" variant="secondary" onPress={() => void load()} />
+      <Heading>{t('pagerHistory')}</Heading>
+      <Button
+        label={t('pagerRefreshMessages')}
+        variant="secondary"
+        onPress={() => void load()}
+      />
       <Field
-        label="Filter messages by team"
+        label={t('pagerFilter')}
         icon="search"
         value={historySearch}
         onChangeText={setHistorySearch}
@@ -178,34 +204,47 @@ export function PagerScreen({
       {!loaded ? (
         <Loading />
       ) : !shownPages.length ? (
-        <Notice
-          text={pages.length ? 'No messages match this team.' : 'No messages yet.'}
-        />
+        <Notice text={pages.length ? t('pagerNoMatch') : t('pagerNoMessages')} />
       ) : (
         shownPages.map((page) => (
           <Card
             key={page.id}
-            title={teams.find((t) => t.id === page.teamId)?.name ?? 'Team'}
+            title={
+              teams.find((t) => t.id === page.teamId)?.name ?? t('pagerTeamFallback')
+            }
             accent={page.response ? 'success' : 'warning'}
           >
             <Body>{page.message}</Body>
             <Badge
               label={
-                page.response ??
-                (page.scheduledFor && Date.parse(page.scheduledFor) > Date.now()
-                  ? 'Scheduled'
-                  : 'Awaiting response')
+                page.response
+                  ? MENTOR_RESPONSE_KEYS[page.response]
+                    ? t(MENTOR_RESPONSE_KEYS[page.response])
+                    : page.response
+                  : page.scheduledFor && Date.parse(page.scheduledFor) > Date.now()
+                    ? t('pagerScheduled')
+                    : t('pagerAwaiting')
               }
             />
-            {page.deliveryStatus && (
+            {!!page.deliveryStatus && (
               <Body>
-                {deliveryLabels[page.deliveryStatus] ?? 'Push status unavailable'}
+                {deliveryKeys[page.deliveryStatus]
+                  ? t(deliveryKeys[page.deliveryStatus])
+                  : t('deliveryUnknown')}
               </Body>
             )}
             <Body>
               {page.response
-                ? `Responded ${new Date(page.respondedAt ?? page.createdAt).toLocaleString()}`
-                : `Available ${new Date(page.scheduledFor ?? page.createdAt).toLocaleString()}`}
+                ? t('pagerResponded', {
+                    date: new Date(page.respondedAt ?? page.createdAt).toLocaleString(
+                      locale,
+                    ),
+                  })
+                : t('pagerAvailable', {
+                    date: new Date(page.scheduledFor ?? page.createdAt).toLocaleString(
+                      locale,
+                    ),
+                  })}
             </Body>
           </Card>
         ))

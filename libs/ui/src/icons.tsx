@@ -1,5 +1,6 @@
 // Icon geometry from Lucide (ISC licence, https://lucide.dev), rendered through react-native-svg
 // so web and native share one implementation without a new dependency.
+import { Platform } from 'react-native'
 import React from 'react'
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg'
 
@@ -18,6 +19,25 @@ const nodes = {
       },
     ],
     ['path', { d: 'm9 12 2 2 4-4' }],
+  ],
+  sun: [
+    ['circle', { cx: '12', cy: '12', r: '4' }],
+    ['path', { d: 'M12 2v2' }],
+    ['path', { d: 'M12 20v2' }],
+    ['path', { d: 'm4.93 4.93 1.41 1.41' }],
+    ['path', { d: 'm17.66 17.66 1.41 1.41' }],
+    ['path', { d: 'M2 12h2' }],
+    ['path', { d: 'M20 12h2' }],
+    ['path', { d: 'm6.34 17.66-1.41 1.41' }],
+    ['path', { d: 'm19.07 4.93-1.41 1.41' }],
+  ],
+  moon: [
+    [
+      'path',
+      {
+        d: 'M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401',
+      },
+    ],
   ],
   user: [
     ['path', { d: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' }],
@@ -52,6 +72,13 @@ const nodes = {
     ['circle', { cx: '11', cy: '11', r: '8' }],
   ],
   chevronRight: [['path', { d: 'm9 18 6-6-6-6' }]],
+  chevronLeft: [['path', { d: 'm15 18-6-6 6-6' }]],
+  chevronDown: [['path', { d: 'm6 9 6 6 6-6' }]],
+  more: [
+    ['circle', { cx: '12', cy: '12', r: '1' }],
+    ['circle', { cx: '19', cy: '12', r: '1' }],
+    ['circle', { cx: '5', cy: '12', r: '1' }],
+  ],
   alertTriangle: [
     [
       'path',
@@ -123,11 +150,29 @@ const nodes = {
     ],
     ['path', { d: 'm21.854 2.147-10.94 10.939' }],
   ],
+  globe: [
+    ['circle', { cx: '12', cy: '12', r: '10' }],
+    ['path', { d: 'M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20' }],
+    ['path', { d: 'M2 12h20' }],
+  ],
   refresh: [
     ['path', { d: 'M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8' }],
     ['path', { d: 'M21 3v5h-5' }],
     ['path', { d: 'M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16' }],
     ['path', { d: 'M8 16H3v5' }],
+  ],
+  pencil: [
+    [
+      'path',
+      {
+        d: 'M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z',
+      },
+    ],
+    ['path', { d: 'm15 5 4 4' }],
+  ],
+  x: [
+    ['path', { d: 'M18 6 6 18' }],
+    ['path', { d: 'm6 6 12 12' }],
   ],
 } as unknown as Record<string, readonly Node[]>
 
@@ -135,6 +180,14 @@ const iconNodes = new Map(Object.entries(nodes))
 
 export type IconName = keyof typeof nodes
 
+// react-native-svg forwards unknown props to the DOM on web, where aria-hidden is the equivalent.
+const hiddenFromAssistiveTech =
+  Platform.OS === 'web'
+    ? ({ 'aria-hidden': true } as object)
+    : ({
+        accessibilityElementsHidden: true,
+        importantForAccessibility: 'no-hide-descendants',
+      } as object)
 export function Icon({
   name,
   size = 20,
@@ -156,8 +209,7 @@ export function Icon({
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
+      {...hiddenFromAssistiveTech}
     >
       {(iconNodes.get(name) ?? []).map(([tag, attrs], index) => {
         if (tag === 'path') return <Path key={index} {...attrs} />

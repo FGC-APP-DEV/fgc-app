@@ -102,7 +102,9 @@ async function fixture(page: Page, roles: string[]) {
   return writes
 }
 async function login(page: Page) {
-  await page.getByRole('textbox', { name: 'Email address' }).fill('test@example.org')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('test@example.org')
   await page.getByRole('button', { name: 'Send sign-in email' }).click()
   await page.getByRole('textbox', { name: 'Email code' }).fill('123456')
   await page.getByRole('button', { name: 'Verify code' }).click()
@@ -121,9 +123,11 @@ test('filmmaker records notes and a versioned capture, then sees refreshed cover
   const writes = await fixture(page, ['filmmaker'])
   await login(page)
   await page.getByRole('button', { name: 'Open filming' }).click()
-  await page.getByRole('button', { name: 'Update Brazil', exact: true }).click()
+  await page.getByRole('button', { name: 'Actions for Brazil' }).click()
   await page.getByRole('textbox', { name: 'Shot notes' }).fill('Interview recorded')
-  await page.getByRole('button', { name: 'Captured', exact: true }).last().click()
+  await page.getByRole('button', { name: 'Shot status: pending' }).click()
+  await page.getByRole('button', { name: 'captured', exact: true }).click()
+  await page.getByRole('button', { name: 'Confirm', exact: true }).click()
   await expect(page.getByText('1 of 1 teams captured')).toBeVisible()
   expect(writes[0].body).toEqual({
     expectedVersion: 0,
@@ -134,8 +138,9 @@ test('filmmaker records notes and a versioned capture, then sees refreshed cover
 })
 test('mentor responds once and sees the shared saved response', async ({ page }) => {
   const writes = await fixture(page, [])
-  await page.getByRole('button', { name: 'Mentor access', exact: true }).click()
-  await page.getByRole('textbox', { name: 'Mentor access code' }).fill('ABCDEF123456')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('ABCDEF123456')
   await page.getByRole('button', { name: 'Open team messages' }).click()
   await expect(page.getByText('Please visit the filming booth.')).toBeVisible()
   const button = page.getByRole('button', { name: /On our way/i })

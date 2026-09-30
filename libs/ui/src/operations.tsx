@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Linking,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,8 +15,12 @@ import {
 } from 'react-native'
 import { Icon, type IconName } from './icons'
 import { BrandLogo } from './logo'
+import { useTheme } from './theme'
+import { useI18n } from './i18n'
+import { LanguageMenu } from './language-menu'
 
-export const tokens = {
+export type ThemeMode = 'light' | 'dark'
+const lightTokens = {
   primary: '#000615',
   primaryContainer: '#0B1F3A',
   secondary: '#4059AA',
@@ -30,11 +35,70 @@ export const tokens = {
   success: '#22C55E',
   warning: '#F59E0B',
   danger: '#EF4444',
+  /** Accent ink for text and icons that sit on the surface fills. */
+  link: '#0B1F3A',
+  successInk: '#166534',
+  warningInk: '#92400E',
+  dangerInk: '#B91C1C',
+  dangerSurface: '#FEF2F2',
+  dangerBorder: '#FECACA',
+  dangerText: '#991B1B',
+  scrim: '#00061588',
+  /** Solid action fills keep one hue in both themes; text on them is always onFill. */
+  onFill: '#FFFFFF',
+  successFill: '#15803D',
+  dangerFill: '#B91C1C',
+  successTint: '#22C55E1A',
+  warningTint: '#F59E0B1A',
+  dangerTint: '#EF44441A',
+  dangerPress: '#EF44440D',
+  backdrop: '#00000010',
+}
+const darkTokens: typeof lightTokens = {
+  primary: '#E6EBF5',
+  primaryContainer: '#3A55A6',
+  secondary: '#8FA6E8',
+  background: '#0B0F17',
+  surface: '#151B26',
+  surfaceLow: '#1D2431',
+  surfaceHigh: '#283040',
+  text: '#E6E8EC',
+  muted: '#B4B9C4',
+  outline: '#8A909C',
+  border: '#2C3546',
+  success: '#22C55E',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  link: '#A9BBF0',
+  successInk: '#4ADE80',
+  warningInk: '#FBBF24',
+  dangerInk: '#F87171',
+  dangerSurface: '#2A1618',
+  dangerBorder: '#5B2A2E',
+  dangerText: '#FCA5A5',
+  scrim: '#000000AA',
+  onFill: '#FFFFFF',
+  successFill: '#15803D',
+  dangerFill: '#B91C1C',
+  successTint: '#22C55E26',
+  warningTint: '#F59E0B26',
+  dangerTint: '#EF444426',
+  dangerPress: '#EF444426',
+  backdrop: '#00000040',
+}
+/**
+ * Live colour tokens. The object is mutated in place by `applyTheme`, so components read the
+ * active palette at render time; `ThemeProvider` remounts its subtree after each switch.
+ */
+export const tokens: typeof lightTokens = { ...lightTokens }
+let themeMode: ThemeMode = 'light'
+export function getThemeMode(): ThemeMode {
+  return themeMode
 }
 /** Corner radii from the reference: badge 4, tile 8, control 12, card 16. */
 export const radius = { badge: 4, tile: 8, control: 12, card: 16, pill: 999 }
 /** Elevation recipes matching the reference's shadow-sm / shadow-md / shadow-xl. */
-export const elevation = {
+const nativeElevation = {
   sm: {
     shadowColor: '#000',
     shadowOpacity: 0.08,
@@ -57,31 +121,49 @@ export const elevation = {
     elevation: 8,
   },
 } as const
+// react-native-web deprecates the shadow* props; the same shadows are expressed as boxShadow.
+const webElevation = {
+  sm: { boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)' },
+  md: { boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)' },
+  xl: { boxShadow: '0px 12px 20px rgba(0, 0, 0, 0.12)' },
+} as const
+export const elevation: typeof nativeElevation =
+  Platform.OS === 'web'
+    ? (webElevation as unknown as typeof nativeElevation)
+    : nativeElevation
 /** Window width from which shells switch to the desktop layout (side rail, wider content). */
 export const WIDE_BREAKPOINT = 900
-export const layout = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: tokens.background },
-  contentWide: { maxWidth: 1152, padding: 32, gap: 24 },
-  content: {
-    width: '100%',
-    maxWidth: 896,
-    alignSelf: 'center',
-    padding: 20,
-    gap: 20,
-    paddingBottom: 40,
-  },
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 },
-  stack: { gap: 12 },
-  title: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontFamily: 'InterBold',
-    fontWeight: '700',
-    color: tokens.primary,
-  },
-  text: { color: tokens.text, fontFamily: 'Inter', fontSize: 14, lineHeight: 20 },
-  muted: { color: tokens.muted, fontFamily: 'Inter', fontSize: 13, lineHeight: 18 },
-})
+const createLayout = () =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: tokens.background },
+    contentWide: { maxWidth: 1152, padding: 32, gap: 24 },
+    content: {
+      width: '100%',
+      maxWidth: 896,
+      alignSelf: 'center',
+      padding: 20,
+      gap: 20,
+      paddingBottom: 40,
+    },
+    row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 },
+    stack: { gap: 12 },
+    title: {
+      fontSize: 24,
+      lineHeight: 32,
+      fontFamily: 'InterBold',
+      fontWeight: '700',
+      color: tokens.primary,
+    },
+    text: { color: tokens.text, fontFamily: 'Inter', fontSize: 14, lineHeight: 20 },
+    muted: { color: tokens.muted, fontFamily: 'Inter', fontSize: 13, lineHeight: 18 },
+  })
+export const layout = createLayout()
+/** Switches the live palette (tokens and layout styles) to `mode`. */
+export function applyTheme(mode: ThemeMode) {
+  themeMode = mode
+  Object.assign(tokens, mode === 'dark' ? darkTokens : lightTokens)
+  Object.assign(layout, createLayout())
+}
 /** "camelCase" or "snake_case" identifiers as sentence-case display text. */
 export function humanize(value: string) {
   const words = value
@@ -141,7 +223,7 @@ export function Card({
         elevation.sm,
       ]}
     >
-      {accent && (
+      {!!accent && (
         <View
           pointerEvents="none"
           style={{
@@ -154,7 +236,7 @@ export function Card({
           }}
         />
       )}
-      {title && (
+      {Boolean(title) && (
         <Text
           accessibilityRole="header"
           style={{
@@ -170,6 +252,68 @@ export function Card({
       )}
       {children}
     </View>
+  )
+}
+/** Compact module entry point: icon, title and one-line hint in a small tappable card. */
+export function ModuleCard({
+  title,
+  hint,
+  label,
+  icon,
+  onPress,
+  resources = false,
+}: {
+  title: string
+  hint?: string
+  /** Accessible name; defaults to the title. */
+  label?: string
+  icon: IconName
+  onPress?: () => void
+  /** Opens the useful-resources dropdown instead of calling onPress. */
+  resources?: boolean
+}) {
+  const anchor = useRef<View>(null)
+  const { open, menu } = useResourcesMenu()
+  return (
+    <>
+      <Pressable
+        ref={anchor}
+        accessibilityRole="button"
+        accessibilityLabel={label ?? title}
+        accessibilityHint={hint}
+        onPress={resources ? () => open(anchor, true) : onPress}
+        style={({ pressed }) => [
+          {
+            flexGrow: 1,
+            flexBasis: 150,
+            minHeight: 88,
+            padding: 12,
+            gap: 6,
+            borderRadius: radius.card,
+            borderWidth: 1,
+            borderColor: tokens.border,
+            backgroundColor: tokens.surface,
+            opacity: pressed ? 0.85 : 1,
+          },
+          elevation.sm,
+        ]}
+      >
+        <Icon name={icon} size={22} color={tokens.primary} />
+        <Text
+          style={{
+            fontFamily: 'InterBold',
+            fontWeight: '700',
+            fontSize: 15,
+            lineHeight: 20,
+            color: tokens.primary,
+          }}
+        >
+          {title}
+        </Text>
+        {Boolean(hint) && <Text style={layout.muted}>{hint}</Text>}
+      </Pressable>
+      {menu}
+    </>
   )
 }
 export function Button({
@@ -189,9 +333,9 @@ export function Button({
     variant === 'primary'
       ? tokens.primaryContainer
       : variant === 'danger'
-        ? '#B91C1C'
+        ? tokens.dangerFill
         : tokens.surface
-  const ink = variant === 'secondary' ? tokens.primaryContainer : '#FFFFFF'
+  const ink = variant === 'secondary' ? tokens.link : tokens.onFill
   return (
     <Pressable
       accessibilityRole="button"
@@ -300,13 +444,13 @@ export function Notice({ text, error = false }: { text: string; error?: boolean 
         padding: 14,
         borderRadius: radius.control,
         borderWidth: 1,
-        borderColor: error ? '#FECACA' : tokens.border,
-        backgroundColor: error ? '#FEF2F2' : tokens.surfaceLow,
+        borderColor: error ? tokens.dangerBorder : tokens.border,
+        backgroundColor: error ? tokens.dangerSurface : tokens.surfaceLow,
       }}
     >
       <Text
         style={{
-          color: error ? '#991B1B' : tokens.muted,
+          color: error ? tokens.dangerText : tokens.muted,
           fontFamily: 'Inter',
           fontSize: 14,
           lineHeight: 20,
@@ -320,17 +464,16 @@ export function Notice({ text, error = false }: { text: string; error?: boolean 
 type Tone = 'neutral' | 'success' | 'warning' | 'danger'
 // Text colours are darkened variants of the state tokens: the raw success/warning/danger
 // fills do not reach 4.5:1 as small text (design-system.md, section 12).
-const neutralTone = { fill: tokens.surfaceLow, text: tokens.primaryContainer }
 function toneColors(tone: Tone) {
   switch (tone) {
     case 'success':
-      return { fill: '#22C55E1A', text: '#166534' }
+      return { fill: tokens.successTint, text: tokens.successInk }
     case 'warning':
-      return { fill: '#F59E0B1A', text: '#92400E' }
+      return { fill: tokens.warningTint, text: tokens.warningInk }
     case 'danger':
-      return { fill: '#EF44441A', text: '#B91C1C' }
+      return { fill: tokens.dangerTint, text: tokens.dangerInk }
     default:
-      return neutralTone
+      return { fill: tokens.surfaceLow, text: tokens.link }
   }
 }
 const toneByLabel = new Map<string, Tone>([
@@ -411,7 +554,7 @@ export function Confirm({
   description,
   onConfirm,
   onCancel,
-  confirmLabel = 'Confirm',
+  confirmLabel,
 }: {
   title: string
   description: string
@@ -419,15 +562,19 @@ export function Confirm({
   onCancel: () => void
   confirmLabel?: string
 }) {
+  const { t, dirStyle } = useI18n()
   return (
     <Modal transparent animationType="fade" visible onRequestClose={onCancel}>
       <View
-        style={{
-          flex: 1,
-          padding: 20,
-          backgroundColor: '#00061588',
-          justifyContent: 'center',
-        }}
+        style={[
+          {
+            flex: 1,
+            padding: 20,
+            backgroundColor: tokens.scrim,
+            justifyContent: 'center',
+          },
+          dirStyle,
+        ]}
       >
         <View
           accessibilityViewIsModal
@@ -435,8 +582,8 @@ export function Confirm({
         >
           <Card title={title}>
             <Body>{description}</Body>
-            <Button label={confirmLabel} onPress={onConfirm} />
-            <Button label="Cancel" variant="secondary" onPress={onCancel} />
+            <Button label={confirmLabel ?? t('confirm')} onPress={onConfirm} />
+            <Button label={t('cancel')} variant="secondary" onPress={onCancel} />
           </Card>
         </View>
       </View>
@@ -448,11 +595,19 @@ type TileTone = 'success' | 'danger' | 'warning' | 'primary'
 function tileColors(tone: TileTone) {
   switch (tone) {
     case 'success':
-      return { fill: '#15803D', border: '#15803D', ink: '#FFFFFF' }
+      return {
+        fill: tokens.successFill,
+        border: tokens.successFill,
+        ink: tokens.onFill,
+      }
     case 'danger':
-      return { fill: '#B91C1C', border: '#B91C1C', ink: '#FFFFFF' }
+      return {
+        fill: tokens.dangerFill,
+        border: tokens.dangerFill,
+        ink: tokens.onFill,
+      }
     case 'warning':
-      return { fill: tokens.surface, border: tokens.warning, ink: '#92400E' }
+      return { fill: tokens.surface, border: tokens.warning, ink: tokens.warningInk }
     default:
       return { fill: tokens.surface, border: tokens.primary, ink: tokens.primary }
   }
@@ -516,6 +671,131 @@ export function ActionTile({
 
 export const FEEDBACK_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSdMJs3wIxGGTpTpWAYV4had6j1bdPDGzabNC6bF3wG_k3X46A/viewform?usp=header'
+export const OFFICIAL_INFORMATION_URL = 'https://first.global/event/'
+/** Opens the official event page in a new tab (web) or the system browser (native), keeping the session. */
+export function openOfficialInformation() {
+  if (Platform.OS === 'web') {
+    window.open(OFFICIAL_INFORMATION_URL, '_blank', 'noopener,noreferrer')
+    return
+  }
+  void Linking.openURL(OFFICIAL_INFORMATION_URL)
+}
+export const USEFUL_RESOURCES = [
+  { id: 'event', titleKey: 'resourceEvent', url: 'https://first.global/event' },
+  { id: 'live', titleKey: 'resourceLive', url: 'https://first.global/live/' },
+  {
+    id: 'results',
+    titleKey: 'resourceResults',
+    url: 'https://results.first.global/?_gl=1*12iyc13*_ga*NTU0OTI4MzYzLjE3MzQ0NjEzNTk.*_ga_1H5H2VKTMR*czE3OTA3MzcyMjUkbzIyJGcxJHQxNzkwNzM4MzQ4JGozMiRsMCRoMA..',
+  },
+] as const
+interface Anchor {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+function openExternal(url: string) {
+  if (Platform.OS === 'web') window.open(url, '_blank', 'noopener,noreferrer')
+  else void Linking.openURL(url)
+}
+/**
+ * Small dropdown listing the useful links. It opens beside the anchor (towards the side with
+ * more room) without navigating, or above the anchor for a bottom bar.
+ */
+export function useResourcesMenu() {
+  const { t, dirStyle } = useI18n()
+  const { width, height } = useWindowDimensions()
+  const [state, setState] = useState<{ anchor: Anchor; beside: boolean } | null>(null)
+  const open = (ref: React.RefObject<View | null>, beside: boolean) =>
+    ref.current?.measureInWindow((x, y, w, h) =>
+      setState({ anchor: { x, y, w, h }, beside }),
+    )
+  const close = () => setState(null)
+  let position: { top?: number; bottom?: number; left?: number; right?: number } = {}
+  if (state) {
+    const { anchor, beside } = state
+    const toRight = anchor.x + anchor.w / 2 < width / 2
+    if (beside) {
+      position = toRight
+        ? { top: anchor.y, left: anchor.x + anchor.w + 8 }
+        : { top: anchor.y, right: width - anchor.x + 8 }
+    } else {
+      position = {
+        bottom: height - anchor.y + 8,
+        ...(toRight
+          ? { left: Math.max(8, anchor.x) }
+          : { right: Math.max(8, width - anchor.x - anchor.w) }),
+      }
+    }
+  }
+  const menu = state && (
+    <Modal
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      visible
+      onRequestClose={close}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('closeResourcesMenu')}
+        onPress={close}
+        style={[{ flex: 1, backgroundColor: tokens.backdrop }, dirStyle]}
+      >
+        <View
+          accessibilityLabel={t('usefulResources')}
+          style={[
+            {
+              position: 'absolute',
+              ...position,
+              width: 224,
+              overflow: 'hidden',
+              borderRadius: radius.card,
+              borderWidth: 1,
+              borderColor: tokens.border,
+              backgroundColor: tokens.surface,
+            },
+            elevation.xl,
+          ]}
+        >
+          {USEFUL_RESOURCES.map((link) => (
+            <Pressable
+              key={link.id}
+              accessibilityRole="link"
+              accessibilityLabel={t(link.titleKey)}
+              onPress={() => {
+                close()
+                openExternal(link.url)
+              }}
+              style={({ pressed }) => ({
+                minHeight: 48,
+                paddingHorizontal: 16,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+                backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
+              })}
+            >
+              <Icon name="chevronRight" size={16} color={tokens.muted} />
+              <Text
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  fontWeight: '700',
+                  color: tokens.text,
+                }}
+              >
+                {t(link.titleKey)}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </Pressable>
+    </Modal>
+  )
+  return { open, menu }
+}
 export const BUG_REPORT_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSfl2jOim05arwe98f2KHM0r0NwProcq2RossMktqWB_MmKhIA/viewform?usp=header'
 
@@ -532,7 +812,9 @@ export function AppHeader({
   userName?: string
   userRole?: string
 }) {
+  const { t, dirStyle } = useI18n()
   const anchor = useRef<View>(null)
+  const { mode, toggle } = useTheme()
   const { width } = useWindowDimensions()
   const [menu, setMenu] = useState<{ top: number; right: number } | null>(null)
   const openMenu = () =>
@@ -560,10 +842,28 @@ export function AppHeader({
       <View style={{ flex: 1, minWidth: 0 }}>
         <BrandLogo height={32} />
       </View>
+      <LanguageMenu />
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={
+          mode === 'dark' ? t('switchToLightMode') : t('switchToDarkMode')
+        }
+        onPress={toggle}
+        style={({ pressed }) => ({
+          width: 44,
+          height: 44,
+          borderRadius: radius.pill,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
+        })}
+      >
+        <Icon name={mode === 'dark' ? 'sun' : 'moon'} size={20} color={tokens.muted} />
+      </Pressable>
       <Pressable
         ref={anchor}
         accessibilityRole="button"
-        accessibilityLabel="Account menu"
+        accessibilityLabel={t('accountMenu')}
         accessibilityState={{ expanded: menu !== null }}
         onPress={openMenu}
         style={({ pressed }) => ({
@@ -587,9 +887,9 @@ export function AppHeader({
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Close account menu"
+            accessibilityLabel={t('closeAccountMenu')}
             onPress={() => setMenu(null)}
-            style={{ flex: 1, backgroundColor: '#00000010' }}
+            style={[{ flex: 1, backgroundColor: tokens.backdrop }, dirStyle]}
           >
             <View
               style={[
@@ -649,7 +949,7 @@ export function AppHeader({
               )}
               <Pressable
                 accessibilityRole="link"
-                accessibilityLabel="Feedback"
+                accessibilityLabel={t('feedback')}
                 onPress={() => {
                   setMenu(null)
                   void Linking.openURL(FEEDBACK_FORM_URL)
@@ -672,12 +972,12 @@ export function AppHeader({
                     color: tokens.text,
                   }}
                 >
-                  Feedback
+                  {t('feedback')}
                 </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="link"
-                accessibilityLabel="Report a bug"
+                accessibilityLabel={t('reportBug')}
                 onPress={() => {
                   setMenu(null)
                   void Linking.openURL(BUG_REPORT_FORM_URL)
@@ -700,12 +1000,12 @@ export function AppHeader({
                     color: tokens.text,
                   }}
                 >
-                  Report a bug
+                  {t('reportBug')}
                 </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Sign out"
+                accessibilityLabel={t('signOut')}
                 onPress={() => {
                   setMenu(null)
                   onSignOut()
@@ -716,19 +1016,19 @@ export function AppHeader({
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 12,
-                  backgroundColor: pressed ? '#EF44440D' : 'transparent',
+                  backgroundColor: pressed ? tokens.dangerPress : 'transparent',
                 })}
               >
-                <Icon name="logOut" size={16} color="#B91C1C" />
+                <Icon name="logOut" size={16} color={tokens.dangerInk} />
                 <Text
                   style={{
                     fontFamily: 'Inter',
                     fontSize: 14,
                     fontWeight: '700',
-                    color: '#B91C1C',
+                    color: tokens.dangerInk,
                   }}
                 >
-                  Sign out
+                  {t('signOut')}
                 </Text>
               </Pressable>
             </View>
@@ -743,6 +1043,67 @@ export interface NavItem {
   id: string
   label: string
   icon: IconName
+  /** Opens the useful-resources dropdown instead of selecting a route. */
+  resources?: boolean
+}
+function NavButton({
+  item,
+  on,
+  side,
+  onSelect,
+}: {
+  item: NavItem
+  on: boolean
+  side: boolean
+  onSelect: (id: string) => void
+}) {
+  const ref = useRef<View>(null)
+  const { open, menu } = useResourcesMenu()
+  const ink = on ? tokens.onFill : tokens.muted
+  return (
+    <>
+      <Pressable
+        ref={ref}
+        accessibilityRole="button"
+        accessibilityLabel={item.label}
+        accessibilityState={{ selected: on }}
+        onPress={() => (item.resources ? open(ref, side) : onSelect(item.id))}
+        style={({ pressed }) => [
+          {
+            minWidth: 72,
+            height: side ? 64 : 48,
+            paddingHorizontal: 12,
+            borderRadius: radius.control,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            backgroundColor: on
+              ? tokens.primaryContainer
+              : pressed
+                ? tokens.surfaceLow
+                : 'transparent',
+            transform: [{ scale: pressed && !on ? 0.92 : 1 }],
+          },
+          on && elevation.md,
+        ]}
+      >
+        <Icon name={item.icon} size={20} color={ink} strokeWidth={on ? 2.5 : 2} />
+        <Text
+          style={{
+            fontFamily: 'InterBold',
+            fontWeight: '700',
+            fontSize: 10,
+            letterSpacing: 0.8,
+            textTransform: 'uppercase',
+            color: ink,
+          }}
+        >
+          {item.label}
+        </Text>
+      </Pressable>
+      {menu}
+    </>
+  )
 }
 /** Bottom navigation: 64 px bar, 48 px items, active item as a filled primary-container pill. */
 export function BottomNav({
@@ -757,16 +1118,17 @@ export function BottomNav({
   /** Vertical rail for wide screens instead of the bottom bar. */
   side?: boolean
 }) {
+  const { t } = useI18n()
   return (
     <View
       role="navigation"
-      accessibilityLabel="Workspaces"
+      accessibilityLabel={t('workspaces')}
       style={
         side
           ? {
               width: 112,
               backgroundColor: tokens.surface,
-              borderRightWidth: 1,
+              borderEndWidth: 1,
               borderColor: tokens.border,
               padding: 12,
               gap: 8,
@@ -784,51 +1146,15 @@ export function BottomNav({
             }
       }
     >
-      {items.map((item) => {
-        const on = item.id === active
-        const ink = on ? '#FFFFFF' : tokens.muted
-        return (
-          <Pressable
-            key={item.id}
-            accessibilityRole="button"
-            accessibilityLabel={item.label}
-            accessibilityState={{ selected: on }}
-            onPress={() => onSelect(item.id)}
-            style={({ pressed }) => [
-              {
-                minWidth: 72,
-                height: side ? 64 : 48,
-                paddingHorizontal: 12,
-                borderRadius: radius.control,
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 4,
-                backgroundColor: on
-                  ? tokens.primaryContainer
-                  : pressed
-                    ? tokens.surfaceLow
-                    : 'transparent',
-                transform: [{ scale: pressed && !on ? 0.92 : 1 }],
-              },
-              on && elevation.md,
-            ]}
-          >
-            <Icon name={item.icon} size={20} color={ink} strokeWidth={on ? 2.5 : 2} />
-            <Text
-              style={{
-                fontFamily: 'InterBold',
-                fontWeight: '700',
-                fontSize: 10,
-                letterSpacing: 0.8,
-                textTransform: 'uppercase',
-                color: ink,
-              }}
-            >
-              {item.label}
-            </Text>
-          </Pressable>
-        )
-      })}
+      {items.map((item) => (
+        <NavButton
+          key={item.id}
+          item={item}
+          on={item.id === active}
+          side={side}
+          onSelect={onSelect}
+        />
+      ))}
     </View>
   )
 }

@@ -16,7 +16,9 @@ test('a judge advisor creates a panel with a leader from judges who have none', 
   await page.getByRole('button', { name: 'Select Max Multi', exact: true }).click()
   await page.getByRole('button', { name: 'Make leader: Max Multi' }).click()
   await page.getByRole('button', { name: 'Create panel', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Panel C', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Open Panel C', exact: true }),
+  ).toBeVisible()
 })
 
 test('an advisor withdraws a team with a reason, then reactivates it', async ({
@@ -44,6 +46,8 @@ test('a scheduled pager stays hidden from the mentor until it is due', async ({
   const film = await (await browser.newContext()).newPage()
   await signIn(film, 'film@fgc.test')
   await film.getByRole('button', { name: 'Open filming' }).click()
+  await film.getByRole('textbox', { name: 'Search teams or shots' }).fill('Spain')
+  await film.getByRole('button', { name: 'Actions for Team Spain' }).click()
   await film.getByRole('button', { name: 'Page Team Spain', exact: true }).click()
   await film
     .getByRole('textbox', { name: /Message/ })
@@ -55,15 +59,18 @@ test('a scheduled pager stays hidden from the mentor until it is due', async ({
   const admin = await (await browser.newContext()).newPage()
   await signIn(admin, 'admin@fgc.test')
   await admin.getByRole('button', { name: 'Open administration' }).click()
-  await admin.getByRole('textbox', { name: 'Find team for mentor code' }).fill('Spain')
-  await admin.getByRole('button', { name: 'Issue code for Team Spain' }).click()
+  await admin.getByRole('button', { name: 'Open Mentor access codes' }).click()
+  await admin.getByRole('textbox', { name: 'Filter by team name' }).fill('Spain')
+  await admin.getByRole('button', { name: 'Actions for Team Spain' }).click()
+  await admin.getByRole('button', { name: 'Issue code', exact: true }).click()
   const code = /Team Spain: (\S+)/.exec(
     await admin.getByText(/Copy this code now/).innerText(),
   )?.[1]
   const mentor = await (await browser.newContext()).newPage()
   await mentor.goto('/')
-  await mentor.getByRole('button', { name: 'Mentor access', exact: true }).click()
-  await mentor.getByRole('textbox', { name: 'Mentor access code' }).fill(code as string)
+  await mentor
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill(code as string)
   await mentor.getByRole('button', { name: 'Open team messages' }).click()
   await expect(mentor.getByRole('button', { name: 'Refresh', exact: true })).toBeVisible()
   await expect(mentor.getByText('Scheduled interview in an hour.')).toHaveCount(0)

@@ -9,7 +9,7 @@ import {
   type GestureResponderEvent,
 } from 'react-native'
 import Svg, { G, Rect, Text as SvgText } from 'react-native-svg'
-import { Body, Button, Field, layout, tokens } from './operations'
+import { Body, Button, Field, getThemeMode, layout, tokens } from './operations'
 import {
   TEAM_MAP_GEOMETRY,
   clampTeamMapZoom,
@@ -50,26 +50,52 @@ interface ViewTransform {
 const MAP_HEIGHT = 520
 const MAX_SEARCH_RESULTS = 6
 
-const STATUS_COLORS: Record<string, { fill: string; stroke: string }> = {
-  captured: { fill: '#D1FAE5', stroke: '#6EE7B7' },
-  skipped: { fill: tokens.surfaceLow, stroke: '#D4D4D4' },
-  active: { fill: '#FEE2E2', stroke: '#F87171' },
-  pending: { fill: '#FFFBEB', stroke: '#FDE68A' },
-  neutral: { fill: '#FFFBEB', stroke: '#FDE68A' },
+type Pair = { fill: string; stroke: string }
+interface MapPalette {
+  status: Record<'captured' | 'active' | 'pending' | 'skipped', Pair>
+  field: Pair & { label: string }
+  admin: Pair & { label: string }
+  filming: Pair & { label: string }
+  pitCode: string
 }
+// The palette is read at render time: ThemeProvider remounts the tree when the theme changes.
+const LIGHT_PALETTE: MapPalette = {
+  status: {
+    captured: { fill: '#D1FAE5', stroke: '#6EE7B7' },
+    active: { fill: '#FEE2E2', stroke: '#F87171' },
+    pending: { fill: '#FFFBEB', stroke: '#FDE68A' },
+    skipped: { fill: '#F5F3F6', stroke: '#D4D4D4' },
+  },
+  field: { fill: '#EEF2FF', stroke: '#A5B4FC', label: '#4F46E5' },
+  admin: { fill: '#F8E8EB', stroke: '#D75F72', label: '#A93D52' },
+  filming: { fill: '#FAECE7', stroke: '#E08B6D', label: '#AD5B3F' },
+  pitCode: '#0B1F3A',
+}
+const DARK_PALETTE: MapPalette = {
+  status: {
+    captured: { fill: '#14532D', stroke: '#22C55E' },
+    active: { fill: '#5B1F24', stroke: '#F87171' },
+    pending: { fill: '#3B2F0B', stroke: '#B45309' },
+    skipped: { fill: '#1D2431', stroke: '#525B6B' },
+  },
+  field: { fill: '#1E2647', stroke: '#6366F1', label: '#A5B4FC' },
+  admin: { fill: '#3A1A21', stroke: '#D75F72', label: '#F4A3B0' },
+  filming: { fill: '#3A2218', stroke: '#E08B6D', label: '#F0B59D' },
+  pitCode: '#E6E8EC',
+}
+const mapPalette = (): MapPalette =>
+  getThemeMode() === 'dark' ? DARK_PALETTE : LIGHT_PALETTE
 
-function statusColors(status: string): { fill: string; stroke: string } {
+function statusColors(status: string, palette: MapPalette): Pair {
   switch (status) {
     case 'captured':
-      return STATUS_COLORS.captured
+      return palette.status.captured
     case 'skipped':
-      return STATUS_COLORS.skipped
+      return palette.status.skipped
     case 'active':
-      return STATUS_COLORS.active
-    case 'pending':
-      return STATUS_COLORS.pending
+      return palette.status.active
     default:
-      return STATUS_COLORS.neutral
+      return palette.status.pending
   }
 }
 
@@ -93,6 +119,7 @@ function touchDistance(event: GestureResponderEvent): number | undefined {
 
 export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProps) {
   const { width: windowWidth } = useWindowDimensions()
+  const palette = mapPalette()
   const mapWidth = Math.max(320, Math.min(896, windowWidth - 40))
   const points = useMemo(() => layoutTeams(teams), [teams])
   const sceneH = useMemo(() => sceneHeight(points.values()), [points])
@@ -259,8 +286,8 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               width={430}
               height={190}
               rx={10}
-              fill="#EEF2FF"
-              stroke="#A5B4FC"
+              fill={palette.field.fill}
+              stroke={palette.field.stroke}
               strokeWidth={2}
             />
             <SvgText
@@ -268,7 +295,7 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               y={135}
               textAnchor="middle"
               fontSize={26}
-              fill="#4F46E5"
+              fill={palette.field.label}
               fontWeight="600"
             >
               Field 1
@@ -279,8 +306,8 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               width={430}
               height={190}
               rx={10}
-              fill="#EEF2FF"
-              stroke="#A5B4FC"
+              fill={palette.field.fill}
+              stroke={palette.field.stroke}
               strokeWidth={2}
             />
             <SvgText
@@ -288,7 +315,7 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               y={135}
               textAnchor="middle"
               fontSize={26}
-              fill="#4F46E5"
+              fill={palette.field.label}
               fontWeight="600"
             >
               Field 2
@@ -299,8 +326,8 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               width={212}
               height={88}
               rx={10}
-              fill="#F8E8EB"
-              stroke="#D75F72"
+              fill={palette.admin.fill}
+              stroke={palette.admin.stroke}
               strokeWidth={2}
             />
             <SvgText
@@ -308,7 +335,7 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               y={82}
               textAnchor="middle"
               fontSize={17}
-              fill="#A93D52"
+              fill={palette.admin.label}
               fontWeight="600"
             >
               Pit Admin
@@ -319,8 +346,8 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               width={212}
               height={88}
               rx={10}
-              fill="#FAECE7"
-              stroke="#E08B6D"
+              fill={palette.filming.fill}
+              stroke={palette.filming.stroke}
               strokeWidth={2}
             />
             <SvgText
@@ -328,7 +355,7 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               y={184}
               textAnchor="middle"
               fontSize={17}
-              fill="#AD5B3F"
+              fill={palette.filming.label}
               fontWeight="600"
             >
               Filming
@@ -346,7 +373,7 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
               const point = points.get(team.id)
               if (!point) return null
               const currentStatus = status(team.id)
-              const colors = statusColors(currentStatus)
+              const colors = statusColors(currentStatus, palette)
               const focused = focusedId === team.id
               const filtered = Boolean(visibleTeamIds && !visibleTeamIds.has(team.id))
               return (
@@ -374,7 +401,7 @@ export function TeamMap({ teams, status, onSelect, visibleTeamIds }: TeamMapProp
                     textAnchor="middle"
                     fontSize={10}
                     fontWeight="600"
-                    fill={tokens.primaryContainer}
+                    fill={palette.pitCode}
                   >
                     {shortCode(team)}
                   </SvgText>

@@ -2,7 +2,17 @@ import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { Observation } from '@fgc/contracts'
-import { Body, Button, Card, Confirm, Field, Notice, layout } from '@fgc/ui'
+import {
+  Body,
+  Button,
+  Card,
+  Confirm,
+  Field,
+  Notice,
+  layout,
+  useI18n,
+  useToast,
+} from '@fgc/ui'
 import { ObservationDraft } from './judging-state'
 
 export function ObservationEditor({
@@ -21,6 +31,8 @@ export function ObservationEditor({
   onDirtyChange?(dirty: boolean): void
 }) {
   const { api, user } = useAuth()
+  const toast = useToast()
+  const { t } = useI18n()
   const own = observations.find((o) => o.authorId === user?.id)
   const draft = useRef(new ObservationDraft(own)).current
   const [, render] = useState(0)
@@ -45,11 +57,12 @@ export function ObservationEditor({
     const saved = await pending
     update()
     if (saved) {
+      toast.success(t('jdObsSaved'))
       setReviewed(undefined)
       try {
         await onSaved()
       } catch {
-        setError('Saved. Refresh the team to load the latest observations.')
+        setError(t('jdSavedRefresh'))
       }
     }
   }
@@ -64,11 +77,11 @@ export function ObservationEditor({
       update()
       await onSaved()
     } catch {
-      setError('The current observation could not be loaded. Your draft remains here.')
+      setError(t('jdCurrentLoadError'))
     }
   }
   return (
-    <Card title="Panel observations">
+    <Card title={t('jdPanelObs')}>
       {observations
         .filter((o) => o.authorId !== user?.id)
         .map((o) => (
@@ -76,11 +89,11 @@ export function ObservationEditor({
             <Body>{o.text}</Body>
           </Card>
         ))}
-      {!observations.length && <Notice text="No observations yet." />}
+      {!observations.length && <Notice text={t('jdNoObs')} />}
       {(editable || own || draft.dirty) && (
         <>
           <Field
-            label="Your observation"
+            label={t('jdYourObs')}
             multiline
             maxLength={10000}
             value={draft.text}
@@ -90,29 +103,23 @@ export function ObservationEditor({
               update()
             }}
           />
-          {draft.dirty && (
-            <Notice text="Unsaved changes. Keep this screen open until you save or discard them." />
-          )}
-          {!editable && (
-            <Notice text="Observations can only be changed by their author while this team is active and pending in their current panel." />
-          )}
-          {(draft.error || error) && <Notice error text={draft.error || error} />}
+          {draft.dirty && <Notice text={t('jdUnsaved')} />}
+          {!editable && <Notice text={t('jdNotEditable')} />}
+          {Boolean(draft.error || error) && <Notice error text={draft.error || error} />}
           {reviewed !== undefined && (
-            <Card title="Current saved observation">
-              <Body>
-                {reviewed?.text ?? 'Your previous observation has been deleted.'}
-              </Body>
-              <Notice text="Compare this saved record with your draft above. Edit your draft as needed before saving, or discard it to keep the saved record." />
+            <Card title={t('jdCurrentSaved')}>
+              <Body>{reviewed?.text ?? t('jdPrevDeleted')}</Body>
+              <Notice text={t('jdCompare')} />
             </Card>
           )}
           <View style={layout.row}>
             <Button
               label={
                 draft.busy
-                  ? 'Saving…'
+                  ? t('jdSaving')
                   : draft.error && !draft.conflict
-                    ? 'Retry previous save'
-                    : 'Save observation'
+                    ? t('jdRetrySave')
+                    : t('jdSaveObs')
               }
               disabled={
                 !editable ||
@@ -125,20 +132,20 @@ export function ObservationEditor({
             />
             {draft.conflict && (
               <Button
-                label="Review current record"
+                label={t('jdReviewCurrent')}
                 variant="secondary"
                 onPress={() => void review()}
               />
             )}
             <Button
-              label="Discard draft"
+              label={t('jdDiscardDraft')}
               variant="secondary"
               disabled={!draft.dirty || draft.busy}
               onPress={() => setConfirm('discard')}
             />
             {own && (
               <Button
-                label="Delete your observation"
+                label={t('jdDeleteObs')}
                 variant="danger"
                 disabled={!editable || draft.busy || draft.dirty}
                 onPress={() => setConfirm('delete')}
@@ -149,14 +156,8 @@ export function ObservationEditor({
       )}
       {confirm && (
         <Confirm
-          title={
-            confirm === 'delete' ? 'Delete your observation?' : 'Discard unsaved changes?'
-          }
-          description={
-            confirm === 'delete'
-              ? 'This removes your observation from this panel.'
-              : 'Your unsaved text will be removed from this screen.'
-          }
+          title={confirm === 'delete' ? t('jdDeleteObsQ') : t('jdDiscardQ')}
+          description={confirm === 'delete' ? t('jdDeleteObsBody') : t('jdDiscardBody')}
           onCancel={() => setConfirm(null)}
           onConfirm={() => {
             const action = confirm
@@ -178,11 +179,7 @@ export function ObservationEditor({
                   draft.discard()
                   await onSaved()
                 })
-                .catch(() =>
-                  setError(
-                    'Delete was not confirmed. Refresh and review the current observation before trying again.',
-                  ),
-                )
+                .catch(() => setError(t('jdDeleteUnconfirmed')))
                 .finally(() => {
                   draft.busy = false
                   update()
