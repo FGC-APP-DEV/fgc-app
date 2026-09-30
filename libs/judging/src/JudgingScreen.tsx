@@ -16,6 +16,8 @@ import {
   ProgressBar,
   Screen,
   layout,
+  useToast,
+  useToastOn,
 } from '@fgc/ui'
 import { ObservationEditor } from './ObservationEditor'
 import { judgingAccess, progress } from './judging-state'
@@ -80,6 +82,8 @@ export function JudgingScreen({
   const [cycle, setCycle] = useState<Cycle | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState('')
+  const toast = useToast()
+  useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
   const [tab, setTab] = useState<'teams' | 'panels' | 'judges' | 'closure'>('teams')
   const [search, setSearch] = useState('')
@@ -168,6 +172,7 @@ export function JudgingScreen({
     setError('')
     try {
       await work()
+      toast.success('Changes saved')
       await load()
     } catch (e) {
       setError(
@@ -397,7 +402,6 @@ export function JudgingScreen({
           }}
         />
       </View>
-      {Boolean(error) && <Notice error text={error} />}
       {Boolean(planNotice) && tab === 'panels' && <Notice text={planNotice} />}
       {!loaded && <Loading />}
       {loaded && !cycle && (
