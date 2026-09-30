@@ -18,7 +18,7 @@ export function AdminModal({
         style={{
           flex: 1,
           padding: 20,
-          backgroundColor: '#00061588',
+          backgroundColor: tokens.scrim,
           justifyContent: 'center',
         }}
       >

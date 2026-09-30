@@ -15,8 +15,10 @@ import {
 } from 'react-native'
 import { Icon, type IconName } from './icons'
 import { BrandLogo } from './logo'
+import { useTheme } from './theme'
 
-export const tokens = {
+export type ThemeMode = 'light' | 'dark'
+const lightTokens = {
   primary: '#000615',
   primaryContainer: '#0B1F3A',
   secondary: '#4059AA',
@@ -31,6 +33,48 @@ export const tokens = {
   success: '#22C55E',
   warning: '#F59E0B',
   danger: '#EF4444',
+  /** Accent ink for text and icons that sit on the surface fills. */
+  link: '#0B1F3A',
+  successInk: '#166534',
+  warningInk: '#92400E',
+  dangerInk: '#B91C1C',
+  dangerSurface: '#FEF2F2',
+  dangerBorder: '#FECACA',
+  dangerText: '#991B1B',
+  scrim: '#00061588',
+}
+const darkTokens: typeof lightTokens = {
+  primary: '#E6EBF5',
+  primaryContainer: '#3A55A6',
+  secondary: '#8FA6E8',
+  background: '#0B0F17',
+  surface: '#151B26',
+  surfaceLow: '#1D2431',
+  surfaceHigh: '#283040',
+  text: '#E6E8EC',
+  muted: '#B4B9C4',
+  outline: '#8A909C',
+  border: '#2C3546',
+  success: '#22C55E',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  link: '#A9BBF0',
+  successInk: '#4ADE80',
+  warningInk: '#FBBF24',
+  dangerInk: '#F87171',
+  dangerSurface: '#2A1618',
+  dangerBorder: '#5B2A2E',
+  dangerText: '#FCA5A5',
+  scrim: '#000000AA',
+}
+/**
+ * Live colour tokens. The object is mutated in place by `applyTheme`, so components read the
+ * active palette at render time; `ThemeProvider` remounts its subtree after each switch.
+ */
+export const tokens: typeof lightTokens = { ...lightTokens }
+let themeMode: ThemeMode = 'light'
+export function getThemeMode(): ThemeMode {
+  return themeMode
 }
 /** Corner radii from the reference: badge 4, tile 8, control 12, card 16. */
 export const radius = { badge: 4, tile: 8, control: 12, card: 16, pill: 999 }
@@ -60,29 +104,37 @@ export const elevation = {
 } as const
 /** Window width from which shells switch to the desktop layout (side rail, wider content). */
 export const WIDE_BREAKPOINT = 900
-export const layout = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: tokens.background },
-  contentWide: { maxWidth: 1152, padding: 32, gap: 24 },
-  content: {
-    width: '100%',
-    maxWidth: 896,
-    alignSelf: 'center',
-    padding: 20,
-    gap: 20,
-    paddingBottom: 40,
-  },
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 },
-  stack: { gap: 12 },
-  title: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontFamily: 'InterBold',
-    fontWeight: '700',
-    color: tokens.primary,
-  },
-  text: { color: tokens.text, fontFamily: 'Inter', fontSize: 14, lineHeight: 20 },
-  muted: { color: tokens.muted, fontFamily: 'Inter', fontSize: 13, lineHeight: 18 },
-})
+const createLayout = () =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: tokens.background },
+    contentWide: { maxWidth: 1152, padding: 32, gap: 24 },
+    content: {
+      width: '100%',
+      maxWidth: 896,
+      alignSelf: 'center',
+      padding: 20,
+      gap: 20,
+      paddingBottom: 40,
+    },
+    row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 },
+    stack: { gap: 12 },
+    title: {
+      fontSize: 24,
+      lineHeight: 32,
+      fontFamily: 'InterBold',
+      fontWeight: '700',
+      color: tokens.primary,
+    },
+    text: { color: tokens.text, fontFamily: 'Inter', fontSize: 14, lineHeight: 20 },
+    muted: { color: tokens.muted, fontFamily: 'Inter', fontSize: 13, lineHeight: 18 },
+  })
+export const layout = createLayout()
+/** Switches the live palette (tokens and layout styles) to `mode`. */
+export function applyTheme(mode: ThemeMode) {
+  themeMode = mode
+  Object.assign(tokens, mode === 'dark' ? darkTokens : lightTokens)
+  Object.assign(layout, createLayout())
+}
 /** "camelCase" or "snake_case" identifiers as sentence-case display text. */
 export function humanize(value: string) {
   const words = value
@@ -192,7 +244,7 @@ export function Button({
       : variant === 'danger'
         ? '#B91C1C'
         : tokens.surface
-  const ink = variant === 'secondary' ? tokens.primaryContainer : '#FFFFFF'
+  const ink = variant === 'secondary' ? tokens.link : '#FFFFFF'
   return (
     <Pressable
       accessibilityRole="button"
@@ -301,13 +353,13 @@ export function Notice({ text, error = false }: { text: string; error?: boolean 
         padding: 14,
         borderRadius: radius.control,
         borderWidth: 1,
-        borderColor: error ? '#FECACA' : tokens.border,
-        backgroundColor: error ? '#FEF2F2' : tokens.surfaceLow,
+        borderColor: error ? tokens.dangerBorder : tokens.border,
+        backgroundColor: error ? tokens.dangerSurface : tokens.surfaceLow,
       }}
     >
       <Text
         style={{
-          color: error ? '#991B1B' : tokens.muted,
+          color: error ? tokens.dangerText : tokens.muted,
           fontFamily: 'Inter',
           fontSize: 14,
           lineHeight: 20,
@@ -321,17 +373,16 @@ export function Notice({ text, error = false }: { text: string; error?: boolean 
 type Tone = 'neutral' | 'success' | 'warning' | 'danger'
 // Text colours are darkened variants of the state tokens: the raw success/warning/danger
 // fills do not reach 4.5:1 as small text (design-system.md, section 12).
-const neutralTone = { fill: tokens.surfaceLow, text: tokens.primaryContainer }
 function toneColors(tone: Tone) {
   switch (tone) {
     case 'success':
-      return { fill: '#22C55E1A', text: '#166534' }
+      return { fill: '#22C55E1A', text: tokens.successInk }
     case 'warning':
-      return { fill: '#F59E0B1A', text: '#92400E' }
+      return { fill: '#F59E0B1A', text: tokens.warningInk }
     case 'danger':
-      return { fill: '#EF44441A', text: '#B91C1C' }
+      return { fill: '#EF44441A', text: tokens.dangerInk }
     default:
-      return neutralTone
+      return { fill: tokens.surfaceLow, text: tokens.link }
   }
 }
 const toneByLabel = new Map<string, Tone>([
@@ -426,7 +477,7 @@ export function Confirm({
         style={{
           flex: 1,
           padding: 20,
-          backgroundColor: '#00061588',
+          backgroundColor: tokens.scrim,
           justifyContent: 'center',
         }}
       >
@@ -453,7 +504,7 @@ function tileColors(tone: TileTone) {
     case 'danger':
       return { fill: '#B91C1C', border: '#B91C1C', ink: '#FFFFFF' }
     case 'warning':
-      return { fill: tokens.surface, border: tokens.warning, ink: '#92400E' }
+      return { fill: tokens.surface, border: tokens.warning, ink: tokens.warningInk }
     default:
       return { fill: tokens.surface, border: tokens.primary, ink: tokens.primary }
   }
@@ -543,6 +594,7 @@ export function AppHeader({
   userRole?: string
 }) {
   const anchor = useRef<View>(null)
+  const { mode, toggle } = useTheme()
   const { width } = useWindowDimensions()
   const [menu, setMenu] = useState<{ top: number; right: number } | null>(null)
   const openMenu = () =>
@@ -570,6 +622,23 @@ export function AppHeader({
       <View style={{ flex: 1, minWidth: 0 }}>
         <BrandLogo height={32} />
       </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={
+          mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+        }
+        onPress={toggle}
+        style={({ pressed }) => ({
+          width: 44,
+          height: 44,
+          borderRadius: radius.pill,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
+        })}
+      >
+        <Icon name={mode === 'dark' ? 'sun' : 'moon'} size={20} color={tokens.muted} />
+      </Pressable>
       <Pressable
         ref={anchor}
         accessibilityRole="button"
@@ -729,13 +798,13 @@ export function AppHeader({
                   backgroundColor: pressed ? '#EF44440D' : 'transparent',
                 })}
               >
-                <Icon name="logOut" size={16} color="#B91C1C" />
+                <Icon name="logOut" size={16} color={tokens.dangerInk} />
                 <Text
                   style={{
                     fontFamily: 'Inter',
                     fontSize: 14,
                     fontWeight: '700',
-                    color: '#B91C1C',
+                    color: tokens.dangerInk,
                   }}
                 >
                   Sign out

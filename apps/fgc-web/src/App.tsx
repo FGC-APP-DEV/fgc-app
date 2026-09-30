@@ -23,6 +23,7 @@ import {
   LoginShell,
   Notice,
   Screen,
+  ThemeProvider,
   layout,
   MockAccounts,
   openOfficialInformation,
@@ -344,10 +345,20 @@ function SessionShell() {
   const { user, mentor } = useAuth()
   return <Shell key={user?.id ?? mentor?.team.id ?? 'signed-out'} />
 }
+const themeStorage = {
+  get: (key: string) => localStorage.getItem(key),
+  set: (key: string, value: string) => localStorage.setItem(key, value),
+}
+const syncPageTheme = (mode: 'light' | 'dark') => {
+  document.documentElement.style.colorScheme = mode
+  document.documentElement.dataset.theme = mode
+}
 export default function App() {
   return (
     <AuthProvider runtime={runtime}>
-      <SessionShell />
+      <ThemeProvider storage={themeStorage} onChange={syncPageTheme}>
+        <SessionShell />
+      </ThemeProvider>
     </AuthProvider>
   )
 }
