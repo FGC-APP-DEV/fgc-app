@@ -4,6 +4,8 @@
 import React from 'react'
 import { Image, View } from 'react-native'
 import logoSource from './assets/fg-header-black.png'
+import logoWhiteSource from './assets/fg-header-white.png'
+import { useTheme } from './theme'
 import { getThemeMode } from './operations'
 
 // The logo file is 1000x360 with wide white margins; the visible mark spans this box.
@@ -11,6 +13,19 @@ const LOGO = { width: 1000, height: 360, x: 95, y: 80, w: 820, h: 210 }
 
 /** FIRST GLOBAL wordmark, cropped to the visible mark so `height` is the height people see. */
 export function BrandLogo({ height = 32 }: { height?: number }) {
+  const { mode } = useTheme()
+  if (mode === 'dark') {
+    // The white logo is already cropped to the mark (1432x344).
+    return (
+      <Image
+        accessibilityRole="header"
+        accessibilityLabel="FIRST GLOBAL"
+        source={logoWhiteSource}
+        resizeMode="contain"
+        style={{ width: (height * 1432) / 344, height }}
+      />
+    )
+  }
   const scale = height / LOGO.h
   return (
     <View
