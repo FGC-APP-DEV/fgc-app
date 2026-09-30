@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View } from 'react-native'
+import { Text, View } from 'react-native'
 import {
   Button,
   Card,
@@ -13,8 +13,13 @@ import {
 import { useI18n } from './i18n'
 import { EVENT_LOAD_TIMEOUT_MS } from './event-frame'
 
-/** Official event page in an iframe (web). Cross-origin frames expose no load errors, so a
- * frame that never fires `load` (blocked, offline, refused) is reported after a timeout. */
+/**
+ * Official event page in an iframe (web). A cross-origin page cannot tell us whether the embed
+ * was blocked (X-Frame-Options / frame-ancestors) and the browser still fires `load` for its
+ * own error page, so failure cannot be detected reliably. The frame is therefore always
+ * followed by a footer with "Open in browser" and "Reload"; a frame that never loads (or fires
+ * `error`) additionally shows an error notice.
+ */
 export function EventFrame() {
   const { t } = useI18n()
   const [attempt, setAttempt] = useState(0)
@@ -25,7 +30,7 @@ export function EventFrame() {
     const timer = setTimeout(() => setFailed(true), EVENT_LOAD_TIMEOUT_MS)
     return () => clearTimeout(timer)
   }, [attempt, loaded, failed])
-  const retry = () => {
+  const reload = () => {
     setLoaded(false)
     setFailed(false)
     setAttempt((n) => n + 1)
@@ -36,12 +41,7 @@ export function EventFrame() {
         <View style={layout.stack}>
           <Notice error text={t('eventLoadError')} />
           <View style={layout.row}>
-            <Button label={t('tryAgain')} onPress={retry} />
-            <Button
-              label={t('openInBrowser')}
-              variant="secondary"
-              onPress={openOfficialInformation}
-            />
+            <Button label={t('tryAgain')} onPress={reload} />
           </View>
         </View>
       ) : (
@@ -49,6 +49,7 @@ export function EventFrame() {
           style={{
             width: '100%',
             height: 640,
+            minHeight: 320,
             maxHeight: '75vh' as unknown as number,
             borderRadius: radius.tile,
             borderWidth: 1,
@@ -69,6 +70,17 @@ export function EventFrame() {
           })}
         </View>
       )}
+      <View style={[layout.row, { justifyContent: 'space-between' }]}>
+        <Text style={[layout.muted, { flexShrink: 1 }]}>{t('eventNotLoadingHint')}</Text>
+        <View style={layout.row}>
+          <Button label={t('reload')} variant="secondary" onPress={reload} />
+          <Button
+            label={t('openInBrowser')}
+            variant="secondary"
+            onPress={openOfficialInformation}
+          />
+        </View>
+      </View>
     </Card>
   )
 }
