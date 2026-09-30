@@ -28,7 +28,8 @@ test('closing Judging needs two confirmations, empties dashboards and leaves Fil
   const film = await (await browser.newContext()).newPage()
   await signIn(film, 'film@fgc.test', 'Fran Filmmaker')
   await film.getByRole('button', { name: 'Open filming' }).click()
+  await film.getByRole('textbox', { name: 'Search teams or shots' }).fill('Team Brazil')
   await expect(
-    film.getByRole('button', { name: 'Update Team Brazil', exact: true }),
+    film.getByRole('button', { name: 'Actions for Team Brazil' }),
   ).toBeVisible()
 })

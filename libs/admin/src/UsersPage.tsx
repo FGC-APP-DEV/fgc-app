@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { Role, User } from '@fgc/contracts'
-import { Body, Button, Card, Field, Icon, Loading, Notice, tokens, layout } from '@fgc/ui'
-import { AdminModal } from './AdminModal'
-import { ROLES, filterUsers, paginate } from './lib/admin'
+import {
+  ActionModal,
+  Body,
+  Card,
+  Checkbox,
+  DataTable,
+  Field,
+  Notice,
+  Select,
+  layout,
+  type Column,
+} from '@fgc/ui'
+import { ROLES, filterUsers } from './lib/admin'
 
 type Filters = { name: string; email: string; role: Role | '' }
 const NO_FILTERS: Filters = { name: '', email: '', role: '' }
-// `color` is a getter so it follows the active theme instead of the palette at import time.
-const cell = {
-  fontFamily: 'Inter',
-  fontSize: 14,
-  get color() {
-    return tokens.text
-  },
-} as const
-
 export function UsersPage() {
   const { api } = useAuth()
   const [users, setUsers] = useState<User[] | null>(null)
   const [filters, setFilters] = useState<Filters>(NO_FILTERS)
-  const [page, setPage] = useState(1)
   const [editing, setEditing] = useState<User | null>(null)
   const [roles, setRoles] = useState<Role[]>([])
-  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [removeAccess, setRemoveAccess] = useState(false)
   const [error, setError] = useState('')
   const [modalError, setModalError] = useState('')
   const [notice, setNotice] = useState('')
@@ -43,15 +43,13 @@ export function UsersPage() {
   }, [api])
 
   const filtered = filterUsers(users ?? [], filters)
-  const view = paginate(filtered, page)
   const setFilter = (patch: Partial<Filters>) => {
     setFilters({ ...filters, ...patch })
-    setPage(1)
   }
   const close = () => {
     setEditing(null)
     setRoles([])
-    setConfirmDelete(false)
+    setRemoveAccess(false)
     setModalError('')
   }
   const open = (user: User) => {
@@ -89,11 +87,21 @@ export function UsersPage() {
   }
   const conflict =
     roles.includes('admin') && (roles.includes('judge') || roles.includes('judgeAdvisor'))
+  const columns: Column<User>[] = [
+    { key: 'name', title: 'Name', flex: 2, render: (u) => u.name ?? '-' },
+    { key: 'email', title: 'Email', flex: 3, render: (u) => u.email },
+    {
+      key: 'role',
+      title: 'Role',
+      flex: 2,
+      render: (u) => u.roles.join(', ') || 'No access',
+    },
+  ]
 
   return (
     <View style={layout.stack}>
-      {error && <Notice text={error} error />}
-      {notice && <Notice text={notice} />}
+      {Boolean(error) && <Notice text={error} error />}
+      {Boolean(notice) && <Notice text={notice} />}
       <Card title="Current users">
         <Field
           label="Filter by name"
@@ -108,149 +116,70 @@ export function UsersPage() {
           value={filters.email}
           onChangeText={(email) => setFilter({ email })}
         />
-        <View style={layout.row}>
-          <Button
-            label="All roles"
-            variant={filters.role ? 'secondary' : 'primary'}
-            onPress={() => setFilter({ role: '' })}
-          />
-          {ROLES.map((role) => (
-            <Button
-              key={role}
-              label={role}
-              variant={filters.role === role ? 'primary' : 'secondary'}
-              onPress={() => setFilter({ role: filters.role === role ? '' : role })}
-            />
-          ))}
-        </View>
-        {users === null ? (
-          <Loading />
-        ) : (
-          <View accessibilityRole="none" style={{ gap: 0 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                paddingVertical: 8,
-                borderBottomWidth: 2,
-                borderColor: tokens.border,
-              }}
-            >
-              <Text style={[cell, { flex: 2, fontWeight: '700' }]}>Name</Text>
-              <Text style={[cell, { flex: 3, fontWeight: '700' }]}>Email</Text>
-              <Text style={[cell, { flex: 2, fontWeight: '700' }]}>Role</Text>
-              <Text style={[cell, { width: 40, fontWeight: '700' }]}>Edit</Text>
-            </View>
-            {view.items.map((u) => (
-              <View
-                key={u.id}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingVertical: 8,
-                  borderBottomWidth: 1,
-                  borderColor: tokens.border,
-                }}
-              >
-                <Text style={[cell, { flex: 2 }]}>{u.name ?? '-'}</Text>
-                <Text style={[cell, { flex: 3 }]}>{u.email}</Text>
-                <Text style={[cell, { flex: 2 }]}>
-                  {u.roles.join(', ') || 'No access'}
-                </Text>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Edit ${u.email}`}
-                  onPress={() => open(u)}
-                  style={{ width: 40, padding: 8 }}
-                >
-                  <Icon name="pencil" size={18} color={tokens.secondary} />
-                </Pressable>
-              </View>
-            ))}
-          </View>
-        )}
-        {users !== null && filtered.length === 0 && (
-          <Notice
-            text={
-              users.length
-                ? 'No users match these filters.'
-                : 'No users have signed in yet.'
-            }
-          />
-        )}
-        <View style={layout.row}>
-          <Button
-            label="Previous page"
-            variant="secondary"
-            disabled={view.page <= 1}
-            onPress={() => setPage(view.page - 1)}
-          />
-          <Body>
-            Page {view.page} of {view.pages} · {filtered.length} users
-          </Body>
-          <Button
-            label="Next page"
-            variant="secondary"
-            disabled={view.page >= view.pages}
-            onPress={() => setPage(view.page + 1)}
-          />
-        </View>
+        <Select
+          label="Role"
+          value={filters.role}
+          options={[
+            { value: '', label: 'All roles' },
+            ...ROLES.map((role) => ({ value: role, label: role })),
+          ]}
+          onChange={(role) => setFilter({ role: role as Role | '' })}
+        />
+        <DataTable
+          columns={columns}
+          rows={filtered}
+          rowKey={(u) => u.id}
+          noun="users"
+          loading={users === null}
+          empty={
+            users?.length
+              ? 'No users match these filters.'
+              : 'No users have signed in yet.'
+          }
+          resetKey={JSON.stringify(filters)}
+          rowActionLabel={(u) => `Actions for ${u.email}`}
+          onRowAction={open}
+        />
       </Card>
       {editing && (
-        <AdminModal title={`Edit ${editing.name ?? editing.email}`} onClose={close}>
+        <ActionModal
+          title={`Edit ${editing.name ?? editing.email}`}
+          onClose={close}
+          confirmLabel={removeAccess ? 'Remove access' : 'Confirm'}
+          confirmVariant={removeAccess ? 'danger' : 'primary'}
+          confirmDisabled={busy || (!removeAccess && conflict)}
+          onConfirm={() =>
+            void (removeAccess
+              ? save([], 'Access removed')
+              : save(roles, 'Roles updated'))
+          }
+        >
           <Body>{editing.email}</Body>
-          <View style={layout.row}>
-            {ROLES.map((role) => (
-              <Button
-                key={role}
-                label={role}
-                variant={roles.includes(role) ? 'primary' : 'secondary'}
-                onPress={() =>
-                  setRoles(
-                    roles.includes(role)
-                      ? roles.filter((r) => r !== role)
-                      : [...roles, role],
-                  )
-                }
-              />
-            ))}
-          </View>
+          {ROLES.map((role) => (
+            <Checkbox
+              key={role}
+              label={role}
+              checked={!removeAccess && roles.includes(role)}
+              disabled={removeAccess}
+              onChange={(on) =>
+                setRoles(on ? [...roles, role] : roles.filter((r) => r !== role))
+              }
+            />
+          ))}
           <Body>Admin and judging roles cannot be combined.</Body>
-          {modalError && <Notice text={modalError} error />}
-          {confirmDelete ? (
-            <>
-              <Notice
-                text={`Remove all access for ${editing.email}? They will no longer be able to use the app.`}
-                error
-              />
-              <Button
-                label="Confirm delete"
-                variant="danger"
-                disabled={busy}
-                onPress={() => void save([], 'Access removed')}
-              />
-              <Button
-                label="Keep user"
-                variant="secondary"
-                onPress={() => setConfirmDelete(false)}
-              />
-            </>
-          ) : (
-            <>
-              <Button
-                label="Confirm"
-                disabled={busy || conflict}
-                onPress={() => void save(roles, 'Roles updated')}
-              />
-              <Button
-                label="Delete user"
-                variant="danger"
-                disabled={busy}
-                onPress={() => setConfirmDelete(true)}
-              />
-              <Button label="Cancel" variant="secondary" onPress={close} />
-            </>
+          <Checkbox
+            label="Remove all access"
+            checked={removeAccess}
+            onChange={setRemoveAccess}
+          />
+          {removeAccess && (
+            <Notice
+              text={`Remove all access for ${editing.email}? They will no longer be able to use the app.`}
+              error
+            />
           )}
-        </AdminModal>
+          {Boolean(modalError) && <Notice text={modalError} error />}
+        </ActionModal>
       )}
     </View>
   )
