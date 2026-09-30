@@ -39,6 +39,4 @@ test('judging follows the chosen language', async ({ page }) => {
   await expect(
     page.getByRole('textbox', { name: 'Rechercher des équipes de jugement' }),
   ).toBeVisible()
-}).click()
-  await expect(page.getByText('Configurer les panels')).toBeVisible()
 })
