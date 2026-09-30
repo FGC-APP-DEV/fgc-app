@@ -29,6 +29,7 @@ import {
   Notice,
   Screen,
   ThemeProvider,
+  ToastProvider,
   layout,
   MockAccounts,
   openOfficialInformation,
@@ -390,7 +391,9 @@ export default function App() {
     <I18nProvider storage={localeStorage}>
       <AuthProvider runtime={runtime}>
         <ThemeProvider storage={themeStorage} onChange={syncPageTheme}>
-          <SessionShell />
+          <ToastProvider>
+            <SessionShell />
+          </ToastProvider>
         </ThemeProvider>
       </AuthProvider>
     </I18nProvider>

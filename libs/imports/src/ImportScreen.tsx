@@ -2,7 +2,18 @@ import React, { useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { ImportPreview } from '@fgc/contracts'
-import { Body, Button, Card, Field, Heading, Notice, Screen, layout } from '@fgc/ui'
+import {
+  Body,
+  Button,
+  Card,
+  Field,
+  Heading,
+  Notice,
+  Screen,
+  layout,
+  useToast,
+  useToastOn,
+} from '@fgc/ui'
 
 export interface ImportFile {
   fileName: string
@@ -30,6 +41,8 @@ export function ImportScreen({
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState('')
+  const toast = useToast()
+  useToastOn(error, 'error')
   const choose = async () => {
     setError('')
     try {
@@ -64,6 +77,7 @@ export function ImportScreen({
         countries,
       })
       setPreview(data)
+      toast.success('File checked. Review the preview before importing.')
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -88,6 +102,9 @@ export function ImportScreen({
         ].join('\n'),
       )
       setPreview(data)
+      toast.success(
+        data.errors.length ? 'Import finished with errors' : 'Import completed',
+      )
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -102,7 +119,6 @@ export function ImportScreen({
         Upload, map, review, then confirm. Existing identifiers are never overwritten.
       </Body>
       <Notice text="XLSX, UTF-8 CSV/TXT or flat JSON arrays. Maximum 5 MiB, 5,000 records, 50 columns and 2,000 characters per field. Official identifier, name and country are provisional fields pending the official sample." />
-      {error && <Notice text={error} error />}
       <Card title="Choose and map your file">
         <Button
           label={file ? 'Choose another file' : 'Choose file'}
