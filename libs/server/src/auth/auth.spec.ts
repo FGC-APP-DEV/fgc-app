@@ -2,6 +2,7 @@ import express from 'express'
 import { beforeEach, afterEach, test, expect, jest } from '@jest/globals'
 import type { Server } from 'node:http'
 import { createAuthRouter } from './router'
+import { DomainError } from '../errors'
 import {
   AuthFailure,
   type Attempt,
@@ -270,4 +271,33 @@ test('distributed limits fail closed without disclosing emails or IPs in storage
     10,
     60,
   )
+})
+
+test('a verified address that no administrator approved gets a specific 403 and its session is revoked', async () => {
+  const resolveUser = config.resolveUser as jest.Mock<() => Promise<unknown>>
+  resolveUser.mockRejectedValueOnce(new DomainError('FORBIDDEN'))
+  const attemptId = await start()
+  const response = await post('verify', {
+    attemptId,
+    codeVerifier: verifier,
+    emailCode: '123456',
+  })
+  expect(response.status).toBe(403)
+  expect(response.body.error.code).toBe('FORBIDDEN')
+  expect(response.body.error.message).toMatch(/not registered/i)
+  expect(config.provider.revoke).toHaveBeenCalledWith(tokenPair.accessToken)
+})
+
+test('an infrastructure failure while resolving the profile stays a generic outage', async () => {
+  const resolveUser = config.resolveUser as jest.Mock<() => Promise<unknown>>
+  resolveUser.mockRejectedValueOnce(new DomainError('DEPENDENCY_UNAVAILABLE'))
+  const attemptId = await start()
+  const response = await post('verify', {
+    attemptId,
+    codeVerifier: verifier,
+    emailCode: '123456',
+  })
+  expect(response.status).toBe(503)
+  expect(response.body.error.code).toBe('DEPENDENCY_UNAVAILABLE')
+  expect(config.provider.revoke).not.toHaveBeenCalled()
 })
