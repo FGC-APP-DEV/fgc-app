@@ -373,7 +373,7 @@ export function Select({
   const { t, dirStyle } = useI18n()
   const current = options.find((option) => option.value === value)
   return (
-    <View style={{ gap: 4, flexGrow: 1, flexBasis: 160 }}>
+    <View style={{ gap: 4, flexGrow: 1, minWidth: 160 }}>
       <Text style={[cellText, { fontWeight: '700', fontSize: 12, color: tokens.muted }]}>
         {label}
       </Text>
