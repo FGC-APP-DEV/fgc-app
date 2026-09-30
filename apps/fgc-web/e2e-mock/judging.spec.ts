@@ -57,8 +57,8 @@ test('a judge advisor sees both panels and the closure tab; a judge does not', a
   await signIn(ja, 'ja@fgc.test')
   await ja.getByRole('button', { name: 'Open judging' }).click()
   await ja.getByRole('button', { name: 'Panels', exact: true }).click()
-  await expect(ja.getByText('Panel A')).toBeVisible()
-  await expect(ja.getByText('Panel B')).toBeVisible()
+  await expect(ja.getByRole('heading', { name: 'Panel A' })).toBeVisible()
+  await expect(ja.getByRole('heading', { name: 'Panel B' })).toBeVisible()
   await expect(ja.getByRole('button', { name: 'Close & audit' })).toBeVisible()
 
   const judge = await (await browser.newContext()).newPage()

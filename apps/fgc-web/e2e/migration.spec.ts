@@ -102,7 +102,9 @@ async function fixture(page: Page, roles: string[]) {
   return writes
 }
 async function login(page: Page) {
-  await page.getByRole('textbox', { name: 'Email address' }).fill('test@example.org')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('test@example.org')
   await page.getByRole('button', { name: 'Send sign-in email' }).click()
   await page.getByRole('textbox', { name: 'Email code' }).fill('123456')
   await page.getByRole('button', { name: 'Verify code' }).click()
@@ -134,8 +136,9 @@ test('filmmaker records notes and a versioned capture, then sees refreshed cover
 })
 test('mentor responds once and sees the shared saved response', async ({ page }) => {
   const writes = await fixture(page, [])
-  await page.getByRole('button', { name: 'Mentor access', exact: true }).click()
-  await page.getByRole('textbox', { name: 'Mentor access code' }).fill('ABCDEF123456')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('ABCDEF123456')
   await page.getByRole('button', { name: 'Open team messages' }).click()
   await expect(page.getByText('Please visit the filming booth.')).toBeVisible()
   const button = page.getByRole('button', { name: /On our way/i })

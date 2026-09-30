@@ -40,6 +40,7 @@ export function PagerScreen({
   const [historySearch, setHistorySearch] = useState('')
   const [pages, setPages] = useState<Page[]>([])
   const [teamId, setTeam] = useState(initialTeamId ?? '')
+  const [changing, setChanging] = useState(!initialTeamId)
   const [search, setSearch] = useState('')
   const [message, setMessage] = useState('')
   const [minutes, setMinutes] = useState(0)
@@ -93,6 +94,7 @@ export function PagerScreen({
       setBusy(false)
     }
   }
+  const selectedTeam = teams.find((t) => t.id === teamId)
   const shownPages = pages.filter((page) =>
     (teams.find((t) => t.id === page.teamId)?.name ?? '')
       .toLowerCase()
@@ -111,14 +113,26 @@ export function PagerScreen({
         <Notice text="Message recorded. Check the history for the team's response." />
       )}
       <Card title="New message">
-        <Field
-          label="Find a team"
-          icon="search"
-          value={search}
-          onChangeText={setSearch}
-        />
+        {selectedTeam && !changing && (
+          <View style={layout.row}>
+            <Badge label={`To: ${selectedTeam.officialId} · ${selectedTeam.name}`} />
+            <Button
+              label="Change team"
+              variant="secondary"
+              onPress={() => setChanging(true)}
+            />
+          </View>
+        )}
+        {(changing || !selectedTeam) && (
+          <Field
+            label="Find a team"
+            icon="search"
+            value={search}
+            onChangeText={setSearch}
+          />
+        )}
         <View style={layout.row}>
-          {teams
+          {(changing || !selectedTeam ? teams : [])
             .filter((t) =>
               `${t.officialId} ${t.name} ${t.country} ${countryName(t.country)}`
                 .toLowerCase()
@@ -130,7 +144,10 @@ export function PagerScreen({
                 key={t.id}
                 label={`${t.officialId} · ${t.name}`}
                 variant={teamId === t.id ? 'primary' : 'secondary'}
-                onPress={() => edit(() => setTeam(t.id))}
+                onPress={() => {
+                  edit(() => setTeam(t.id))
+                  setChanging(false)
+                }}
               />
             ))}
         </View>

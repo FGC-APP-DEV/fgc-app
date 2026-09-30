@@ -27,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: config.slug ?? 'fgc-mobile',
     version: config.version ?? '1.0.0',
     orientation: config.orientation ?? 'portrait',
-    userInterfaceStyle: 'light',
+    userInterfaceStyle: 'automatic',
     scheme: process.env.FGC_APP_SCHEME,
     plugins,
     experiments: { ...config.experiments, autolinkingModuleResolution: true },

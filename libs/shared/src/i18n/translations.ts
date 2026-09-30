@@ -41,7 +41,7 @@ const en: TranslationDict = {
   today: 'Today',
   refresh: 'Refresh',
   announcements: 'Announcements',
-  schedule: 'Schedule',
+  schedule: 'Official information',
   loading: 'Loading…',
   errorLoad: 'Could not load data',
 }

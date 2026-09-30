@@ -17,7 +17,8 @@ test('filmmaker captures a shot, an admin issues a mentor code, the mentor answe
   const admin = await (await browser.newContext()).newPage()
   await signIn(admin, 'admin@fgc.test', 'Ada Admin')
   await admin.getByRole('button', { name: 'Open administration' }).click()
-  await admin.getByRole('textbox', { name: 'Find team for mentor code' }).fill('Ghana')
+  await admin.getByRole('button', { name: 'Open Mentor access codes' }).click()
+  await admin.getByRole('textbox', { name: 'Filter by team name' }).fill('Ghana')
   await admin.getByRole('button', { name: 'Issue code for Team Ghana' }).click()
   const notice = await admin.getByText(/Copy this code now/).innerText()
   const code = /shown only once\. Team Ghana: (\S+)/.exec(notice)?.[1]
@@ -34,8 +35,9 @@ test('filmmaker captures a shot, an admin issues a mentor code, the mentor answe
 
   const mentor = await (await browser.newContext()).newPage()
   await mentor.goto('/')
-  await mentor.getByRole('button', { name: 'Mentor access', exact: true }).click()
-  await mentor.getByRole('textbox', { name: 'Mentor access code' }).fill(code as string)
+  await mentor
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill(code as string)
   await mentor.getByRole('button', { name: 'Open team messages' }).click()
   await expect(mentor.getByText('Please come to the booth.')).toBeVisible()
   await expect(mentor.getByText('captured', { exact: true }).first()).toBeVisible()
@@ -52,8 +54,9 @@ test('filmmaker captures a shot, an admin issues a mentor code, the mentor answe
 
 test('the seeded mentor code opens only its own team', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Mentor access', exact: true }).click()
-  await page.getByRole('textbox', { name: 'Mentor access code' }).fill('MOCKMENTOR001')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('MOCKMENTOR001')
   await page.getByRole('button', { name: 'Open team messages' }).click()
   await expect(
     page.getByText('Please come to the Step & Repeat backdrop now.'),
@@ -63,8 +66,9 @@ test('the seeded mentor code opens only its own team', async ({ page }) => {
 
 test('an invalid mentor code gives a generic error', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Mentor access', exact: true }).click()
-  await page.getByRole('textbox', { name: 'Mentor access code' }).fill('NOTACODE1234')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('NOTACODE1234')
   await page.getByRole('button', { name: 'Open team messages' }).click()
   await expect(page.getByRole('button', { name: 'Refresh', exact: true })).toHaveCount(0)
 })
