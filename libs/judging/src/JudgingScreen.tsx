@@ -378,6 +378,13 @@ export function JudgingScreen({
           </>
         )}
         <Button
+          label="Team pager"
+          variant="secondary"
+          icon="send"
+          disabled={busy}
+          onPress={() => navigate(() => onPage())}
+        />
+        <Button
           label="Refresh judging"
           variant="secondary"
           disabled={busy}
@@ -477,6 +484,7 @@ export function JudgingScreen({
                   <Button
                     label="Page this team"
                     variant="secondary"
+                    icon="send"
                     disabled={!current.panelId}
                     onPress={() => navigate(() => onPage(current.teamId))}
                   />

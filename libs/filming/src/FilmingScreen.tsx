@@ -122,7 +122,12 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
           variant={tab === 'items' ? 'primary' : 'secondary'}
           onPress={() => setTab('items')}
         />
-        <Button label="Team pager" variant="secondary" onPress={() => onPage()} />
+        <Button
+          label="Team pager"
+          variant="secondary"
+          icon="send"
+          onPress={() => onPage()}
+        />
         <Button label="Refresh" variant="secondary" onPress={() => void load()} />
       </View>
       {error && <Notice text={error} error />}
@@ -218,6 +223,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                   <Button
                     label={`Page ${team.name}`}
                     variant="secondary"
+                    icon="send"
                     onPress={() => onPage(team.id)}
                   />
                 </View>
