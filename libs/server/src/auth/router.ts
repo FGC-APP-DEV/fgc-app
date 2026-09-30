@@ -9,6 +9,7 @@ import {
   refreshInput,
   errorStatus,
 } from '@fgc/contracts'
+import { DomainError } from '../errors'
 import {
   checkVerifier,
   csrfToken,
@@ -77,7 +78,18 @@ export function createAuthRouter(config: AuthConfig): Router {
     res: Response,
   ) => {
     if (platform === 'web') origin(req)
-    const user = await config.resolveUser(tokens.accessToken)
+    let user
+    try {
+      user = await config.resolveUser(tokens.accessToken)
+    } catch (error) {
+      // A verified address that no administrator approved (or a mentor-less identity): end the
+      // provider session and report the specific outcome instead of a generic outage.
+      if (error instanceof DomainError && error.code === 'FORBIDDEN') {
+        await config.provider.revoke(tokens.accessToken).catch(() => undefined)
+        throw new AuthFailure('FORBIDDEN')
+      }
+      throw error
+    }
     if (platform === 'web') res.cookie(cookieName, tokens.refreshToken, cookieOptions)
     return {
       accessToken: tokens.accessToken,
@@ -123,7 +135,9 @@ export function createAuthRouter(config: AuthConfig): Router {
             ? 'Authentication is temporarily unavailable.'
             : code === 'RATE_LIMITED'
               ? 'Please wait before trying again.'
-              : 'Authentication could not be completed.'
+              : code === 'FORBIDDEN'
+                ? 'This email is not registered for this event. Contact an administrator to be validated.'
+                : 'Authentication could not be completed.'
         res.status(errorStatus[code]).json({ error: { code, message }, requestId })
       }
     })

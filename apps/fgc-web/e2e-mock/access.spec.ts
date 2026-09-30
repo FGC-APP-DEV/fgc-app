@@ -28,6 +28,9 @@ test('an email that was never approved cannot open the app', async ({ page }) =>
   await signIn(page, 'stranger@fgc.test')
   await expect(page.getByRole('button', { name: 'Open filming' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Send sign-in email' })).toBeVisible()
+  // A specific message, not the generic "authentication unavailable".
+  await expect(page.getByText(/not registered in the system/i)).toBeVisible()
+  await expect(page.getByText(/temporarily unavailable/i)).toHaveCount(0)
 })
 
 test('a wrong email code is rejected', async ({ page }) => {
