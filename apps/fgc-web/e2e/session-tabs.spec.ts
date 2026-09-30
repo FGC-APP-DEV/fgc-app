@@ -114,7 +114,7 @@ async function sessions(context: BrowserContext) {
   }
 }
 async function login(page: Page, email: string) {
-  await page.getByRole('textbox', { name: 'Email address' }).fill(email)
+  await page.getByRole('textbox', { name: 'Email or mentor access code' }).fill(email)
   await page.getByRole('button', { name: 'Send sign-in email' }).click()
   await page.getByRole('textbox', { name: 'Email code' }).fill('123456')
   await page.getByRole('button', { name: 'Verify code' }).click()
@@ -137,7 +137,9 @@ test('a second tab reuses in-memory session and logout clears both tabs', async 
 }, testInfo) => {
   const fixture = await sessions(context)
   await page.goto('/')
-  await expect(page.getByRole('textbox', { name: 'Email address' })).toBeVisible()
+  await expect(
+    page.getByRole('textbox', { name: 'Email or mentor access code' }),
+  ).toBeVisible()
   await page.screenshot({ path: testInfo.outputPath('login.png'), fullPage: true })
   await login(page, 'first@example.test')
   await expect(page.getByText('Welcome, First Operator')).toBeVisible()
@@ -150,8 +152,12 @@ test('a second tab reuses in-memory session and logout clears both tabs', async 
   await expectNoCredentials(second)
   await second.getByRole('button', { name: 'Account menu' }).click()
   await second.getByRole('button', { name: 'Sign out', exact: true }).click()
-  await expect(second.getByRole('textbox', { name: 'Email address' })).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'Email address' })).toBeVisible()
+  await expect(
+    second.getByRole('textbox', { name: 'Email or mentor access code' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('textbox', { name: 'Email or mentor access code' }),
+  ).toBeVisible()
   expect(fixture.logouts).toBe(1)
   await expectNoCredentials(page)
   await expectNoCredentials(second)
