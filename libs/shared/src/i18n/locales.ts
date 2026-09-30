@@ -34,7 +34,9 @@ export function matchLocale(tag: string | null | undefined): AppLocale | undefin
 }
 
 /** First supported locale among the device's preferred languages, else English. */
-export function detectLocale(preferred: readonly (string | null | undefined)[]): AppLocale {
+export function detectLocale(
+  preferred: readonly (string | null | undefined)[],
+): AppLocale {
   for (const tag of preferred) {
     const match = matchLocale(tag)
     if (match) return match

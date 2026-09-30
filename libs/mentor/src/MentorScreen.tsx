@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { AppState, View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import { mentorResponses, type Page } from '@fgc/contracts'
+import { MENTOR_RESPONSE_KEYS, type ShellMessageKey } from '@fgc/shared'
 import {
   ActionTile,
   Badge,
@@ -12,6 +13,7 @@ import {
   Notice,
   Screen,
   layout,
+  useI18n,
   useToast,
   useToastOn,
   type IconName,
@@ -26,8 +28,21 @@ const responseTile: Record<
   "Can't come now": { icon: 'alertTriangle', tone: 'danger' },
 }
 
+const statusKey: Record<string, ShellMessageKey> = {
+  pending: 'statusPending',
+  captured: 'statusCaptured',
+  skipped: 'statusSkipped',
+}
+
 export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) {
   const { api, mentor } = useAuth()
+  const { t } = useI18n()
+  // The stored response is the English contract value; it is shown in the active language.
+  const responseLabels = Object.fromEntries(
+    mentorResponses.map((value) => [value, t(MENTOR_RESPONSE_KEYS[value])]),
+  ) as Record<string, string>
+  const statusLabel = (status: string) =>
+    statusKey[status] ? t(statusKey[status]) : status
   const [pages, setPages] = useState<Page[]>([])
   const [shots, setShots] = useState<
     { templateId: string; name: string; status: string }[]
@@ -71,7 +86,9 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
         response,
         expectedVersion: page.version,
       })
-      toast.success(`Response sent: ${response}`)
+      toast.success(
+        t('mentorResponseSent', { response: t(MENTOR_RESPONSE_KEYS[response]) }),
+      )
       await refresh()
     } catch (e) {
       setError((e as Error).message)
@@ -81,25 +98,35 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
   }
   return (
     <Screen>
-      <Heading>{mentor?.team.name ?? 'Team messages'}</Heading>
-      <Body>Messages and filming status for your team.</Body>
-      <Button label="Refresh" variant="secondary" onPress={() => void refresh()} />
-      {!pages.length && <Notice text="No messages for your team." />}
+      <Heading>{mentor?.team.name ?? t('mentorTeamMessages')}</Heading>
+      <Body>{t('mentorIntro')}</Body>
+      <Button label={t('refresh')} variant="secondary" onPress={() => void refresh()} />
+      {!pages.length && <Notice text={t('mentorNoMessages')} />}
       {pages.map((page) => (
         <Card
           key={page.id}
-          title={page.sourceArea === 'judges' ? 'Judging message' : 'Filming message'}
+          title={
+            page.sourceArea === 'judges'
+              ? t('mentorJudgingMessage')
+              : t('mentorFilmingMessage')
+          }
           emphasis={page.response ? undefined : 'danger'}
           accent={page.response ? 'success' : undefined}
         >
           <Body>{page.message}</Body>
-          <Badge label={page.response ?? 'Response requested'} />
+          <Badge
+            label={
+              page.response
+                ? (responseLabels[page.response] ?? page.response)
+                : t('mentorResponseRequested')
+            }
+          />
           {!page.response && (
             <View style={[layout.row, { alignItems: 'stretch', gap: 12 }]}>
               {mentorResponses.map((response) => (
                 <ActionTile
                   key={response}
-                  label={response}
+                  label={t(MENTOR_RESPONSE_KEYS[response])}
                   icon={responseTile[response].icon}
                   tone={responseTile[response].tone}
                   disabled={busy === page.id}
@@ -110,12 +137,12 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
           )}
         </Card>
       ))}
-      <Card title="Filming checklist">
-        {!shots.length && <Notice text="No filming checklist is configured yet." />}
+      <Card title={t('mentorChecklist')}>
+        {!shots.length && <Notice text={t('mentorNoChecklist')} />}
         {shots.map((shot) => (
           <View key={shot.templateId} style={layout.row}>
             <Body>{shot.name}</Body>
-            <Badge label={shot.status} />
+            <Badge label={statusLabel(shot.status)} />
           </View>
         ))}
       </Card>

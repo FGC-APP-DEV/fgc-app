@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE, interpolate, type AppLocale } from './locales'
+import { MODULE_MESSAGES, type ModuleMessageKey } from './module-messages'
 
 /**
  * Messages for the application shell (header, navigation, home, profile).
@@ -58,8 +59,8 @@ const en = {
   mentor: 'Mentor',
 }
 
-export type ShellMessageKey = keyof typeof en
-type Messages = Partial<Record<ShellMessageKey, string>>
+export type ShellMessageKey = keyof typeof en | ModuleMessageKey
+type Messages = Partial<Record<keyof typeof en, string>>
 
 const fr: Messages = {
   language: 'Langue',
@@ -221,7 +222,15 @@ const ar: Messages = {
   mentor: 'مرشد',
 }
 
-export const SHELL_MESSAGES: Record<AppLocale, Messages> = { en, fr, es, ar }
+export const SHELL_MESSAGES: Record<
+  AppLocale,
+  Partial<Record<ShellMessageKey, string>>
+> = {
+  en: { ...en, ...MODULE_MESSAGES.en },
+  fr: { ...fr, ...MODULE_MESSAGES.fr },
+  es: { ...es, ...MODULE_MESSAGES.es },
+  ar: { ...ar, ...MODULE_MESSAGES.ar },
+}
 
 export function translateShell(
   locale: AppLocale,

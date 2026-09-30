@@ -554,7 +554,7 @@ export function Confirm({
   description,
   onConfirm,
   onCancel,
-  confirmLabel = 'Confirm',
+  confirmLabel,
 }: {
   title: string
   description: string
@@ -562,15 +562,19 @@ export function Confirm({
   onCancel: () => void
   confirmLabel?: string
 }) {
+  const { t, dirStyle } = useI18n()
   return (
     <Modal transparent animationType="fade" visible onRequestClose={onCancel}>
       <View
-        style={{
-          flex: 1,
-          padding: 20,
-          backgroundColor: tokens.scrim,
-          justifyContent: 'center',
-        }}
+        style={[
+          {
+            flex: 1,
+            padding: 20,
+            backgroundColor: tokens.scrim,
+            justifyContent: 'center',
+          },
+          dirStyle,
+        ]}
       >
         <View
           accessibilityViewIsModal
@@ -578,8 +582,8 @@ export function Confirm({
         >
           <Card title={title}>
             <Body>{description}</Body>
-            <Button label={confirmLabel} onPress={onConfirm} />
-            <Button label="Cancel" variant="secondary" onPress={onCancel} />
+            <Button label={confirmLabel ?? t('confirm')} onPress={onConfirm} />
+            <Button label={t('cancel')} variant="secondary" onPress={onCancel} />
           </Card>
         </View>
       </View>
