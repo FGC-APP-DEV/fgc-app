@@ -12,6 +12,7 @@ import {
   Notice,
   Select,
   layout,
+  useI18n,
   useToast,
   useToastOn,
   type Column,
@@ -30,6 +31,7 @@ export function UsersPage() {
   const [error, setError] = useState('')
   const [modalError, setModalError] = useState('')
   const toast = useToast()
+  const { t } = useI18n()
   useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
 
@@ -76,10 +78,10 @@ export function UsersPage() {
       )
       const failed = results.find((row) => row.error)
       if (failed) {
-        setModalError(failed.error ?? 'The change could not be saved.')
+        setModalError(failed.error ?? t('usersSaveFailed'))
         return
       }
-      toast.success(`${editing.email}: ${done}`)
+      toast.success(t('usersDone', { email: editing.email, message: done }))
       close()
       await load()
     } catch (e) {
@@ -91,37 +93,37 @@ export function UsersPage() {
   const conflict =
     roles.includes('admin') && (roles.includes('judge') || roles.includes('judgeAdvisor'))
   const columns: Column<User>[] = [
-    { key: 'name', title: 'Name', flex: 2, render: (u) => u.name ?? '-' },
-    { key: 'email', title: 'Email', flex: 3, render: (u) => u.email },
+    { key: 'name', title: t('usersName'), flex: 2, render: (u) => u.name ?? '-' },
+    { key: 'email', title: t('usersEmail'), flex: 3, render: (u) => u.email },
     {
       key: 'role',
-      title: 'Role',
+      title: t('usersRole'),
       flex: 2,
-      render: (u) => u.roles.join(', ') || 'No access',
+      render: (u) => u.roles.join(', ') || t('usersNoAccess'),
     },
   ]
 
   return (
     <View style={layout.stack}>
-      <Card title="Current users">
+      <Card title={t('adminUsers')}>
         <Field
-          label="Filter by name"
+          label={t('usersFilterName')}
           icon="search"
           value={filters.name}
           onChangeText={(name) => setFilter({ name })}
         />
         <Field
-          label="Filter by email"
+          label={t('usersFilterEmail')}
           icon="search"
           autoCapitalize="none"
           value={filters.email}
           onChangeText={(email) => setFilter({ email })}
         />
         <Select
-          label="Role"
+          label={t('usersRole')}
           value={filters.role}
           options={[
-            { value: '', label: 'All roles' },
+            { value: '', label: t('usersAllRoles') },
             ...ROLES.map((role) => ({ value: role, label: role })),
           ]}
           onChange={(role) => setFilter({ role: role as Role | '' })}
@@ -130,29 +132,25 @@ export function UsersPage() {
           columns={columns}
           rows={filtered}
           rowKey={(u) => u.id}
-          noun="users"
+          noun={t('usersNoun')}
           loading={users === null}
-          empty={
-            users?.length
-              ? 'No users match these filters.'
-              : 'No users have signed in yet.'
-          }
+          empty={users?.length ? t('usersNoMatch') : t('usersNone')}
           resetKey={JSON.stringify(filters)}
-          rowActionLabel={(u) => `Actions for ${u.email}`}
+          rowActionLabel={(u) => t('actionsFor', { name: u.email })}
           onRowAction={open}
         />
       </Card>
       {editing && (
         <ActionModal
-          title={`Edit ${editing.name ?? editing.email}`}
+          title={t('usersEdit', { name: editing.name ?? editing.email })}
           onClose={close}
-          confirmLabel={removeAccess ? 'Remove access' : 'Confirm'}
+          confirmLabel={removeAccess ? t('usersConfirmRemove') : t('confirm')}
           confirmVariant={removeAccess ? 'danger' : 'primary'}
           confirmDisabled={busy || (!removeAccess && conflict)}
           onConfirm={() =>
             void (removeAccess
-              ? save([], 'Access removed')
-              : save(roles, 'Roles updated'))
+              ? save([], t('usersAccessRemoved'))
+              : save(roles, t('usersRolesUpdated')))
           }
         >
           <Body>{editing.email}</Body>
@@ -167,17 +165,14 @@ export function UsersPage() {
               }
             />
           ))}
-          <Body>Admin and judging roles cannot be combined.</Body>
+          <Body>{t('usersRolesRule')}</Body>
           <Checkbox
-            label="Remove all access"
+            label={t('usersRemoveAll')}
             checked={removeAccess}
             onChange={setRemoveAccess}
           />
           {removeAccess && (
-            <Notice
-              text={`Remove all access for ${editing.email}? They will no longer be able to use the app.`}
-              error
-            />
+            <Notice text={t('usersRemoveWarn', { email: editing.email })} error />
           )}
           {Boolean(modalError) && <Notice text={modalError} error />}
         </ActionModal>

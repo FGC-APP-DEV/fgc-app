@@ -20,6 +20,7 @@ import {
   Select,
   TeamMap,
   layout,
+  useI18n,
   useToast,
   useToastOn,
   type Column,
@@ -49,6 +50,19 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   const [itemDone, setItemDone] = useState(false)
   const [itemDelete, setItemDelete] = useState(false)
   const toast = useToast()
+  const { t } = useI18n()
+  const statusLabel = (value: string) =>
+    value === 'all'
+      ? t('filmingAll')
+      : value === 'done'
+        ? t('filmingDoneFilter')
+        : value === 'pending'
+          ? t('statusPending')
+          : value === 'captured'
+            ? t('statusCaptured')
+            : value === 'skipped'
+              ? t('statusSkipped')
+              : value
   useToastOn(error, 'error')
   const template = tracker.templates.find((t) => t.name === 'Step & Repeat')
   const shot = (team: TrackerTeam) =>
@@ -112,10 +126,10 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
         setNotes('')
       },
       state === 'captured'
-        ? 'Marked as captured'
+        ? t('filmingMarkedCaptured')
         : state === 'skipped'
-          ? 'Marked as skipped'
-          : 'Reset to pending',
+          ? t('filmingMarkedSkipped')
+          : t('filmingResetPending'),
     )
   }
   const openTeam = (team: TrackerTeam) => {
@@ -145,7 +159,11 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
               { expectedVersion: item.version, done: itemDone },
               { method: 'PATCH' },
             ),
-      itemDelete ? 'Shot deleted' : itemDone ? 'Shot completed' : 'Shot reopened',
+      itemDelete
+        ? t('filmingShotDeleted')
+        : itemDone
+          ? t('filmingShotCompleted')
+          : t('filmingShotReopened'),
     )
   }
   const filtered = tracker.teams.filter(
@@ -157,13 +175,23 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
       (continent === 'all' || teamContinent(t.country, t.countryCode) === continent),
   )
   const teamColumns: Column<TrackerTeam>[] = [
-    { key: 'team', title: 'Team', flex: 3, render: (t) => `${t.officialId} · ${t.name}` },
-    { key: 'country', title: 'Country', flex: 2, render: (t) => t.country },
+    {
+      key: 'team',
+      title: t('filmingTeam'),
+      flex: 3,
+      render: (team) => `${team.officialId} · ${team.name}`,
+    },
+    {
+      key: 'country',
+      title: t('filmingCountry'),
+      flex: 2,
+      render: (team) => team.country,
+    },
     {
       key: 'status',
-      title: 'Status',
+      title: t('filmingStatus'),
       flex: 2,
-      render: (t) => <Badge label={shot(t)?.status ?? 'pending'} />,
+      render: (team) => <Badge label={statusLabel(shot(team)?.status ?? 'pending')} />,
     },
   ]
   const visibleItems = items.filter(
@@ -173,24 +201,26 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
       (itemStatus === 'all' || Boolean(i.doneAt) === (itemStatus === 'done')),
   )
   const itemColumns: Column<ShotItem>[] = [
-    { key: 'title', title: 'Shot', flex: 3, render: (i) => i.title },
+    { key: 'title', title: t('filmingShot'), flex: 3, render: (i) => i.title },
     {
       key: 'category',
-      title: 'Category',
+      title: t('filmingCategory'),
       flex: 2,
       render: (i) => categories.find((c) => c.id === i.categoryId)?.name ?? '-',
     },
     {
       key: 'status',
-      title: 'Status',
+      title: t('filmingStatus'),
       flex: 2,
-      render: (i) => <Badge label={i.doneAt ? 'Complete' : 'Pending'} />,
+      render: (i) => (
+        <Badge label={i.doneAt ? t('filmingComplete') : t('filmingPending')} />
+      ),
     },
   ]
   return (
     <Screen>
-      <Heading>Filming</Heading>
-      <Body>Capture the competition, one team at a time.</Body>
+      <Heading>{t('filmingTitle')}</Heading>
+      <Body>{t('filmingIntro')}</Body>
       <View style={layout.row}>
         <Button
           label="Step & Repeat"
@@ -198,65 +228,63 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
           onPress={() => setTab('tracker')}
         />
         <Button
-          label="Shot list"
+          label={t('filmingShotList')}
           variant={tab === 'items' ? 'primary' : 'secondary'}
           onPress={() => setTab('items')}
         />
         <Button
-          label="Team pager"
+          label={t('pagerTitle')}
           variant="secondary"
           icon="send"
           onPress={() => onPage()}
         />
-        <Button label="Refresh" variant="secondary" onPress={() => void load()} />
+        <Button label={t('refresh')} variant="secondary" onPress={() => void load()} />
       </View>
       {!loaded && <Loading />}
       <Field
-        label="Search teams or shots"
+        label={t('filmingSearch')}
         icon="search"
         value={search}
         onChangeText={setSearch}
       />
       {tab === 'tracker' ? (
         <>
-          <Card title="Coverage">
-            <Body>
-              {captured} of {tracker.teams.length} teams captured
-            </Body>
+          <Card title={t('filmingCoverage')}>
+            <Body>{t('filmingCaptured', { captured, total: tracker.teams.length })}</Body>
             <ProgressBar
               value={captured}
               max={tracker.teams.length}
-              label="Teams captured"
+              label={t('filmingTeamsCaptured')}
             />
             <View style={layout.row}>
               <Select
-                label="Status"
+                label={t('filmingStatus')}
                 value={status}
                 options={['all', 'pending', 'captured', 'skipped'].map((value) => ({
                   value,
-                  label: value,
+                  label: statusLabel(value),
                 }))}
                 onChange={setStatus}
               />
               <Select
-                label="Continent"
+                label={t('filmingContinent')}
                 value={continent}
                 options={['all', ...CONTINENTS].map((value) => ({
                   value,
-                  label: value === 'all' ? 'All continents' : value,
+                  label: value === 'all' ? t('filmingAllContinents') : value,
                 }))}
                 onChange={setContinent}
               />
             </View>
             <Button
-              label={map ? 'Show list' : 'Show map'}
+              label={map ? t('filmingShowList') : t('filmingShowMap')}
               variant="secondary"
               onPress={() => setMap(!map)}
             />
           </Card>
-          {!template && <Notice text="Step & Repeat template is not configured yet." />}
+          {!template && <Notice text={t('filmingNoTemplate')} />}
           {map ? (
-            <Card title="Team map">
+            <Card title={t('filmingTeamMap')}>
               <TeamMap
                 teams={tracker.teams}
                 visibleTeamIds={new Set(filtered.map((team) => team.id))}
@@ -270,45 +298,45 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
               />
             </Card>
           ) : (
-            <Card title="Teams">
+            <Card title={t('filmingTeams')}>
               <DataTable
                 columns={teamColumns}
                 rows={filtered}
                 rowKey={(team) => team.id}
-                noun="teams"
+                noun={t('teamsNoun')}
                 loading={!loaded}
-                empty="No teams match these filters."
+                empty={t('filmingNoTeams')}
                 resetKey={`${search}|${status}|${continent}`}
-                rowActionLabel={(team) => `Actions for ${team.name}`}
+                rowActionLabel={(team) => t('actionsFor', { name: team.name })}
                 onRowAction={(team) => (template ? openTeam(team) : undefined)}
               />
             </Card>
           )}
           {selected && (
             <ActionModal
-              title={`Update ${selected.name}`}
+              title={t('filmingUpdate', { team: selected.name })}
               onClose={() => setSelected(null)}
               confirmDisabled={busy}
               onConfirm={() => void mark(newStatus as 'captured' | 'skipped' | 'pending')}
             >
               <Select
-                label="Shot status"
+                label={t('filmingShotStatus')}
                 value={newStatus}
                 options={['pending', 'captured', 'skipped'].map((value) => ({
                   value,
-                  label: value,
+                  label: statusLabel(value),
                 }))}
                 onChange={setNewStatus}
               />
               <Field
-                label="Shot notes"
+                label={t('filmingNotes')}
                 multiline
                 maxLength={500}
                 value={notes}
                 onChangeText={setNotes}
               />
               <Button
-                label={`Page ${selected.name}`}
+                label={t('filmingPageTeam', { team: selected.name })}
                 variant="secondary"
                 icon="send"
                 onPress={() => {
@@ -322,70 +350,76 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
         </>
       ) : (
         <>
-          <Card title="Create category">
+          <Card title={t('filmingCreateCategory')}>
             <Field
-              label="Category name"
+              label={t('filmingCategoryName')}
               maxLength={80}
               value={categoryName}
               onChangeText={setCategoryName}
             />
             <Button
-              label="Add category"
+              label={t('filmingAddCategory')}
               disabled={busy || !categoryName.trim()}
               onPress={() =>
                 void run(async () => {
                   await api.command('/filming/categories', { name: categoryName })
                   setCategoryName('')
-                }, 'Category added')
+                }, t('filmingCategoryAdded'))
               }
             />
           </Card>
-          <Card title="Add a shot">
+          <Card title={t('filmingAddShotTitle')}>
             <Select
-              label="Category"
+              label={t('filmingCategory')}
               value={categoryId}
               options={[
-                { value: '', label: 'All categories' },
+                { value: '', label: t('filmingAllCategories') },
                 ...categories.map((c) => ({ value: c.id, label: c.name })),
               ]}
               onChange={setCategoryId}
             />
             <Field
-              label="Shot title"
+              label={t('filmingShotTitleField')}
               maxLength={200}
               value={itemName}
               onChangeText={setItemName}
             />
             <Button
-              label="Add shot"
+              label={t('filmingAddShot')}
               disabled={busy || !categoryId || !itemName.trim()}
               onPress={() =>
                 void run(async () => {
                   await api.command('/filming/items', { categoryId, title: itemName })
                   setItemName('')
-                }, 'Shot added')
+                }, t('filmingShotAdded'))
               }
             />
           </Card>
           <Select
-            label="Shot status"
+            label={t('filmingShotStatus')}
             value={itemStatus}
-            options={['all', 'pending', 'done'].map((value) => ({ value, label: value }))}
+            options={['all', 'pending', 'done'].map((value) => ({
+              value,
+              label: statusLabel(value),
+            }))}
             onChange={setItemStatus}
           />
           <Body>
-            {items.filter((i) => i.doneAt).length} of {items.length} shots complete
+            {t('filmingShotsComplete', {
+              done: items.filter((i) => i.doneAt).length,
+              total: items.length,
+            })}
           </Body>
-          <Card title="Shot list">
+          <Card title={t('filmingShotList')}>
             <DataTable
               columns={itemColumns}
               rows={visibleItems}
               rowKey={(i) => i.id}
-              noun="shots"
+              noun={t('filmingShotsNoun')}
               loading={!loaded}
-              empty="No shots match these filters."
+              empty={t('filmingNoShots')}
               resetKey={`${search}|${categoryId}|${itemStatus}`}
-              rowActionLabel={(i) => `Actions for ${i.title}`}
+              rowActionLabel={(i) => t('actionsFor', { name: i.title })}
               onRowAction={openItem}
             />
           </Card>
@@ -393,24 +427,27 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
             <ActionModal
               title={editingItem.title}
               onClose={() => setEditingItem(null)}
-              confirmLabel={itemDelete ? 'Delete shot' : 'Confirm'}
+              confirmLabel={itemDelete ? t('filmingDeleteShot') : t('confirm')}
               confirmVariant={itemDelete ? 'danger' : 'primary'}
               confirmDisabled={busy}
               onConfirm={saveItem}
             >
               <Checkbox
-                label="Completed"
+                label={t('filmingCompleted')}
                 checked={itemDone}
                 disabled={itemDelete}
                 onChange={setItemDone}
               />
               <Checkbox
-                label="Delete this shot"
+                label={t('filmingDeleteThis')}
                 checked={itemDelete}
                 onChange={setItemDelete}
               />
               {itemDelete && (
-                <Notice text={`Remove ${editingItem.title} from the shot list.`} error />
+                <Notice
+                  text={t('filmingDeleteWarn', { title: editingItem.title })}
+                  error
+                />
               )}
             </ActionModal>
           )}
