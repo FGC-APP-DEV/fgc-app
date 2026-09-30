@@ -1,5 +1,11 @@
 import type { User } from '@fgc/contracts'
-import { filterUsers, paginate, parseAccessCsv } from './admin'
+import {
+  duplicateEmails,
+  filterUsers,
+  matchesCountry,
+  paginate,
+  parseAccessCsv,
+} from './admin'
 
 describe('parseAccessCsv', () => {
   it('parses plain, bracketed and quoted role lists', () => {
@@ -52,5 +58,35 @@ describe('filterUsers and paginate', () => {
     expect(paginate(users, 3).items).toHaveLength(1)
     expect(paginate(users, 9).page).toBe(3)
     expect(paginate([], 1).pages).toBe(1)
+  })
+})
+
+describe('duplicateEmails', () => {
+  it('lists each repeated email once', () => {
+    const rows = parseAccessCsv(
+      'a@x.test, judge\nb@x.test, judge\na@x.test, filmmaker\na@x.test, admin',
+    )
+    expect(duplicateEmails(rows)).toEqual(['a@x.test'])
+  })
+  it('is empty without repeats', () => {
+    expect(duplicateEmails(parseAccessCsv('a@x.test, judge\nb@x.test, judge'))).toEqual(
+      [],
+    )
+  })
+})
+
+describe('matchesCountry', () => {
+  const brazil = { country: 'Brazil', countryCode: 'BR' }
+  it('matches alpha-2, alpha-3 and name, case-insensitively', () => {
+    for (const query of ['br', 'BRA', 'brazil', 'Braz', '']) {
+      expect(matchesCountry(brazil, query)).toBe(true)
+    }
+  })
+  it('resolves alpha-3 for teams stored with the country name', () => {
+    expect(matchesCountry({ country: 'Netherlands', countryCode: '' }, 'NLD')).toBe(true)
+  })
+  it('rejects other countries and unknown values', () => {
+    expect(matchesCountry(brazil, 'ARG')).toBe(false)
+    expect(matchesCountry(brazil, 'zzz')).toBe(false)
   })
 })

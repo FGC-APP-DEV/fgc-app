@@ -35,7 +35,6 @@
       "@fgc/admin": ["libs/admin/src/index.ts"],
       "@fgc/mentor": ["libs/mentor/src/index.ts"],
       "@fgc/imports": ["libs/imports/src/index.ts"],
-      "@fgc/schedule": ["libs/schedule/src/index.ts"],
       "@fgc/messaging": ["libs/messaging/src/index.ts"],
       "@fgc/notifications": ["libs/notifications/src/index.ts"]
     }

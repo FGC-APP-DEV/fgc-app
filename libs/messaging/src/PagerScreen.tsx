@@ -21,6 +21,8 @@ import {
   Screen,
   layout,
   useI18n,
+  useToast,
+  useToastOn,
 } from '@fgc/ui'
 
 const deliveryKeys: Record<string, ShellMessageKey> = {
@@ -55,7 +57,8 @@ export function PagerScreen({
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const attemptRef = useRef<ReturnType<typeof createPageAttempt> | null>(null)
-  const [sent, setSent] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
   const load = async () => {
     try {
       const [all, history] = await Promise.all([
@@ -76,7 +79,6 @@ export function PagerScreen({
   const edit = (fn: () => void) => {
     fn()
     attemptRef.current = null
-    setSent(false)
   }
   const submit = async () => {
     setBusy(true)
@@ -90,7 +92,7 @@ export function PagerScreen({
       await api.command('/pages', attempt.body, { key: attempt.key })
       setMessage('')
       attemptRef.current = null
-      setSent(true)
+      toast.success(t('pagerRecorded'))
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -109,8 +111,6 @@ export function PagerScreen({
       <Button label={t('back')} variant="secondary" onPress={onBack} />
       <Heading>{t('pagerTitle')}</Heading>
       <Body>{t('pagerIntro')}</Body>
-      {error && <Notice text={error} error />}
-      {sent && <Notice text={t('pagerRecorded')} />}
       <Card title={t('pagerNewMessage')}>
         {selectedTeam && !changing && (
           <View style={layout.row}>
@@ -226,7 +226,7 @@ export function PagerScreen({
                     : t('pagerAwaiting')
               }
             />
-            {page.deliveryStatus && (
+            {!!page.deliveryStatus && (
               <Body>
                 {deliveryKeys[page.deliveryStatus]
                   ? t(deliveryKeys[page.deliveryStatus])

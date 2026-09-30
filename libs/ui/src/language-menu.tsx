@@ -61,7 +61,7 @@ export function LanguageMenu() {
             accessibilityRole="button"
             accessibilityLabel={t('closeLanguageMenu')}
             onPress={() => setMenu(null)}
-            style={[{ flex: 1, backgroundColor: '#00000010' }, dirStyle]}
+            style={[{ flex: 1, backgroundColor: tokens.backdrop }, dirStyle]}
           >
             <View
               accessibilityRole="menu"

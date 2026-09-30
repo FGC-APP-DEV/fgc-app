@@ -30,9 +30,9 @@ import {
   Notice,
   Screen,
   ThemeProvider,
+  ToastProvider,
   layout,
   MockAccounts,
-  openOfficialInformation,
   type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
@@ -75,7 +75,7 @@ function Login() {
   return (
     <LoginShell>
       <LoginCard title={t('loginWelcome')} subtitle={t('loginSubtitle')}>
-        {(problem || auth.error) && <Notice text={problem || auth.error} error />}
+        {Boolean(problem || auth.error) && <Notice text={problem || auth.error} error />}
         {auth.hasAuthLink && (
           <Button
             label={t('loginConfirmLink')}
@@ -211,9 +211,10 @@ function Shell() {
     ...(caps.schedule
       ? [
           {
-            id: 'official-information',
+            id: 'useful-resources',
             label: t('navSchedule'),
             icon: 'calendar',
+            resources: true,
           } as const,
         ]
       : []),
@@ -238,7 +239,7 @@ function Shell() {
         userName={auth.user?.name ?? auth.mentor?.team.name}
         userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       {auth.mentor ? (
         <>
           <MentorNotifications onMessage={onMessage} />
@@ -308,7 +309,7 @@ function Shell() {
                     title={t('officialSchedule')}
                     hint={t('moduleHintOfficial')}
                     icon="calendar"
-                    onPress={openOfficialInformation}
+                    resources
                   />
                 )}
               </View>
@@ -338,11 +339,7 @@ function Shell() {
           <BottomNav
             items={navItems}
             active={activeNav}
-            onSelect={(id) =>
-              id === 'official-information'
-                ? openOfficialInformation()
-                : navigate(id as Route)
-            }
+            onSelect={(id) => navigate(id as Route)}
           />
         </>
       )}
@@ -394,7 +391,9 @@ export default function App() {
         <I18nProvider storage={localeStorage}>
           <AuthProvider runtime={runtime}>
             <ThemeProvider storage={themeStorage}>
-              <SessionShell />
+              <ToastProvider>
+                <SessionShell />
+              </ToastProvider>
             </ThemeProvider>
           </AuthProvider>
         </I18nProvider>

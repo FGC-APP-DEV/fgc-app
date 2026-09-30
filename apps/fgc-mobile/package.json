@@ -12,7 +12,6 @@
     "@fgc/judging": "*",
     "@fgc/messaging": "*",
     "@fgc/mentor": "*",
-    "@fgc/schedule": "*",
     "@fgc/notifications": "*"
   },
   "main": "index.js"

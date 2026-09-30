@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { BackHandler, View, useWindowDimensions } from 'react-native'
+import { View, useWindowDimensions } from 'react-native'
 import { AuthProvider, classifyLoginInput, loginFailureMessage, useAuth } from '@fgc/auth'
 import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
@@ -29,9 +29,9 @@ import {
   Notice,
   Screen,
   ThemeProvider,
+  ToastProvider,
   layout,
   MockAccounts,
-  openOfficialInformation,
   WIDE_BREAKPOINT,
   type NavItem,
 } from '@fgc/ui'
@@ -67,7 +67,7 @@ function Login() {
   return (
     <LoginShell>
       <LoginCard title={t('loginWelcome')} subtitle={t('loginSubtitle')}>
-        {(problem || auth.error) && <Notice text={problem || auth.error} error />}
+        {Boolean(problem || auth.error) && <Notice text={problem || auth.error} error />}
         {auth.hasAuthLink && (
           <Button
             label={t('loginConfirmLink')}
@@ -160,14 +160,6 @@ function Shell() {
     else go()
   }
   useEffect(() => {
-    const event = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (route === 'home') return false
-      navigate('home')
-      return true
-    })
-    return () => event.remove()
-  }, [route, dirty])
-  useEffect(() => {
     if (!auth.user && !auth.mentor) {
       setRoute('home')
       setDirty(false)
@@ -202,9 +194,10 @@ function Shell() {
     ...(caps.schedule
       ? [
           {
-            id: 'official-information',
+            id: 'useful-resources',
             label: t('navSchedule'),
             icon: 'calendar',
+            resources: true,
           } as const,
         ]
       : []),
@@ -229,7 +222,7 @@ function Shell() {
         userName={auth.user?.name ?? auth.mentor?.team.name}
         userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       {auth.mentor ? (
         <MentorScreen />
       ) : !auth.user?.name ? (
@@ -297,7 +290,7 @@ function Shell() {
                       title={t('officialSchedule')}
                       hint={t('moduleHintOfficial')}
                       icon="calendar"
-                      onPress={openOfficialInformation}
+                      resources
                     />
                   )}
                 </View>
@@ -332,11 +325,7 @@ function Shell() {
             side={wide}
             items={navItems}
             active={activeNav}
-            onSelect={(id) =>
-              id === 'official-information'
-                ? openOfficialInformation()
-                : navigate(id as Route)
-            }
+            onSelect={(id) => navigate(id as Route)}
           />
         </View>
       )}
@@ -388,7 +377,9 @@ export default function App() {
     <I18nProvider storage={localeStorage}>
       <AuthProvider runtime={runtime}>
         <ThemeProvider storage={themeStorage} onChange={syncPageTheme}>
-          <SessionShell />
+          <ToastProvider>
+            <SessionShell />
+          </ToastProvider>
         </ThemeProvider>
       </AuthProvider>
     </I18nProvider>

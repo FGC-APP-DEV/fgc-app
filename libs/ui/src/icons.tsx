@@ -1,5 +1,6 @@
 // Icon geometry from Lucide (ISC licence, https://lucide.dev), rendered through react-native-svg
 // so web and native share one implementation without a new dependency.
+import { Platform } from 'react-native'
 import React from 'react'
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg'
 
@@ -71,6 +72,13 @@ const nodes = {
     ['circle', { cx: '11', cy: '11', r: '8' }],
   ],
   chevronRight: [['path', { d: 'm9 18 6-6-6-6' }]],
+  chevronLeft: [['path', { d: 'm15 18-6-6 6-6' }]],
+  chevronDown: [['path', { d: 'm6 9 6 6 6-6' }]],
+  more: [
+    ['circle', { cx: '12', cy: '12', r: '1' }],
+    ['circle', { cx: '19', cy: '12', r: '1' }],
+    ['circle', { cx: '5', cy: '12', r: '1' }],
+  ],
   alertTriangle: [
     [
       'path',
@@ -172,6 +180,14 @@ const iconNodes = new Map(Object.entries(nodes))
 
 export type IconName = keyof typeof nodes
 
+// react-native-svg forwards unknown props to the DOM on web, where aria-hidden is the equivalent.
+const hiddenFromAssistiveTech =
+  Platform.OS === 'web'
+    ? ({ 'aria-hidden': true } as object)
+    : ({
+        accessibilityElementsHidden: true,
+        importantForAccessibility: 'no-hide-descendants',
+      } as object)
 export function Icon({
   name,
   size = 20,
@@ -193,8 +209,7 @@ export function Icon({
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
+      {...hiddenFromAssistiveTech}
     >
       {(iconNodes.get(name) ?? []).map(([tag, attrs], index) => {
         if (tag === 'path') return <Path key={index} {...attrs} />

@@ -12,6 +12,8 @@ import {
   Screen,
   layout,
   useI18n,
+  useToast,
+  useToastOn,
 } from '@fgc/ui'
 
 export interface ImportFile {
@@ -41,6 +43,8 @@ export function ImportScreen({
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState('')
+  const toast = useToast()
+  useToastOn(error, 'error')
   const choose = async () => {
     setError('')
     try {
@@ -74,6 +78,7 @@ export function ImportScreen({
         countries,
       })
       setPreview(data)
+      toast.success(t('importChecked'))
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -102,6 +107,7 @@ export function ImportScreen({
         ].join('\n'),
       )
       setPreview(data)
+      toast.success(data.errors.length ? t('importDoneErrors') : t('importDone'))
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -114,7 +120,6 @@ export function ImportScreen({
       <Heading>{t('importTitle')}</Heading>
       <Body>{t('importIntro')}</Body>
       <Notice text={t('importFormats')} />
-      {error && <Notice text={error} error />}
       <Card title={t('importChooseTitle')}>
         <Button
           label={file ? t('importChooseAnother') : t('importChooseFile')}
@@ -198,7 +203,7 @@ export function ImportScreen({
           />
         </Card>
       )}
-      {result && (
+      {Boolean(result) && (
         <Card title={t('importResults')}>
           <Body>{result}</Body>
         </Card>

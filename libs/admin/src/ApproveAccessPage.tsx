@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useAuth } from '@fgc/auth'
 import type { User } from '@fgc/contracts'
-import { Body, Button, Card, Field, Notice } from '@fgc/ui'
-import { parseAccessCsv } from './lib/admin'
+import { Body, Button, Card, Field, Notice, useToast, useToastOn } from '@fgc/ui'
+import { duplicateEmails, parseAccessCsv } from './lib/admin'
 
 export function ApproveAccessPage() {
   const { api } = useAuth()
@@ -10,6 +10,8 @@ export function ApproveAccessPage() {
   const [result, setResult] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
 
   const submit = async () => {
     setError('')
@@ -40,7 +42,13 @@ export function ApproveAccessPage() {
         )
         if (receipt?.error) failed.push(row.email)
       }
+      const repeated = duplicateEmails(rows)
+      if (repeated.length)
+        lines.push(
+          `Repeated emails (the last line of each was used): ${repeated.join(', ')}`,
+        )
       setResult(lines.join('\n'))
+      if (failed.length < byEmail.size) toast.success('Access saved')
       // Keep only the rows that failed so they can be corrected and resent.
       setText(
         rows
@@ -70,13 +78,12 @@ export function ApproveAccessPage() {
         autoCapitalize="none"
         placeholder="email@example.org, filmmaker"
       />
-      {error && <Notice text={error} error />}
       <Button
         label="Save access"
         disabled={busy || !text.trim()}
         onPress={() => void submit()}
       />
-      {result && <Notice text={result} />}
+      {Boolean(result) && <Notice text={result} />}
     </Card>
   )
 }

@@ -14,6 +14,8 @@ import {
   Screen,
   layout,
   useI18n,
+  useToast,
+  useToastOn,
   type IconName,
 } from '@fgc/ui'
 
@@ -47,6 +49,8 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
   >([])
   const [error, setError] = useState('')
   const [busy, setBusy] = useState('')
+  const toast = useToast()
+  useToastOn(error, 'error')
   const refresh = async () => {
     try {
       const [messages, filming] = await Promise.all([
@@ -82,6 +86,9 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
         response,
         expectedVersion: page.version,
       })
+      toast.success(
+        t('mentorResponseSent', { response: t(MENTOR_RESPONSE_KEYS[response]) }),
+      )
       await refresh()
     } catch (e) {
       setError((e as Error).message)
@@ -94,7 +101,6 @@ export function MentorScreen({ refreshSignal = 0 }: { refreshSignal?: number }) 
       <Heading>{mentor?.team.name ?? t('mentorTeamMessages')}</Heading>
       <Body>{t('mentorIntro')}</Body>
       <Button label={t('refresh')} variant="secondary" onPress={() => void refresh()} />
-      {error && <Notice text={error} error />}
       {!pages.length && <Notice text={t('mentorNoMessages')} />}
       {pages.map((page) => (
         <Card

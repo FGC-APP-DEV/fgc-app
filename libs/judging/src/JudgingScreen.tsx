@@ -16,6 +16,8 @@ import {
   ProgressBar,
   Screen,
   layout,
+  useToast,
+  useToastOn,
 } from '@fgc/ui'
 import { ObservationEditor } from './ObservationEditor'
 import { judgingAccess, progress } from './judging-state'
@@ -80,6 +82,8 @@ export function JudgingScreen({
   const [cycle, setCycle] = useState<Cycle | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState('')
+  const toast = useToast()
+  useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
   const [tab, setTab] = useState<'teams' | 'panels' | 'judges' | 'closure'>('teams')
   const [search, setSearch] = useState('')
@@ -168,6 +172,7 @@ export function JudgingScreen({
     setError('')
     try {
       await work()
+      toast.success('Changes saved')
       await load()
     } catch (e) {
       setError(
@@ -397,8 +402,7 @@ export function JudgingScreen({
           }}
         />
       </View>
-      {error && <Notice error text={error} />}
-      {planNotice && tab === 'panels' && <Notice text={planNotice} />}
+      {Boolean(planNotice) && tab === 'panels' && <Notice text={planNotice} />}
       {!loaded && <Loading />}
       {loaded && !cycle && (
         <Notice text="There is no active judging cycle. Operational records are unavailable; advisors can review the temporary audit before its expiry." />
@@ -466,7 +470,7 @@ export function JudgingScreen({
                   <Badge label={current.evaluationStatus} />
                   <Badge label={current.participationStatus} />
                 </View>
-                {current.withdrawalReason && (
+                {Boolean(current.withdrawalReason) && (
                   <Body>Withdrawal: {current.withdrawalReason}</Body>
                 )}
                 {current.flags.map((f) => (

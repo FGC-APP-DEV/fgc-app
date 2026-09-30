@@ -29,6 +29,7 @@ const en = {
 
   mentorTeamMessages: 'Team messages',
   mentorIntro: 'Messages and filming status for your team.',
+  mentorResponseSent: 'Response sent: {response}',
   mentorNoMessages: 'No messages for your team.',
   mentorJudgingMessage: 'Judging message',
   mentorFilmingMessage: 'Filming message',
@@ -97,6 +98,9 @@ const en = {
   importPreviewSummary: '{ready} ready of {total} rows. Preview expires {time}.',
   importConfirm: 'Confirm and import valid rows',
   importResults: 'Import results',
+  importChecked: 'File checked. Review the preview before importing.',
+  importDone: 'Import completed',
+  importDoneErrors: 'Import finished with errors',
   importRowResult: 'Row {row}: {status}',
 }
 
@@ -130,6 +134,7 @@ const fr: Messages = {
 
   mentorTeamMessages: 'Messages de l’équipe',
   mentorIntro: 'Messages et état du tournage pour votre équipe.',
+  mentorResponseSent: 'Réponse envoyée : {response}',
   mentorNoMessages: 'Aucun message pour votre équipe.',
   mentorJudgingMessage: 'Message du jugement',
   mentorFilmingMessage: 'Message du tournage',
@@ -202,6 +207,9 @@ const fr: Messages = {
   importPreviewSummary: '{ready} prêtes sur {total} lignes. L’aperçu expire à {time}.',
   importConfirm: 'Confirmer et importer les lignes valides',
   importResults: 'Résultats de l’import',
+  importChecked: 'Fichier vérifié. Consultez l’aperçu avant d’importer.',
+  importDone: 'Import terminé',
+  importDoneErrors: 'Import terminé avec des erreurs',
   importRowResult: 'Ligne {row} : {status}',
 }
 
@@ -232,6 +240,7 @@ const es: Messages = {
 
   mentorTeamMessages: 'Mensajes del equipo',
   mentorIntro: 'Mensajes y estado de filmación de tu equipo.',
+  mentorResponseSent: 'Respuesta enviada: {response}',
   mentorNoMessages: 'No hay mensajes para tu equipo.',
   mentorJudgingMessage: 'Mensaje de jurado',
   mentorFilmingMessage: 'Mensaje de filmación',
@@ -304,6 +313,9 @@ const es: Messages = {
     '{ready} listas de {total} filas. La vista previa vence a las {time}.',
   importConfirm: 'Confirmar e importar las filas válidas',
   importResults: 'Resultados de la importación',
+  importChecked: 'Archivo revisado. Revisa la vista previa antes de importar.',
+  importDone: 'Importación completada',
+  importDoneErrors: 'Importación terminada con errores',
   importRowResult: 'Fila {row}: {status}',
 }
 
@@ -333,6 +345,7 @@ const ar: Messages = {
 
   mentorTeamMessages: 'رسائل الفريق',
   mentorIntro: 'الرسائل وحالة التصوير لفريقك.',
+  mentorResponseSent: 'تم إرسال الرد: {response}',
   mentorNoMessages: 'لا توجد رسائل لفريقك.',
   mentorJudgingMessage: 'رسالة التحكيم',
   mentorFilmingMessage: 'رسالة التصوير',
@@ -400,6 +413,9 @@ const ar: Messages = {
   importPreviewSummary: '{ready} جاهزة من {total} صفًا. تنتهي المعاينة عند {time}.',
   importConfirm: 'تأكيد واستيراد الصفوف الصالحة',
   importResults: 'نتائج الاستيراد',
+  importChecked: 'تم فحص الملف. راجع المعاينة قبل الاستيراد.',
+  importDone: 'اكتمل الاستيراد',
+  importDoneErrors: 'انتهى الاستيراد مع أخطاء',
   importRowResult: 'الصف {row}: {status}',
 }
 
