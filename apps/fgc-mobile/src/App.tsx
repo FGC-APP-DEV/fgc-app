@@ -1,7 +1,7 @@
 import { MentorNotifications } from './MentorNotifications'
 import React, { useEffect, useState, useCallback } from 'react'
 import { BackHandler, View } from 'react-native'
-import { AuthProvider, useAuth } from '@fgc/auth'
+import { AuthProvider, classifyLoginInput, loginFailureMessage, useAuth } from '@fgc/auth'
 import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
 import { ImportScreen } from '@fgc/imports'
@@ -9,7 +9,6 @@ import { FilmingScreen } from '@fgc/filming'
 import { JudgingScreen } from '@fgc/judging'
 import { PagerScreen } from '@fgc/messaging'
 import { MentorScreen } from '@fgc/mentor'
-import { ScheduleScreen } from '@fgc/schedule'
 import {
   Body,
   Button,
@@ -21,31 +20,38 @@ import {
   ModuleCard,
   Field,
   Heading,
+  I18nProvider,
   humanize,
+  useI18n,
+  type LocaleStorage,
   Loading,
   LoginCard,
   LoginShell,
   Notice,
   Screen,
+  ThemeProvider,
   layout,
   MockAccounts,
+  openOfficialInformation,
   type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFonts } from 'expo-font'
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular'
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold'
 
-type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager' | 'schedule'
+type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager'
 const mockInfoUrl =
   process.env.EXPO_PUBLIC_FGC_MOCK === '1' && process.env.EXPO_PUBLIC_API_BASE_URL
     ? process.env.EXPO_PUBLIC_API_BASE_URL.replace(/\/api\/v1\/?$/, '') + '/__mock/info'
     : undefined
 function Login() {
   const auth = useAuth()
-  const [mode, setMode] = useState<'staff' | 'mentor'>('staff')
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
+  const [problem, setProblem] = useState('')
+  const input = classifyLoginInput(identifier)
   const [code, setCode] = useState('')
   const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -53,8 +59,9 @@ function Login() {
     setBusy(true)
     try {
       await work()
-    } catch {
-      /* Auth context presents the error. */
+    } catch (e) {
+      // Operational errors come from the auth context; unmatched credentials get one generic message.
+      setProblem(loginFailureMessage(e) ?? '')
     } finally {
       setBusy(false)
     }
@@ -70,7 +77,7 @@ function Login() {
         title="Welcome to FGC-Ops"
         subtitle="Sign in to continue to competition operations."
       >
-        {auth.error && <Notice text={auth.error} error />}
+        {(problem || auth.error) && <Notice text={problem || auth.error} error />}
         {auth.hasAuthLink && (
           <Button
             label="Confirm email sign-in"
@@ -78,80 +85,58 @@ function Login() {
             onPress={() => void run(auth.confirmLink)}
           />
         )}
-        <View style={layout.row}>
-          <Button
-            label="Staff sign-in"
-            variant={mode === 'staff' ? 'primary' : 'secondary'}
-            onPress={() => {
-              setMode('staff')
-              setCode('')
-            }}
-          />
-          <Button
-            label="Mentor access"
-            variant={mode === 'mentor' ? 'primary' : 'secondary'}
-            onPress={() => {
-              setMode('mentor')
-              setCode('')
-            }}
-          />
-        </View>
-        {mode === 'staff' ? (
+        <Field
+          label="Email or mentor access code"
+          value={identifier}
+          onChangeText={(value) => {
+            setIdentifier(value)
+            setProblem('')
+            setSent(false)
+            setCode('')
+          }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+        />
+        {input.kind === 'email' && !input.valid && (
+          <Notice text="Enter a valid email address." error />
+        )}
+        <Button
+          label={
+            busy
+              ? 'Please wait…'
+              : input.kind === 'code'
+                ? 'Open team messages'
+                : 'Send sign-in email'
+          }
+          disabled={
+            busy ||
+            input.kind === 'empty' ||
+            (input.kind === 'email' && !input.valid) ||
+            (input.kind === 'code' && !auth.installationId)
+          }
+          onPress={() =>
+            void run(async () => {
+              if (input.kind === 'email') {
+                await auth.sendEmail(input.email)
+                setSent(true)
+              } else if (input.kind === 'code') await auth.redeem(input.code)
+            })
+          }
+        />
+        {sent && input.kind === 'email' && (
           <>
+            <Notice text="Check your email. Enter the code on this device or confirm the sign-in link. If no email arrives, this address may not be registered: contact an administrator." />
             <Field
-              label="Email address"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-            <Button
-              label={busy ? 'Please wait…' : 'Send sign-in email'}
-              disabled={busy || !email.trim()}
-              onPress={() =>
-                void run(async () => {
-                  await auth.sendEmail(email)
-                  setSent(true)
-                })
-              }
-            />
-            {sent && (
-              <>
-                <Notice text="Check your email. Enter the code on this device or confirm the sign-in link." />
-                <Field
-                  label="Email code"
-                  value={code}
-                  onChangeText={setCode}
-                  keyboardType="number-pad"
-                />
-                <Button
-                  label="Verify code"
-                  disabled={busy || !code}
-                  onPress={() => void run(() => auth.verify(code))}
-                />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <Field
-              label="Mentor access code"
-              icon="lock"
+              label="Email code"
               value={code}
               onChangeText={setCode}
-              autoCapitalize="characters"
-              style={{
-                minHeight: 56,
-                textAlign: 'center',
-                fontSize: 20,
-                letterSpacing: 2,
-              }}
+              keyboardType="number-pad"
             />
             <Button
-              label="Open team messages"
-              disabled={busy || !code || !auth.installationId}
-              onPress={() => void run(() => auth.redeem(code))}
+              label="Verify code"
+              disabled={busy || !code}
+              onPress={() => void run(() => auth.verify(code))}
             />
           </>
         )}
@@ -166,6 +151,7 @@ function Login() {
   )
 }
 function Shell() {
+  const { t } = useI18n()
   const [messageRevision, setMessageRevision] = useState(0)
   const onMessage = useCallback(() => setMessageRevision((value) => value + 1), [])
   const auth = useAuth()
@@ -214,16 +200,24 @@ function Shell() {
   if (!auth.user && !auth.mentor) return <Login />
   const caps = capabilities(auth.user?.roles ?? [])
   const navItems: NavItem[] = [
-    { id: 'home', label: 'Home', icon: 'dashboard' },
-    ...(caps.admin ? [{ id: 'admin', label: 'Admin', icon: 'admin' } as const] : []),
+    { id: 'home', label: t('navHome'), icon: 'dashboard' },
+    ...(caps.admin
+      ? [{ id: 'admin', label: t('navAdmin'), icon: 'admin' } as const]
+      : []),
     ...(caps.judging
-      ? [{ id: 'judging', label: 'Judging', icon: 'judging' } as const]
+      ? [{ id: 'judging', label: t('navJudging'), icon: 'judging' } as const]
       : []),
     ...(caps.filming
-      ? [{ id: 'filming', label: 'Filming', icon: 'video' } as const]
+      ? [{ id: 'filming', label: t('navFilming'), icon: 'video' } as const]
       : []),
     ...(caps.schedule
-      ? [{ id: 'schedule', label: 'Schedule', icon: 'calendar' } as const]
+      ? [
+          {
+            id: 'official-information',
+            label: t('navSchedule'),
+            icon: 'calendar',
+          } as const,
+        ]
       : []),
   ]
   const activeNav =
@@ -244,7 +238,7 @@ function Shell() {
       <AppHeader
         onSignOut={logout}
         userName={auth.user?.name ?? auth.mentor?.team.name}
-        userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : 'Mentor'}
+        userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
       {error && <Notice text={error} error />}
       {auth.mentor ? (
@@ -254,10 +248,10 @@ function Shell() {
         </>
       ) : !auth.user?.name ? (
         <Screen>
-          <Card title="Complete your profile">
-            <Field label="Full name" value={name} onChangeText={setName} />
+          <Card title={t('completeProfile')}>
+            <Field label={t('fullName')} value={name} onChangeText={setName} />
             <Button
-              label="Save profile"
+              label={t('saveProfile')}
               disabled={!name.trim()}
               onPress={() => {
                 void auth.api
@@ -276,45 +270,47 @@ function Shell() {
         <>
           {route === 'home' && (
             <Screen>
-              <Heading>Welcome, {auth.user.name}</Heading>
-              <Body>Choose your workspace.</Body>
-              {!caps.schedule && (
-                <Notice text="Your email is verified. Ask an administrator to enable access." />
-              )}
+              <Heading>{t('welcome', { name: auth.user.name })}</Heading>
+              <Body>{t('chooseWorkspace')}</Body>
+              {!caps.schedule && <Notice text={t('noAccess')} />}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
                 {caps.admin && (
                   <ModuleCard
-                    title="Administration"
-                    label="Open administration"
-                    hint="Staff, teams and mentor codes"
+                    title={t('administration')}
+                    label={t('openAdministration')}
+                    hint={t('moduleHintAdministration')}
                     icon="admin"
                     onPress={() => navigate('admin')}
                   />
                 )}
                 {caps.judging && (
                   <ModuleCard
-                    title="Judging"
-                    label="Open judging"
-                    hint={caps.advisor ? 'Panels and progress' : 'Your panel and teams'}
+                    title={t('judging')}
+                    label={t('openJudging')}
+                    hint={t(
+                      caps.advisor
+                        ? 'moduleHintJudgingAdvisor'
+                        : 'moduleHintJudgingJudge',
+                    )}
                     icon="judging"
                     onPress={() => navigate('judging')}
                   />
                 )}
                 {caps.filming && (
                   <ModuleCard
-                    title="Filming"
-                    label="Open filming"
-                    hint="Coverage, shots and pager"
+                    title={t('filming')}
+                    label={t('openFilming')}
+                    hint={t('moduleHintFilming')}
                     icon="video"
                     onPress={() => navigate('filming')}
                   />
                 )}
                 {caps.schedule && (
                   <ModuleCard
-                    title="Official schedule"
-                    hint="Event timetable"
+                    title={t('officialSchedule')}
+                    hint={t('moduleHintOfficial')}
                     icon="calendar"
-                    onPress={() => navigate('schedule')}
+                    onPress={openOfficialInformation}
                   />
                 )}
               </View>
@@ -341,11 +337,14 @@ function Shell() {
                 onBack={() => navigate(pageSource === 'judges' ? 'judging' : 'filming')}
               />
             )}
-          {route === 'schedule' && caps.schedule && <ScheduleScreen />}
           <BottomNav
             items={navItems}
             active={activeNav}
-            onSelect={(id) => navigate(id as Route)}
+            onSelect={(id) =>
+              id === 'official-information'
+                ? openOfficialInformation()
+                : navigate(id as Route)
+            }
           />
         </>
       )}
@@ -368,6 +367,14 @@ function SessionShell() {
   const { user, mentor } = useAuth()
   return <Shell key={user?.id ?? mentor?.team.id ?? 'signed-out'} />
 }
+const localeStorage: LocaleStorage = {
+  get: (key) => AsyncStorage.getItem(key),
+  set: (key, value) => AsyncStorage.setItem(key, value),
+}
+const themeStorage = {
+  get: (key: string) => AsyncStorage.getItem(key),
+  set: (key: string, value: string) => AsyncStorage.setItem(key, value),
+}
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
     Inter: Inter_400Regular,
@@ -386,9 +393,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <AuthProvider runtime={runtime}>
-          <SessionShell />
-        </AuthProvider>
+        <I18nProvider storage={localeStorage}>
+          <AuthProvider runtime={runtime}>
+            <ThemeProvider storage={themeStorage}>
+              <SessionShell />
+            </ThemeProvider>
+          </AuthProvider>
+        </I18nProvider>
       </SafeAreaView>
     </SafeAreaProvider>
   )

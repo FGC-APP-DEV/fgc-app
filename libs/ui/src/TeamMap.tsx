@@ -52,7 +52,6 @@ const MAX_SEARCH_RESULTS = 6
 
 const STATUS_COLORS: Record<string, { fill: string; stroke: string }> = {
   captured: { fill: '#D1FAE5', stroke: '#6EE7B7' },
-  skipped: { fill: tokens.surfaceLow, stroke: '#D4D4D4' },
   active: { fill: '#FEE2E2', stroke: '#F87171' },
   pending: { fill: '#FFFBEB', stroke: '#FDE68A' },
   neutral: { fill: '#FFFBEB', stroke: '#FDE68A' },
@@ -63,7 +62,7 @@ function statusColors(status: string): { fill: string; stroke: string } {
     case 'captured':
       return STATUS_COLORS.captured
     case 'skipped':
-      return STATUS_COLORS.skipped
+      return { fill: tokens.surfaceLow, stroke: '#D4D4D4' }
     case 'active':
       return STATUS_COLORS.active
     case 'pending':

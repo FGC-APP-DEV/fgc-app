@@ -4,6 +4,7 @@
 import React from 'react'
 import { Image, View } from 'react-native'
 import logoSource from './assets/fg-header-black.png'
+import { getThemeMode } from './operations'
 
 // The logo file is 1000x360 with wide white margins; the visible mark spans this box.
 const LOGO = { width: 1000, height: 360, x: 95, y: 80, w: 820, h: 210 }
@@ -14,7 +15,14 @@ export function BrandLogo({ height = 32 }: { height?: number }) {
   return (
     <View
       accessibilityRole="header"
-      style={{ width: LOGO.w * scale, height, overflow: 'hidden' }}
+      style={{
+        width: LOGO.w * scale,
+        height,
+        overflow: 'hidden',
+        // The wordmark is black artwork: keep it on a white chip when the theme is dark.
+        backgroundColor: getThemeMode() === 'dark' ? '#FFFFFF' : undefined,
+        borderRadius: getThemeMode() === 'dark' ? 4 : 0,
+      }}
     >
       <Image
         accessibilityLabel="FIRST GLOBAL"
