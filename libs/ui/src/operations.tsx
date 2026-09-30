@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Linking,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -516,6 +517,15 @@ export function ActionTile({
 
 export const FEEDBACK_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSdMJs3wIxGGTpTpWAYV4had6j1bdPDGzabNC6bF3wG_k3X46A/viewform?usp=header'
+export const OFFICIAL_INFORMATION_URL = 'https://first.global/event/'
+/** Opens the official event page in a new tab (web) or the system browser (native), keeping the session. */
+export function openOfficialInformation() {
+  if (Platform.OS === 'web') {
+    window.open(OFFICIAL_INFORMATION_URL, '_blank', 'noopener,noreferrer')
+    return
+  }
+  void Linking.openURL(OFFICIAL_INFORMATION_URL)
+}
 export const BUG_REPORT_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSfl2jOim05arwe98f2KHM0r0NwProcq2RossMktqWB_MmKhIA/viewform?usp=header'
 
