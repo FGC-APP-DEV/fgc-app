@@ -4,7 +4,7 @@ import { useAuth } from '@fgc/auth'
 import type { Team } from '@fgc/contracts'
 import { sortTeams } from '@fgc/shared'
 import { Body, Button, Card, Confirm, Field, Loading, Notice, layout } from '@fgc/ui'
-import { paginate } from './lib/admin'
+import { matchesCountry, paginate } from './lib/admin'
 
 type Code = { teamId: string; version: number; expiresAt: string }
 
@@ -56,13 +56,10 @@ export function MentorCodesPage() {
     }
   }
   const query = name.trim().toLowerCase()
-  const cc = country.trim().toLowerCase()
   const filtered = (teams ?? []).filter(
     (t) =>
       (!query || `${t.officialId} ${t.name}`.toLowerCase().includes(query)) &&
-      (!cc ||
-        t.countryCode.toLowerCase().includes(cc) ||
-        t.country.toLowerCase().includes(cc)),
+      matchesCountry(t, country),
   )
   const view = paginate(filtered, page)
 
@@ -93,7 +90,7 @@ export function MentorCodesPage() {
           }}
         />
         <Field
-          label="Filter by country (e.g. BR)"
+          label="Filter by country (e.g. BR, BRA or Brazil)"
           icon="search"
           autoCapitalize="characters"
           value={country}
