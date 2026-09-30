@@ -17,6 +17,7 @@ import {
   Screen,
   layout,
   useI18n,
+  useRememberedState,
   useToast,
   useToastOn,
 } from '@fgc/ui'
@@ -91,7 +92,10 @@ export function JudgingScreen({
   }
   useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
-  const [tab, setTab] = useState<'teams' | 'panels' | 'judges' | 'closure'>('teams')
+  const [tab, setTab] = useRememberedState<'teams' | 'panels' | 'judges' | 'closure'>(
+    'judging.tab',
+    'teams',
+  )
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<string | null>(null)
   const [observations, setObservations] = useState<Observation[]>([])

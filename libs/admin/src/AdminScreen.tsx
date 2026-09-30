@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import type { ShellMessageKey } from '@fgc/shared'
-import { Body, Button, Card, Heading, Screen, useI18n } from '@fgc/ui'
+import { Body, Button, Card, Heading, Screen, useI18n, useRememberedState } from '@fgc/ui'
 import { ApproveAccessPage } from './ApproveAccessPage'
 import { MentorCodesPage } from './MentorCodesPage'
 import { UsersPage } from './UsersPage'
@@ -21,7 +21,7 @@ const titles = {
 } as const satisfies Record<Page, ShellMessageKey>
 
 export function AdminScreen({ onImports }: { onImports: () => void }) {
-  const [page, setPage] = useState<Page>('dashboard')
+  const [page, setPage] = useRememberedState<Page>('admin.page', 'dashboard')
   const { t } = useI18n()
   return (
     <Screen>

@@ -29,6 +29,9 @@ import {
   Notice,
   Screen,
   ThemeProvider,
+  claimRememberedState,
+  clearRememberedState,
+  useRememberedState,
   ToastProvider,
   layout,
   MockAccounts,
@@ -144,9 +147,15 @@ function Shell() {
   const { t } = useI18n()
   const auth = useAuth()
   const wide = useWindowDimensions().width >= WIDE_BREAKPOINT
-  const [route, setRoute] = useState<Route>('home')
-  const [pageSource, setSource] = useState<PageSource>('filming')
-  const [teamId, setTeam] = useState<string>()
+  const [route, setRoute] = useRememberedState<Route>('shell.route', 'home')
+  const [pageSource, setSource] = useRememberedState<PageSource>(
+    'shell.source',
+    'filming',
+  )
+  const [teamId, setTeam] = useRememberedState<string | undefined>(
+    'shell.team',
+    undefined,
+  )
   const [dirty, setDirty] = useState(false)
   const [pending, setPending] = useState<(() => void) | null>(null)
   const [name, setName] = useState('')
@@ -161,6 +170,7 @@ function Shell() {
   }
   useEffect(() => {
     if (!auth.user && !auth.mentor) {
+      clearRememberedState()
       setRoute('home')
       setDirty(false)
     }
@@ -346,7 +356,9 @@ function Shell() {
 }
 function SessionShell() {
   const { user, mentor } = useAuth()
-  return <Shell key={user?.id ?? mentor?.team.id ?? 'signed-out'} />
+  const owner = user?.id ?? mentor?.team.id ?? 'signed-out'
+  claimRememberedState(owner)
+  return <Shell key={owner} />
 }
 const themeStorage = {
   get: (key: string) => localStorage.getItem(key),

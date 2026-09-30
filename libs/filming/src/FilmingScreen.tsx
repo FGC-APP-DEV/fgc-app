@@ -21,6 +21,7 @@ import {
   TeamMap,
   layout,
   useI18n,
+  useRememberedState,
   useToast,
   useToastOn,
   type Column,
@@ -31,7 +32,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   const [tracker, setTracker] = useState<Tracker>({ teams: [], templates: [] })
   const [categories, setCategories] = useState<Category[]>([])
   const [items, setItems] = useState<ShotItem[]>([])
-  const [tab, setTab] = useState('tracker')
+  const [tab, setTab] = useRememberedState('filming.tab', 'tracker')
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [continent, setContinent] = useState('all')

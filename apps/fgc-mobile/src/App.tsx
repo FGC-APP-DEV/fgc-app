@@ -30,6 +30,9 @@ import {
   Notice,
   Screen,
   ThemeProvider,
+  claimRememberedState,
+  clearRememberedState,
+  useRememberedState,
   ToastProvider,
   layout,
   MockAccounts,
@@ -153,9 +156,15 @@ function Shell() {
   const [messageRevision, setMessageRevision] = useState(0)
   const onMessage = useCallback(() => setMessageRevision((value) => value + 1), [])
   const auth = useAuth()
-  const [route, setRoute] = useState<Route>('home')
-  const [pageSource, setSource] = useState<PageSource>('filming')
-  const [teamId, setTeam] = useState<string>()
+  const [route, setRoute] = useRememberedState<Route>('shell.route', 'home')
+  const [pageSource, setSource] = useRememberedState<PageSource>(
+    'shell.source',
+    'filming',
+  )
+  const [teamId, setTeam] = useRememberedState<string | undefined>(
+    'shell.team',
+    undefined,
+  )
   const [dirty, setDirty] = useState(false)
   const [pending, setPending] = useState<(() => void) | null>(null)
   const [name, setName] = useState('')
@@ -178,6 +187,7 @@ function Shell() {
   }, [route, dirty])
   useEffect(() => {
     if (!auth.user && !auth.mentor) {
+      clearRememberedState()
       setRoute('home')
       setDirty(false)
     }
@@ -360,7 +370,9 @@ function Shell() {
 }
 function SessionShell() {
   const { user, mentor } = useAuth()
-  return <Shell key={user?.id ?? mentor?.team.id ?? 'signed-out'} />
+  const owner = user?.id ?? mentor?.team.id ?? 'signed-out'
+  claimRememberedState(owner)
+  return <Shell key={owner} />
 }
 const localeStorage: LocaleStorage = {
   get: (key) => AsyncStorage.getItem(key),
