@@ -50,9 +50,14 @@ export function useI18n(): I18nValue {
 
 /** Preferred languages of the device (browser or native runtime). */
 function devicePreferences(): string[] {
-  const nav = (globalThis as { navigator?: { languages?: readonly string[]; language?: string } })
-    .navigator
-  const fromNav = nav?.languages?.length ? [...nav.languages] : nav?.language ? [nav.language] : []
+  const nav = (
+    globalThis as { navigator?: { languages?: readonly string[]; language?: string } }
+  ).navigator
+  const fromNav = nav?.languages?.length
+    ? [...nav.languages]
+    : nav?.language
+      ? [nav.language]
+      : []
   if (fromNav.length) return fromNav
   try {
     return [Intl.DateTimeFormat().resolvedOptions().locale]

@@ -15,6 +15,8 @@ import {
   Notice,
   Screen,
   layout,
+  useToast,
+  useToastOn,
 } from '@fgc/ui'
 
 const deliveryLabels: Record<string, string> = {
@@ -48,7 +50,8 @@ export function PagerScreen({
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const attemptRef = useRef<ReturnType<typeof createPageAttempt> | null>(null)
-  const [sent, setSent] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
   const load = async () => {
     try {
       const [all, history] = await Promise.all([
@@ -69,7 +72,6 @@ export function PagerScreen({
   const edit = (fn: () => void) => {
     fn()
     attemptRef.current = null
-    setSent(false)
   }
   const submit = async () => {
     setBusy(true)
@@ -86,7 +88,7 @@ export function PagerScreen({
       await api.command('/pages', attempt.body, { key: attempt.key })
       setMessage('')
       attemptRef.current = null
-      setSent(true)
+      toast.success("Message recorded. Check the history for the team's response.")
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -108,10 +110,6 @@ export function PagerScreen({
         Send a message to one team. Saving a message does not confirm delivery to a
         device.
       </Body>
-      {error && <Notice text={error} error />}
-      {sent && (
-        <Notice text="Message recorded. Check the history for the team's response." />
-      )}
       <Card title="New message">
         {selectedTeam && !changing && (
           <View style={layout.row}>
@@ -214,7 +212,7 @@ export function PagerScreen({
                   : 'Awaiting response')
               }
             />
-            {page.deliveryStatus && (
+            {!!page.deliveryStatus && (
               <Body>
                 {deliveryLabels[page.deliveryStatus] ?? 'Push status unavailable'}
               </Body>

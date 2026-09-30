@@ -307,7 +307,7 @@ export function Checkbox({
           justifyContent: 'center',
         }}
       >
-        {checked && <Icon name="check" size={14} color={'#FFFFFF'} strokeWidth={3} />}
+        {checked && <Icon name="check" size={14} color={tokens.onFill} strokeWidth={3} />}
       </View>
       <Text style={cellText}>{label}</Text>
     </Pressable>
@@ -373,7 +373,7 @@ export function Select({
               flex: 1,
               padding: 20,
               justifyContent: 'center',
-              backgroundColor: '#00000040',
+              backgroundColor: tokens.backdrop,
             }}
           >
             <View

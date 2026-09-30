@@ -20,6 +20,8 @@ import {
   Select,
   TeamMap,
   layout,
+  useToast,
+  useToastOn,
   type Column,
 } from '@fgc/ui'
 
@@ -46,6 +48,8 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   const [editingItem, setEditingItem] = useState<ShotItem | null>(null)
   const [itemDone, setItemDone] = useState(false)
   const [itemDelete, setItemDelete] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
   const template = tracker.templates.find((t) => t.name === 'Step & Repeat')
   const shot = (team: TrackerTeam) =>
     team.shots.find((s) => s.templateId === template?.id)
@@ -79,11 +83,12 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   useEffect(() => {
     void load()
   }, [api])
-  const run = async (work: () => Promise<unknown>) => {
+  const run = async (work: () => Promise<unknown>, done?: string) => {
     setBusy(true)
     setError('')
     try {
       await work()
+      if (done) toast.success(done)
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -93,18 +98,25 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   }
   const mark = async (state: 'captured' | 'skipped' | 'pending') => {
     if (!selected || !template) return
-    await run(async () => {
-      await api.command(
-        `/filming/teams/${selected.id}/shots/${template.id}`,
-        {
-          expectedVersion: shot(selected)?.version ?? 0,
-          ...(state !== 'pending' ? { status: state, notes } : {}),
-        },
-        { method: state === 'pending' ? 'DELETE' : 'PUT' },
-      )
-      setSelected(null)
-      setNotes('')
-    })
+    await run(
+      async () => {
+        await api.command(
+          `/filming/teams/${selected.id}/shots/${template.id}`,
+          {
+            expectedVersion: shot(selected)?.version ?? 0,
+            ...(state !== 'pending' ? { status: state, notes } : {}),
+          },
+          { method: state === 'pending' ? 'DELETE' : 'PUT' },
+        )
+        setSelected(null)
+        setNotes('')
+      },
+      state === 'captured'
+        ? 'Marked as captured'
+        : state === 'skipped'
+          ? 'Marked as skipped'
+          : 'Reset to pending',
+    )
   }
   const openTeam = (team: TrackerTeam) => {
     setSelected(team)
@@ -120,18 +132,20 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
     const item = editingItem
     if (!item) return
     setEditingItem(null)
-    void run(() =>
-      itemDelete
-        ? api.command(
-            `/filming/items/${item.id}`,
-            { expectedVersion: item.version },
-            { method: 'DELETE' },
-          )
-        : api.command(
-            `/filming/items/${item.id}`,
-            { expectedVersion: item.version, done: itemDone },
-            { method: 'PATCH' },
-          ),
+    void run(
+      () =>
+        itemDelete
+          ? api.command(
+              `/filming/items/${item.id}`,
+              { expectedVersion: item.version },
+              { method: 'DELETE' },
+            )
+          : api.command(
+              `/filming/items/${item.id}`,
+              { expectedVersion: item.version, done: itemDone },
+              { method: 'PATCH' },
+            ),
+      itemDelete ? 'Shot deleted' : itemDone ? 'Shot completed' : 'Shot reopened',
     )
   }
   const filtered = tracker.teams.filter(
@@ -196,7 +210,6 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
         />
         <Button label="Refresh" variant="secondary" onPress={() => void load()} />
       </View>
-      {error && <Notice text={error} error />}
       {!loaded && <Loading />}
       <Field
         label="Search teams or shots"
@@ -323,7 +336,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                 void run(async () => {
                   await api.command('/filming/categories', { name: categoryName })
                   setCategoryName('')
-                })
+                }, 'Category added')
               }
             />
           </Card>
@@ -350,7 +363,7 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                 void run(async () => {
                   await api.command('/filming/items', { categoryId, title: itemName })
                   setItemName('')
-                })
+                }, 'Shot added')
               }
             />
           </Card>

@@ -12,6 +12,8 @@ import {
   Notice,
   Select,
   layout,
+  useToast,
+  useToastOn,
   type Column,
 } from '@fgc/ui'
 import { ROLES, filterUsers } from './lib/admin'
@@ -27,7 +29,8 @@ export function UsersPage() {
   const [removeAccess, setRemoveAccess] = useState(false)
   const [error, setError] = useState('')
   const [modalError, setModalError] = useState('')
-  const [notice, setNotice] = useState('')
+  const toast = useToast()
+  useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
 
   const load = async () => {
@@ -76,7 +79,7 @@ export function UsersPage() {
         setModalError(failed.error ?? 'The change could not be saved.')
         return
       }
-      setNotice(`${editing.email}: ${done}`)
+      toast.success(`${editing.email}: ${done}`)
       close()
       await load()
     } catch (e) {
@@ -100,8 +103,6 @@ export function UsersPage() {
 
   return (
     <View style={layout.stack}>
-      {Boolean(error) && <Notice text={error} error />}
-      {Boolean(notice) && <Notice text={notice} />}
       <Card title="Current users">
         <Field
           label="Filter by name"

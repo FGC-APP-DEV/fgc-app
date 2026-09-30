@@ -12,8 +12,11 @@ import {
   Field,
   Notice,
   layout,
+  useToast,
+  useToastOn,
   type Column,
 } from '@fgc/ui'
+import { matchesCountry } from './lib/admin'
 
 type Code = { teamId: string; version: number; expiresAt: string }
 
@@ -27,6 +30,8 @@ export function MentorCodesPage() {
   const [secret, setSecret] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const toast = useToast()
+  useToastOn(error, 'error')
 
   const load = async () => {
     try {
@@ -55,6 +60,7 @@ export function MentorCodesPage() {
         expectedVersion: codes.find((c) => c.teamId === team.id)?.version ?? 0,
       })
       setSecret(`${team.name}: ${data.code}`)
+      toast.success(`Access code issued for ${team.name}`)
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -63,13 +69,10 @@ export function MentorCodesPage() {
     }
   }
   const query = name.trim().toLowerCase()
-  const cc = country.trim().toLowerCase()
   const filtered = (teams ?? []).filter(
     (t) =>
       (!query || `${t.officialId} ${t.name}`.toLowerCase().includes(query)) &&
-      (!cc ||
-        t.countryCode.toLowerCase().includes(cc) ||
-        t.country.toLowerCase().includes(cc)),
+      matchesCountry(t, country),
   )
   const codeOf = (team: Team) => codes.find((c) => c.teamId === team.id)
   const columns: Column<Team>[] = [
@@ -86,7 +89,6 @@ export function MentorCodesPage() {
 
   return (
     <View style={layout.stack}>
-      {Boolean(error) && <Notice text={error} error />}
       <Card title="Mentor access codes">
         <Body>
           Codes and sessions last seven days. Regenerating revokes the previous code, all
@@ -108,7 +110,7 @@ export function MentorCodesPage() {
           onChangeText={setName}
         />
         <Field
-          label="Filter by country (e.g. BR)"
+          label="Filter by country (e.g. BR, BRA or Brazil)"
           icon="search"
           autoCapitalize="characters"
           value={country}

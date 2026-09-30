@@ -1,5 +1,6 @@
 // Icon geometry from Lucide (ISC licence, https://lucide.dev), rendered through react-native-svg
 // so web and native share one implementation without a new dependency.
+import { Platform } from 'react-native'
 import React from 'react'
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg'
 
@@ -179,6 +180,14 @@ const iconNodes = new Map(Object.entries(nodes))
 
 export type IconName = keyof typeof nodes
 
+// react-native-svg forwards unknown props to the DOM on web, where aria-hidden is the equivalent.
+const hiddenFromAssistiveTech =
+  Platform.OS === 'web'
+    ? ({ 'aria-hidden': true } as object)
+    : ({
+        accessibilityElementsHidden: true,
+        importantForAccessibility: 'no-hide-descendants',
+      } as object)
 export function Icon({
   name,
   size = 20,
@@ -200,8 +209,7 @@ export function Icon({
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
+      {...hiddenFromAssistiveTech}
     >
       {(iconNodes.get(name) ?? []).map(([tag, attrs], index) => {
         if (tag === 'path') return <Path key={index} {...attrs} />

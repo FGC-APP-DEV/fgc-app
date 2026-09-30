@@ -1,4 +1,5 @@
-import { roleSchema, type Role, type User } from '@fgc/contracts'
+import { roleSchema, type Role, type Team, type User } from '@fgc/contracts'
+import { normalizeCountry } from '@fgc/shared'
 
 export const ROLES = roleSchema.options as readonly Role[]
 export const PAGE_SIZE = 15
@@ -50,6 +51,40 @@ export function parseAccessCsv(text: string): AccessRow[] {
     rows.push({ line: index + 1, email, roles, error })
   })
   return rows
+}
+
+/** Emails that appear on more than one line; the last line wins when the list is sent. */
+export function duplicateEmails(rows: readonly AccessRow[]): string[] {
+  const seen = new Set<string>()
+  const repeated = new Set<string>()
+  for (const row of rows) {
+    if (seen.has(row.email)) repeated.add(row.email)
+    seen.add(row.email)
+  }
+  return [...repeated]
+}
+
+/**
+ * Country filter for teams: matches the country name or code as typed (substring) and also
+ * resolves alpha-2, alpha-3 and English names, so BR, BRA and Brazil all find Brazil.
+ */
+export function matchesCountry(
+  team: Pick<Team, 'country' | 'countryCode'>,
+  query: string,
+): boolean {
+  const text = query.trim().toLowerCase()
+  if (!text) return true
+  if (
+    team.countryCode.toLowerCase().includes(text) ||
+    team.country.toLowerCase().includes(text)
+  )
+    return true
+  const wanted = normalizeCountry(text)
+  if (!wanted) return false
+  return (
+    normalizeCountry(team.countryCode) === wanted ||
+    normalizeCountry(team.country) === wanted
+  )
 }
 
 export function filterUsers(

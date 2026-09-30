@@ -15,13 +15,54 @@ server values. The API reads this file; the browser never receives service keys.
 There is no passwordless demo login or local Drizzle database path. To explore the
 complete app **without any external service**, use the mock environment below.
 
-The new Supabase project must be configured from `supabase/migrations` in order.
-Expose only `api`. Configure Auth email templates/SMTP, active event, initial
+The new Supabase project must be configured from `supabase/migrations` in order
+(see [Applying migrations](#applying-migrations)). Expose only `api`. Configure Auth email templates/SMTP, active event, initial
 administrator preapproval and Step & Repeat template using the approved event
 information. Read [SQL report](docs/firstglobal-ops/sql-report.md) and
 [Auth setup](docs/firstglobal-ops/auth-report.md) before provisioning.
 Do not use real Judging content until the physical 24-hour retention requirement
 is proven for the database, backups, logs and copies.
+
+## Applying migrations
+
+Nothing applies migrations automatically: the app and the API never run them and CI
+only verifies them against in-memory PostgreSQL (PGlite). Apply them by hand, in
+order, to the Supabase project.
+
+1. **Back up first.** Take a backup (Dashboard → Database → Backups) and note the
+   last applied migration.
+2. **Find what is pending.** Compare `supabase/migrations/*.sql` (lexical order) with
+   `select version, name from supabase_migrations.schema_migrations order by 1;`.
+   Only apply files that are not registered yet.
+3. **Apply each pending file, oldest first**, either
+   - in the **SQL Editor**: paste the whole file and run it (each file is meant to run
+     as one transaction), then register it with
+     `insert into supabase_migrations.schema_migrations (version, name) values ('<timestamp>', '<name>');`; or
+   - with the **CLI**: `supabase link --project-ref <ref>` then `supabase db push`.
+4. **Verify**: re-run the `schema_migrations` query, exercise the affected flows in
+   the app, and check the Supabase logs for permission errors.
+
+Things to know:
+
+- The Supabase `postgres` role is **not** a superuser, unlike the PGlite role used by
+  `npm run test:sql`. A migration that hands function ownership to `fgc_command`
+  needs `grant create on schema private to fgc_command` (and a `revoke` afterwards)
+  inside the same transaction, as `202609290001` does; otherwise it fails with
+  `permission denied for schema private`. Preferably also run the SQL tests as a
+  non-superuser role.
+- The `auth` and `security_finalize` migrations are registered in Supabase as
+  `20260925151407` and `20260925151415` but live in the repository as
+  `202609220008` and `202609220009`. Until reconciled, `supabase db push` will try to
+  apply them again: run `supabase migration repair --status reverted 20260925151407 20260925151415`
+  and `supabase migration repair --status applied 202609220008 202609220009`, or
+  rename the files to the registered versions.
+- There is a single Supabase project (no staging). For risky migrations use a
+  Supabase branch or a temporary project and run the SQL tests plus the e2e flows
+  against it first. Check why the `main` Supabase branch shows `MIGRATIONS_FAILED`
+  before relying on Supabase Preview.
+- CI (`.github/workflows/migration.yml`) runs on pull requests and on pushes to
+  `main` and `develop`; it runs on Windows with Node 24 and Edge, so a Linux/Node 22
+  run can differ.
 
 ## Mock environment (no Supabase, SMTP or devices needed)
 
