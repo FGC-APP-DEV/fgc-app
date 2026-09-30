@@ -1,4 +1,7 @@
 begin;
+-- Temporary and transaction-scoped: non-superuser roles (e.g. Supabase postgres) need CREATE on the schema
+-- to hand function ownership to fgc_command. Revoked before commit, so final ACLs are unchanged.
+grant create on schema private, api to fgc_command;
 -- Judge conflicts of interest (country codes, per judging cycle) and panels created as
 -- empty shells (no leader/judges yet). Panel leader stays a member once one is set.
 create table judging.judge_conflicts(cycle_id uuid not null references judging.cycles on delete cascade,user_id uuid not null references core.users,countries text[] not null default '{}' check(cardinality(countries)<=50),version integer not null default 1,primary key(cycle_id,user_id));
@@ -161,4 +164,5 @@ alter function api.judge_conflict_put(jsonb,uuid) owner to fgc_command;
 grant execute on function api.judge_conflict_put(jsonb,uuid) to authenticated;
 create or replace function api.judges_list(p_limit integer default 50,p_after uuid default null) returns jsonb language plpgsql security invoker set search_path='' as $$ declare r jsonb;begin perform private.require_role('judgeAdvisor');select coalesce(jsonb_agg(jsonb_build_object('id',u.id,'email',u.email,'name',u.name,'panelId',m.panel_id,'version',coalesce(m.version,0),'conflict',coalesce(to_jsonb(jc.countries),'[]'::jsonb),'conflictVersion',coalesce(jc.version,0)) order by u.id),'[]'::jsonb) into r from(select * from core.users where (p_after is null or id>p_after) and private.eligible_judge(id) order by id limit greatest(1,least(p_limit,100))) u left join judging.members m on m.user_id=u.id and exists(select 1 from judging.cycles where id=m.cycle_id and state='active') left join judging.judge_conflicts jc on jc.user_id=u.id and exists(select 1 from judging.cycles where id=jc.cycle_id and state='active');return r;end $$;
 notify pgrst,'reload schema';
+revoke create on schema private, api from fgc_command;
 commit;

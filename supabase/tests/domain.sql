@@ -82,4 +82,5 @@ select pg_temp.assert_true((select count(*)=1 from messaging.pages where source_
 select pg_temp.assert_true((select count(*)=0 from messaging.pages where source_area='judges'),'purge deletes judging messages');
 select pg_temp.assert_true((select count(*)=0 from private.receipts where cycle_id is not null),'purge deletes judging receipts');
 select pg_temp.assert_true((select count(*)=1 from audit.purge_receipts),'content-free purge evidence');
+select pg_temp.assert_true(not has_schema_privilege('fgc_command','private','CREATE') and not has_schema_privilege('fgc_command','api','CREATE'),'fgc_command keeps no CREATE on private/api');
 rollback;
