@@ -78,7 +78,7 @@ export function ApproveAccessPage() {
         disabled={busy || !text.trim()}
         onPress={() => void submit()}
       />
-      {result && <Notice text={result} />}
+      {Boolean(result) && <Notice text={result} />}
     </Card>
   )
 }

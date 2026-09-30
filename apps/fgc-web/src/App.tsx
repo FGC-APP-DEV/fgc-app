@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { BackHandler, View, useWindowDimensions } from 'react-native'
+import { View, useWindowDimensions } from 'react-native'
 import { AuthProvider, classifyLoginInput, loginFailureMessage, useAuth } from '@fgc/auth'
 import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
@@ -69,7 +69,7 @@ function Login() {
         title="Welcome to FGC-Ops"
         subtitle="Sign in to continue to competition operations."
       >
-        {(problem || auth.error) && <Notice text={problem || auth.error} error />}
+        {Boolean(problem || auth.error) && <Notice text={problem || auth.error} error />}
         {auth.hasAuthLink && (
           <Button
             label="Confirm email sign-in"
@@ -162,14 +162,6 @@ function Shell() {
     else go()
   }
   useEffect(() => {
-    const event = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (route === 'home') return false
-      navigate('home')
-      return true
-    })
-    return () => event.remove()
-  }, [route, dirty])
-  useEffect(() => {
     if (!auth.user && !auth.mentor) {
       setRoute('home')
       setDirty(false)
@@ -232,7 +224,7 @@ function Shell() {
         userName={auth.user?.name ?? auth.mentor?.team.name}
         userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
-      {error && <Notice text={error} error />}
+      {Boolean(error) && <Notice text={error} error />}
       {auth.mentor ? (
         <MentorScreen />
       ) : !auth.user?.name ? (

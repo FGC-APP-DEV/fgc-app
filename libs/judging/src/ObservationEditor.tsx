@@ -98,7 +98,7 @@ export function ObservationEditor({
           {!editable && (
             <Notice text="Observations can only be changed by their author while this team is active and pending in their current panel." />
           )}
-          {(draft.error || error) && <Notice error text={draft.error || error} />}
+          {Boolean(draft.error || error) && <Notice error text={draft.error || error} />}
           {reviewed !== undefined && (
             <Card title="Current saved observation">
               <Body>

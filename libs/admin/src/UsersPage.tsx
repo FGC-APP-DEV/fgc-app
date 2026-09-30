@@ -226,7 +226,7 @@ export function UsersPage() {
             ))}
           </View>
           <Body>Admin and judging roles cannot be combined.</Body>
-          {modalError && <Notice text={modalError} error />}
+          {Boolean(modalError) && <Notice text={modalError} error />}
           {confirmDelete ? (
             <>
               <Notice

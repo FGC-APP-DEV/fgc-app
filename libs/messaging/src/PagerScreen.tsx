@@ -212,7 +212,7 @@ export function PagerScreen({
                   : 'Awaiting response')
               }
             />
-            {page.deliveryStatus && (
+            {!!page.deliveryStatus && (
               <Body>
                 {deliveryLabels[page.deliveryStatus] ?? 'Push status unavailable'}
               </Body>

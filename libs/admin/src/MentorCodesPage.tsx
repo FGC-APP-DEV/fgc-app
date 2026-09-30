@@ -87,7 +87,7 @@ export function MentorCodesPage() {
           Codes and sessions last seven days. Regenerating revokes the previous code, all
           linked sessions and push devices.
         </Body>
-        {secret && (
+        {Boolean(secret) && (
           <Notice text={`Copy this code now. It is shown only once. ${secret}`} />
         )}
         <Button

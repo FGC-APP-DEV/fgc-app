@@ -50,7 +50,7 @@ export function MentorNotifications({ onMessage }: { onMessage: () => void }) {
   }
   return (
     <>
-      {status && <Notice text={status} />}
+      {Boolean(status) && <Notice text={status} />}
       <Button
         label="Enable notifications"
         disabled={busy || !installationId}

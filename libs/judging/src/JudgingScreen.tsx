@@ -402,7 +402,7 @@ export function JudgingScreen({
           }}
         />
       </View>
-      {planNotice && tab === 'panels' && <Notice text={planNotice} />}
+      {Boolean(planNotice) && tab === 'panels' && <Notice text={planNotice} />}
       {!loaded && <Loading />}
       {loaded && !cycle && (
         <Notice text="There is no active judging cycle. Operational records are unavailable; advisors can review the temporary audit before its expiry." />
@@ -470,7 +470,7 @@ export function JudgingScreen({
                   <Badge label={current.evaluationStatus} />
                   <Badge label={current.participationStatus} />
                 </View>
-                {current.withdrawalReason && (
+                {Boolean(current.withdrawalReason) && (
                   <Body>Withdrawal: {current.withdrawalReason}</Body>
                 )}
                 {current.flags.map((f) => (

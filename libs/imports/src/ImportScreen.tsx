@@ -200,7 +200,7 @@ export function ImportScreen({
           />
         </Card>
       )}
-      {result && (
+      {Boolean(result) && (
         <Card title="Import results">
           <Body>{result}</Body>
         </Card>

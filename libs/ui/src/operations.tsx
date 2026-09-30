@@ -98,7 +98,7 @@ export function getThemeMode(): ThemeMode {
 /** Corner radii from the reference: badge 4, tile 8, control 12, card 16. */
 export const radius = { badge: 4, tile: 8, control: 12, card: 16, pill: 999 }
 /** Elevation recipes matching the reference's shadow-sm / shadow-md / shadow-xl. */
-export const elevation = {
+const nativeElevation = {
   sm: {
     shadowColor: '#000',
     shadowOpacity: 0.08,
@@ -121,6 +121,16 @@ export const elevation = {
     elevation: 8,
   },
 } as const
+// react-native-web deprecates the shadow* props; the same shadows are expressed as boxShadow.
+const webElevation = {
+  sm: { boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)' },
+  md: { boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)' },
+  xl: { boxShadow: '0px 12px 20px rgba(0, 0, 0, 0.12)' },
+} as const
+export const elevation: typeof nativeElevation =
+  Platform.OS === 'web'
+    ? (webElevation as unknown as typeof nativeElevation)
+    : nativeElevation
 /** Window width from which shells switch to the desktop layout (side rail, wider content). */
 export const WIDE_BREAKPOINT = 900
 const createLayout = () =>
@@ -213,7 +223,7 @@ export function Card({
         elevation.sm,
       ]}
     >
-      {accent && (
+      {!!accent && (
         <View
           pointerEvents="none"
           style={{
@@ -226,7 +236,7 @@ export function Card({
           }}
         />
       )}
-      {title && (
+      {Boolean(title) && (
         <Text
           accessibilityRole="header"
           style={{
@@ -300,7 +310,7 @@ export function ModuleCard({
         >
           {title}
         </Text>
-        {hint && <Text style={layout.muted}>{hint}</Text>}
+        {Boolean(hint) && <Text style={layout.muted}>{hint}</Text>}
       </Pressable>
       {menu}
     </>
