@@ -4,21 +4,25 @@ import { useAuth } from '@fgc/auth'
 import type { Category, ShotItem, Tracker, TrackerTeam } from '@fgc/contracts'
 import { CONTINENTS, countryName, sortTeams, teamContinent } from '@fgc/shared'
 import {
+  ActionModal,
   Badge,
   Body,
   Button,
   Card,
-  Confirm,
+  Checkbox,
+  DataTable,
   Field,
   Heading,
   Loading,
   Notice,
   ProgressBar,
   Screen,
+  Select,
   TeamMap,
   layout,
   useToast,
   useToastOn,
+  type Column,
 } from '@fgc/ui'
 
 export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void }) {
@@ -40,9 +44,12 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [newStatus, setNewStatus] = useState('pending')
+  const [editingItem, setEditingItem] = useState<ShotItem | null>(null)
+  const [itemDone, setItemDone] = useState(false)
+  const [itemDelete, setItemDelete] = useState(false)
   const toast = useToast()
   useToastOn(error, 'error')
-  const [deleting, setDeleting] = useState<ShotItem | null>(null)
   const template = tracker.templates.find((t) => t.name === 'Step & Repeat')
   const shot = (team: TrackerTeam) =>
     team.shots.find((s) => s.templateId === template?.id)
@@ -111,6 +118,36 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
           : 'Reset to pending',
     )
   }
+  const openTeam = (team: TrackerTeam) => {
+    setSelected(team)
+    setNotes(shot(team)?.notes ?? '')
+    setNewStatus(shot(team)?.status ?? 'pending')
+  }
+  const openItem = (item: ShotItem) => {
+    setEditingItem(item)
+    setItemDone(Boolean(item.doneAt))
+    setItemDelete(false)
+  }
+  const saveItem = () => {
+    const item = editingItem
+    if (!item) return
+    setEditingItem(null)
+    void run(
+      () =>
+        itemDelete
+          ? api.command(
+              `/filming/items/${item.id}`,
+              { expectedVersion: item.version },
+              { method: 'DELETE' },
+            )
+          : api.command(
+              `/filming/items/${item.id}`,
+              { expectedVersion: item.version, done: itemDone },
+              { method: 'PATCH' },
+            ),
+      itemDelete ? 'Shot deleted' : itemDone ? 'Shot completed' : 'Shot reopened',
+    )
+  }
   const filtered = tracker.teams.filter(
     (t) =>
       `${t.name} ${t.country} ${countryName(t.country)} ${t.officialId}`
@@ -119,6 +156,37 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
       (status === 'all' || (shot(t)?.status ?? 'pending') === status) &&
       (continent === 'all' || teamContinent(t.country, t.countryCode) === continent),
   )
+  const teamColumns: Column<TrackerTeam>[] = [
+    { key: 'team', title: 'Team', flex: 3, render: (t) => `${t.officialId} · ${t.name}` },
+    { key: 'country', title: 'Country', flex: 2, render: (t) => t.country },
+    {
+      key: 'status',
+      title: 'Status',
+      flex: 2,
+      render: (t) => <Badge label={shot(t)?.status ?? 'pending'} />,
+    },
+  ]
+  const visibleItems = items.filter(
+    (i) =>
+      (!categoryId || i.categoryId === categoryId) &&
+      i.title.toLowerCase().includes(search.toLowerCase()) &&
+      (itemStatus === 'all' || Boolean(i.doneAt) === (itemStatus === 'done')),
+  )
+  const itemColumns: Column<ShotItem>[] = [
+    { key: 'title', title: 'Shot', flex: 3, render: (i) => i.title },
+    {
+      key: 'category',
+      title: 'Category',
+      flex: 2,
+      render: (i) => categories.find((c) => c.id === i.categoryId)?.name ?? '-',
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      flex: 2,
+      render: (i) => <Badge label={i.doneAt ? 'Complete' : 'Pending'} />,
+    },
+  ]
   return (
     <Screen>
       <Heading>Filming</Heading>
@@ -161,24 +229,24 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
               label="Teams captured"
             />
             <View style={layout.row}>
-              {['all', 'pending', 'captured', 'skipped'].map((value) => (
-                <Button
-                  key={value}
-                  label={value}
-                  variant={status === value ? 'primary' : 'secondary'}
-                  onPress={() => setStatus(value)}
-                />
-              ))}
-            </View>
-            <View style={layout.row}>
-              {['all', ...CONTINENTS].map((value) => (
-                <Button
-                  key={value}
-                  label={value === 'all' ? 'All continents' : value}
-                  variant={continent === value ? 'primary' : 'secondary'}
-                  onPress={() => setContinent(value)}
-                />
-              ))}
+              <Select
+                label="Status"
+                value={status}
+                options={['all', 'pending', 'captured', 'skipped'].map((value) => ({
+                  value,
+                  label: value,
+                }))}
+                onChange={setStatus}
+              />
+              <Select
+                label="Continent"
+                value={continent}
+                options={['all', ...CONTINENTS].map((value) => ({
+                  value,
+                  label: value === 'all' ? 'All continents' : value,
+                }))}
+                onChange={setContinent}
+              />
             </View>
             <Button
               label={map ? 'Show list' : 'Show map'}
@@ -197,55 +265,41 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                 }
                 onSelect={(id) => {
                   const team = tracker.teams.find((t) => t.id === id)
-                  if (team) {
-                    setSelected(team)
-                    setNotes(shot(team)?.notes ?? '')
-                  }
+                  if (team) openTeam(team)
                 }}
               />
             </Card>
           ) : (
-            filtered.map((team) => (
-              <Card
-                key={team.id}
-                title={`${team.officialId} · ${team.name}`}
-                accent={
-                  shot(team)?.status === 'captured'
-                    ? 'success'
-                    : shot(team)?.status === 'skipped'
-                      ? 'warning'
-                      : 'neutral'
-                }
-              >
-                <View style={layout.row}>
-                  <Badge label={shot(team)?.status ?? 'pending'} />
-                  <Body>{team.country}</Body>
-                </View>
-                {shot(team)?.notes && <Body>{shot(team)?.notes}</Body>}
-                <View style={layout.row}>
-                  <Button
-                    label={`Update ${team.name}`}
-                    disabled={!template}
-                    onPress={() => {
-                      setSelected(team)
-                      setNotes(shot(team)?.notes ?? '')
-                    }}
-                  />
-                  <Button
-                    label={`Page ${team.name}`}
-                    variant="secondary"
-                    icon="send"
-                    onPress={() => onPage(team.id)}
-                  />
-                </View>
-              </Card>
-            ))
-          )}
-          {!map && loaded && !filtered.length && (
-            <Notice text="No teams match these filters." />
+            <Card title="Teams">
+              <DataTable
+                columns={teamColumns}
+                rows={filtered}
+                rowKey={(team) => team.id}
+                noun="teams"
+                loading={!loaded}
+                empty="No teams match these filters."
+                resetKey={`${search}|${status}|${continent}`}
+                rowActionLabel={(team) => `Actions for ${team.name}`}
+                onRowAction={(team) => (template ? openTeam(team) : undefined)}
+              />
+            </Card>
           )}
           {selected && (
-            <Card title={`Update ${selected.name}`}>
+            <ActionModal
+              title={`Update ${selected.name}`}
+              onClose={() => setSelected(null)}
+              confirmDisabled={busy}
+              onConfirm={() => void mark(newStatus as 'captured' | 'skipped' | 'pending')}
+            >
+              <Select
+                label="Shot status"
+                value={newStatus}
+                options={['pending', 'captured', 'skipped'].map((value) => ({
+                  value,
+                  label: value,
+                }))}
+                onChange={setNewStatus}
+              />
               <Field
                 label="Shot notes"
                 multiline
@@ -253,30 +307,17 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
                 value={notes}
                 onChangeText={setNotes}
               />
-              <View style={layout.row}>
-                <Button
-                  label="Captured"
-                  disabled={busy}
-                  onPress={() => void mark('captured')}
-                />
-                <Button
-                  label="Skipped"
-                  disabled={busy}
-                  onPress={() => void mark('skipped')}
-                />
-                <Button
-                  label="Reset to pending"
-                  disabled={busy}
-                  variant="secondary"
-                  onPress={() => void mark('pending')}
-                />
-                <Button
-                  label="Cancel editing"
-                  variant="secondary"
-                  onPress={() => setSelected(null)}
-                />
-              </View>
-            </Card>
+              <Button
+                label={`Page ${selected.name}`}
+                variant="secondary"
+                icon="send"
+                onPress={() => {
+                  const id = selected.id
+                  setSelected(null)
+                  onPage(id)
+                }}
+              />
+            </ActionModal>
           )}
         </>
       ) : (
@@ -300,16 +341,15 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
             />
           </Card>
           <Card title="Add a shot">
-            <View style={layout.row}>
-              {categories.map((c) => (
-                <Button
-                  key={c.id}
-                  label={c.name}
-                  variant={categoryId === c.id ? 'primary' : 'secondary'}
-                  onPress={() => setCategoryId(c.id)}
-                />
-              ))}
-            </View>
+            <Select
+              label="Category"
+              value={categoryId}
+              options={[
+                { value: '', label: 'All categories' },
+                ...categories.map((c) => ({ value: c.id, label: c.name })),
+              ]}
+              onChange={setCategoryId}
+            />
             <Field
               label="Shot title"
               maxLength={200}
@@ -327,87 +367,54 @@ export function FilmingScreen({ onPage }: { onPage: (teamId?: string) => void })
               }
             />
           </Card>
-          <View style={layout.row}>
-            {['all', 'pending', 'done'].map((value) => (
-              <Button
-                key={value}
-                label={value}
-                variant={itemStatus === value ? 'primary' : 'secondary'}
-                onPress={() => setItemStatus(value)}
-              />
-            ))}
-            <Button
-              label="All categories"
-              variant="secondary"
-              onPress={() => setCategoryId('')}
-            />
-          </View>
+          <Select
+            label="Shot status"
+            value={itemStatus}
+            options={['all', 'pending', 'done'].map((value) => ({ value, label: value }))}
+            onChange={setItemStatus}
+          />
           <Body>
             {items.filter((i) => i.doneAt).length} of {items.length} shots complete
           </Body>
-          {items
-            .filter(
-              (i) =>
-                (!categoryId || i.categoryId === categoryId) &&
-                i.title.toLowerCase().includes(search.toLowerCase()) &&
-                (itemStatus === 'all' || Boolean(i.doneAt) === (itemStatus === 'done')),
-            )
-            .map((item) => (
-              <Card
-                key={item.id}
-                title={item.title}
-                accent={item.doneAt ? 'success' : 'neutral'}
-              >
-                <Body>{categories.find((c) => c.id === item.categoryId)?.name}</Body>
-                <Badge label={item.doneAt ? 'Complete' : 'Pending'} />
-                <View style={layout.row}>
-                  <Button
-                    label={
-                      item.doneAt ? `Reopen ${item.title}` : `Complete ${item.title}`
-                    }
-                    disabled={busy}
-                    onPress={() =>
-                      void run(
-                        () =>
-                          api.command(
-                            `/filming/items/${item.id}`,
-                            { expectedVersion: item.version, done: !item.doneAt },
-                            { method: 'PATCH' },
-                          ),
-                        item.doneAt ? 'Shot reopened' : 'Shot completed',
-                      )
-                    }
-                  />
-                  <Button
-                    label={`Delete ${item.title}`}
-                    variant="danger"
-                    disabled={busy}
-                    onPress={() => setDeleting(item)}
-                  />
-                </View>
-              </Card>
-            ))}
+          <Card title="Shot list">
+            <DataTable
+              columns={itemColumns}
+              rows={visibleItems}
+              rowKey={(i) => i.id}
+              noun="shots"
+              loading={!loaded}
+              empty="No shots match these filters."
+              resetKey={`${search}|${categoryId}|${itemStatus}`}
+              rowActionLabel={(i) => `Actions for ${i.title}`}
+              onRowAction={openItem}
+            />
+          </Card>
+          {editingItem && (
+            <ActionModal
+              title={editingItem.title}
+              onClose={() => setEditingItem(null)}
+              confirmLabel={itemDelete ? 'Delete shot' : 'Confirm'}
+              confirmVariant={itemDelete ? 'danger' : 'primary'}
+              confirmDisabled={busy}
+              onConfirm={saveItem}
+            >
+              <Checkbox
+                label="Completed"
+                checked={itemDone}
+                disabled={itemDelete}
+                onChange={setItemDone}
+              />
+              <Checkbox
+                label="Delete this shot"
+                checked={itemDelete}
+                onChange={setItemDelete}
+              />
+              {itemDelete && (
+                <Notice text={`Remove ${editingItem.title} from the shot list.`} error />
+              )}
+            </ActionModal>
+          )}
         </>
-      )}
-      {deleting && (
-        <Confirm
-          title="Delete shot?"
-          description={`Remove ${deleting.title} from the shot list.`}
-          onCancel={() => setDeleting(null)}
-          onConfirm={() => {
-            const item = deleting
-            setDeleting(null)
-            void run(
-              () =>
-                api.command(
-                  `/filming/items/${item.id}`,
-                  { expectedVersion: item.version },
-                  { method: 'DELETE' },
-                ),
-              'Shot deleted',
-            )
-          }}
-        />
       )}
     </Screen>
   )

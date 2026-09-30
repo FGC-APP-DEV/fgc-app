@@ -46,6 +46,8 @@ test('a scheduled pager stays hidden from the mentor until it is due', async ({
   const film = await (await browser.newContext()).newPage()
   await signIn(film, 'film@fgc.test')
   await film.getByRole('button', { name: 'Open filming' }).click()
+  await film.getByRole('textbox', { name: 'Search teams or shots' }).fill('Spain')
+  await film.getByRole('button', { name: 'Actions for Team Spain' }).click()
   await film.getByRole('button', { name: 'Page Team Spain', exact: true }).click()
   await film
     .getByRole('textbox', { name: /Message/ })
@@ -59,7 +61,8 @@ test('a scheduled pager stays hidden from the mentor until it is due', async ({
   await admin.getByRole('button', { name: 'Open administration' }).click()
   await admin.getByRole('button', { name: 'Open Mentor access codes' }).click()
   await admin.getByRole('textbox', { name: 'Filter by team name' }).fill('Spain')
-  await admin.getByRole('button', { name: 'Issue code for Team Spain' }).click()
+  await admin.getByRole('button', { name: 'Actions for Team Spain' }).click()
+  await admin.getByRole('button', { name: 'Issue code', exact: true }).click()
   const code = /Team Spain: (\S+)/.exec(
     await admin.getByText(/Copy this code now/).innerText(),
   )?.[1]

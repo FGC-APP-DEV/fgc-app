@@ -123,9 +123,11 @@ test('filmmaker records notes and a versioned capture, then sees refreshed cover
   const writes = await fixture(page, ['filmmaker'])
   await login(page)
   await page.getByRole('button', { name: 'Open filming' }).click()
-  await page.getByRole('button', { name: 'Update Brazil', exact: true }).click()
+  await page.getByRole('button', { name: 'Actions for Brazil' }).click()
   await page.getByRole('textbox', { name: 'Shot notes' }).fill('Interview recorded')
-  await page.getByRole('button', { name: 'Captured', exact: true }).last().click()
+  await page.getByRole('button', { name: 'Shot status: pending' }).click()
+  await page.getByRole('button', { name: 'captured', exact: true }).click()
+  await page.getByRole('button', { name: 'Confirm', exact: true }).click()
   await expect(page.getByText('1 of 1 teams captured')).toBeVisible()
   expect(writes[0].body).toEqual({
     expectedVersion: 0,

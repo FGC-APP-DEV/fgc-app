@@ -65,8 +65,9 @@ test('more than one page of teams stays complete and sorted by name in Filming',
   await expect(coverage).not.toHaveText(/of 0 teams/)
   const total = Number(/of (\d+)/.exec(await coverage.innerText())?.[1])
   expect(total).toBeGreaterThanOrEqual(144)
-  const first = page.getByRole('heading').filter({ hasText: ' · ' }).first()
-  await expect(first).toHaveText('A001 · Aardvark Robotics 001')
+  // Sorted by name, the first table page starts with the first imported team.
+  await expect(page.getByText('A001 · Aardvark Robotics 001')).toBeVisible()
+  await expect(page.getByText('A016 · Aardvark Robotics 016')).toHaveCount(0)
   // Country names are searchable, not only the ISO code stored on the team.
   await page.getByRole('textbox', { name: 'Search teams or shots' }).fill('Brazil')
   await expect(page.getByText('A001 · Aardvark Robotics 001')).toBeVisible()
