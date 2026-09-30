@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useAuth } from '@fgc/auth'
 import type { User } from '@fgc/contracts'
 import { Body, Button, Card, Field, Notice, useToast, useToastOn } from '@fgc/ui'
-import { parseAccessCsv } from './lib/admin'
+import { duplicateEmails, parseAccessCsv } from './lib/admin'
 
 export function ApproveAccessPage() {
   const { api } = useAuth()
@@ -42,6 +42,11 @@ export function ApproveAccessPage() {
         )
         if (receipt?.error) failed.push(row.email)
       }
+      const repeated = duplicateEmails(rows)
+      if (repeated.length)
+        lines.push(
+          `Repeated emails (the last line of each was used): ${repeated.join(', ')}`,
+        )
       setResult(lines.join('\n'))
       if (failed.length < byEmail.size) toast.success('Access saved')
       // Keep only the rows that failed so they can be corrected and resent.
