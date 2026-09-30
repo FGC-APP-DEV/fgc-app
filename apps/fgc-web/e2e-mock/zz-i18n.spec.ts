@@ -29,3 +29,16 @@ test('admin and filming follow the chosen language', async ({ page }) => {
   await page.getByRole('button', { name: 'Acciones para admin@fgc.test' }).click()
   await expect(page.getByRole('button', { name: 'Cancelar' })).toBeVisible()
 })
+
+test('judging follows the chosen language', async ({ page }) => {
+  await signIn(page, 'ja@fgc.test')
+  await page.getByRole('button', { name: 'Language' }).click()
+  await page.getByRole('menuitem', { name: 'Français' }).click()
+  await page.getByRole('button', { name: 'Ouvrir le jugement' }).click()
+  await expect(page.getByRole('button', { name: 'Clôture et audit' })).toBeVisible()
+  await expect(
+    page.getByRole('textbox', { name: 'Rechercher des équipes de jugement' }),
+  ).toBeVisible()
+}).click()
+  await expect(page.getByText('Configurer les panels')).toBeVisible()
+})
