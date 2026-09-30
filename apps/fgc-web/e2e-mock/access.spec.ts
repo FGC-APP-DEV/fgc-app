@@ -47,7 +47,23 @@ test('admin plus Judging roles never reach Judging', async ({ page }) => {
 
 test('the official information link is shown when configured', async ({ page }) => {
   await signIn(page, 'film@fgc.test', 'Fran Filmmaker')
-  await expect(page.getByText('Official information')).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Official information' }).first(),
+  ).toBeVisible()
+  const nav = page
+    .getByRole('navigation', { name: 'Workspaces' })
+    .getByRole('button', { name: 'Official information' })
+  await expect(nav).toBeVisible()
+
+  await page
+    .context()
+    .route('https://first.global/**', (route) =>
+      route.fulfill({ contentType: 'text/html', body: '<title>Event</title>' }),
+    )
+  const popup = page.waitForEvent('popup')
+  await nav.click()
+  expect((await popup).url()).toBe('https://first.global/event/')
+  await expect(page.getByText('Welcome, Fran Filmmaker')).toBeVisible()
 })
 
 test('an administrator adds staff from CSV, then filters users and edits or removes a role in the modal', async ({
