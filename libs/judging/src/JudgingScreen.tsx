@@ -19,6 +19,15 @@ import {
 } from '@fgc/ui'
 import { ObservationEditor } from './ObservationEditor'
 import { judgingAccess, progress } from './judging-state'
+import { JudgesSheet } from './JudgesSheet'
+import { PanelsDashboard } from './PanelsDashboard'
+import {
+  conflictsWithTeam,
+  distributeJudges,
+  panelsForTeam,
+  judgeConflictsWithPanel,
+  panelCountries,
+} from './panel-planning'
 
 interface Judge {
   id: string
@@ -26,6 +35,8 @@ interface Judge {
   email: string
   panelId: string | null
   version: number
+  conflict: string[]
+  conflictVersion: number
 }
 interface Cycle {
   id: string
@@ -70,7 +81,7 @@ export function JudgingScreen({
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [tab, setTab] = useState<'teams' | 'panels' | 'closure'>('teams')
+  const [tab, setTab] = useState<'teams' | 'panels' | 'judges' | 'closure'>('teams')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<string | null>(null)
   const [observations, setObservations] = useState<Observation[]>([])
@@ -80,6 +91,9 @@ export function JudgingScreen({
   const [reason, setReason] = useState('')
   const [panelId, setPanelId] = useState('')
   const [panelName, setPanelName] = useState('')
+  const [panelMode, setPanelMode] = useState<'dashboard' | 'manage'>('dashboard')
+  const [panelCount, setPanelCount] = useState('4')
+  const [planNotice, setPlanNotice] = useState('')
   const [memberIds, setMemberIds] = useState<string[]>([])
   const [leaderId, setLeaderId] = useState('')
   const [transferJudge, setTransferJudge] = useState('')
@@ -206,6 +220,99 @@ export function JudgingScreen({
         await commandTeam(suffix, body)
       },
     })
+  const judgeName = (id: string) => {
+    const j = judges.find((x) => x.id === id)
+    return j ? (j.name ?? j.email) : 'Unknown judge'
+  }
+  const unassignedTeams = teams.filter(
+    (t) => !t.panelId && t.participationStatus === 'active',
+  )
+  const notIncluded = globalTeams.filter((t) => !teams.some((p) => p.teamId === t.id))
+  const createPanels = async () => {
+    const wanted = Math.max(1, Math.min(30, Number.parseInt(panelCount, 10) || 0))
+    const taken = new Set(panels.map((p) => p.name))
+    let n = panels.length
+    for (let made = 0; made < wanted; made += 1) {
+      do n += 1
+      while (taken.has(`Panel ${n}`))
+      taken.add(`Panel ${n}`)
+      await api.command('/judging/panels', { name: `Panel ${n}`, judgeIds: [] })
+    }
+  }
+  const includeAllTeams = async () => {
+    for (const t of notIncluded)
+      await api.command('/judging/participations', { teamId: t.id })
+  }
+  const divideTeams = async () => {
+    const versions = new Map(panels.map((p) => [p.id, p.version]))
+    const sizes = new Map(
+      panels.map((p) => [p.id, teams.filter((t) => t.panelId === p.id).length]),
+    )
+    const stuck: string[] = []
+    setPlanNotice('')
+    for (const t of unassignedTeams) {
+      // Same predicate as manual assignment: no judge on the panel may conflict.
+      const target = panelsForTeam(t, panels, judges).sort(
+        (a, b) => (sizes.get(a.id) ?? 0) - (sizes.get(b.id) ?? 0),
+      )[0]
+      if (!target) {
+        stuck.push(`${t.team.officialId} ${t.team.name}`)
+        continue
+      }
+      const receipt = await api.command<Receipt>(`/judging/panels/${target.id}/teams`, {
+        teamId: t.teamId,
+        expectedVersion: versions.get(target.id),
+      })
+      versions.set(target.id, receipt.resultingVersion)
+      sizes.set(target.id, (sizes.get(target.id) ?? 0) + 1)
+    }
+    if (stuck.length)
+      setPlanNotice(
+        `No eligible panel (judge conflict) for ${stuck.length} team(s): ${stuck.join(', ')}. Assign them manually.`,
+      )
+  }
+  const planJudges = () => {
+    const plan = distributeJudges(judges, panels, teams)
+    const changed = panels.filter((p) => {
+      const next = plan.assignments[p.id] ?? []
+      return (
+        next.length !== p.judgeIds.length || next.some((id) => !p.judgeIds.includes(id))
+      )
+    })
+    setConfirmation({
+      title: 'Distribute judges across panels?',
+      description: `${judges.length} judges are spread evenly over ${panels.length} panels, avoiding conflicts of interest. Panel leaders stay in place; other members may move.${
+        plan.unplaced.length
+          ? ` Left unassigned because of conflicts: ${plan.unplaced.map(judgeName).join(', ')}.`
+          : ''
+      }`,
+      work: async () => {
+        const versions = new Map(panels.map((p) => [p.id, p.version]))
+        const send = async (p: Panel, judgeIds: string[]) => {
+          const receipt = await api.command<Receipt>(`/judging/panels/${p.id}/members`, {
+            expectedVersion: versions.get(p.id),
+            judgeIds,
+          })
+          versions.set(p.id, receipt.resultingVersion)
+        }
+        // Free judges that leave a panel first: a judge can only sit on one panel.
+        for (const p of changed) {
+          const next = plan.assignments[p.id] ?? []
+          const kept = p.judgeIds.filter((id) => next.includes(id))
+          if (kept.length !== p.judgeIds.length) await send(p, kept)
+        }
+        for (const p of changed) {
+          const next = plan.assignments[p.id] ?? []
+          const kept = p.judgeIds.filter((id) => next.includes(id))
+          if (next.length && next.length !== kept.length) await send(p, next)
+        }
+      },
+    })
+  }
+  const openPanel = (panel?: Panel) => {
+    choosePanel(panel)
+    setPanelMode('manage')
+  }
   const choosePanel = (panel?: Panel) => {
     setPanelId(panel?.id ?? '')
     setPanelName(panel?.name ?? '')
@@ -243,7 +350,18 @@ export function JudgingScreen({
               onPress={() =>
                 navigate(() => {
                   setSelected(null)
+                  setPanelMode('dashboard')
                   setTab('panels')
+                })
+              }
+            />
+            <Button
+              label="Judges"
+              variant={tab === 'judges' ? 'primary' : 'secondary'}
+              onPress={() =>
+                navigate(() => {
+                  setSelected(null)
+                  setTab('judges')
                 })
               }
             />
@@ -280,6 +398,7 @@ export function JudgingScreen({
         />
       </View>
       {error && <Notice error text={error} />}
+      {planNotice && tab === 'panels' && <Notice text={planNotice} />}
       {!loaded && <Loading />}
       {loaded && !cycle && (
         <Notice text="There is no active judging cycle. Operational records are unavailable; advisors can review the temporary audit before its expiry." />
@@ -513,6 +632,11 @@ export function JudgingScreen({
                           disabled={
                             busy ||
                             dirty ||
+                            judges.some(
+                              (j) =>
+                                p.judgeIds.includes(j.id) &&
+                                conflictsWithTeam(j.conflict, current.team),
+                            ) ||
                             current.evaluationStatus !== 'pending' ||
                             (Boolean(current.panelId) &&
                               (!observationLoaded || observations.length > 0))
@@ -580,182 +704,282 @@ export function JudgingScreen({
       )}
       {tab === 'panels' && advisor && cycle && (
         <>
-          <View style={layout.row}>
-            {panels.map((p) => (
-              <Button
-                key={p.id}
-                label={p.name}
-                variant={panelId === p.id ? 'primary' : 'secondary'}
-                onPress={() => choosePanel(p)}
-              />
-            ))}
-            <Button label="New panel" variant="secondary" onPress={() => choosePanel()} />
-          </View>
-          <Card title={editingPanel ? `Manage ${editingPanel.name}` : 'Create panel'}>
-            {!editingPanel && (
-              <Field
-                label="Panel name"
-                maxLength={80}
-                value={panelName}
-                onChangeText={setPanelName}
-              />
-            )}
-            <Body>Select panel members. Choose a leader from the selected judges.</Body>
-            {judges
-              .filter((j) => !j.panelId || j.panelId === panelId)
-              .map((j) => (
-                <View key={j.id} style={layout.row}>
-                  <Button
-                    label={`${memberIds.includes(j.id) ? 'Selected' : 'Select'} ${j.name ?? j.email}`}
-                    variant={memberIds.includes(j.id) ? 'primary' : 'secondary'}
-                    onPress={() => {
-                      setMemberIds((ids) =>
-                        ids.includes(j.id)
-                          ? ids.filter((id) => id !== j.id)
-                          : [...ids, j.id],
-                      )
-                      if (leaderId === j.id) setLeaderId('')
-                    }}
-                  />
-                  {memberIds.includes(j.id) && (
+          {panelMode === 'dashboard' && (
+            <PanelsDashboard
+              panels={panels}
+              teams={teams}
+              judges={judges}
+              busy={busy}
+              panelCount={panelCount}
+              onPanelCount={setPanelCount}
+              unassignedTeams={unassignedTeams.length}
+              notIncludedTeams={notIncluded.length}
+              onOpen={openPanel}
+              onNew={() => openPanel()}
+              onCreatePanels={() => void run(createPanels)}
+              onIncludeAll={() => void run(includeAllTeams)}
+              onDivideTeams={() => void run(divideTeams)}
+              onDistributeJudges={planJudges}
+            />
+          )}
+          {panelMode === 'manage' && (
+            <Button
+              label="Back to panels"
+              variant="secondary"
+              onPress={() => {
+                choosePanel()
+                setPanelMode('dashboard')
+              }}
+            />
+          )}
+          {panelMode === 'manage' && (
+            <Card title={editingPanel ? `Manage ${editingPanel.name}` : 'Create panel'}>
+              {!editingPanel && (
+                <Field
+                  label="Panel name"
+                  maxLength={80}
+                  value={panelName}
+                  onChangeText={setPanelName}
+                />
+              )}
+              <Body>Select panel members. Choose a leader from the selected judges.</Body>
+              {judges
+                .filter((j) => !j.panelId || j.panelId === panelId)
+                .map((j) => {
+                  const hits = panelId ? judgeConflictsWithPanel(j, panelId, teams) : []
+                  return (
+                    <View key={j.id} style={layout.row}>
+                      <Button
+                        label={`${memberIds.includes(j.id) ? 'Selected' : 'Select'} ${j.name ?? j.email}`}
+                        variant={memberIds.includes(j.id) ? 'primary' : 'secondary'}
+                        disabled={hits.length > 0 && !memberIds.includes(j.id)}
+                        onPress={() => {
+                          setMemberIds((ids) =>
+                            ids.includes(j.id)
+                              ? ids.filter((id) => id !== j.id)
+                              : [...ids, j.id],
+                          )
+                          if (leaderId === j.id) setLeaderId('')
+                        }}
+                      />
+                      {memberIds.includes(j.id) && (
+                        <Button
+                          label={`${leaderId === j.id ? 'Leader' : 'Make leader'}: ${j.name ?? j.email}`}
+                          variant={leaderId === j.id ? 'primary' : 'secondary'}
+                          onPress={() => setLeaderId(j.id)}
+                        />
+                      )}
+                      {hits.length > 0 && (
+                        <Badge label={`Conflict: ${hits.join(', ')}`} tone="danger" />
+                      )}
+                    </View>
+                  )
+                })}
+              <View style={layout.row}>
+                {editingPanel ? (
+                  <>
                     <Button
-                      label={`${leaderId === j.id ? 'Leader' : 'Make leader'}: ${j.name ?? j.email}`}
-                      variant={leaderId === j.id ? 'primary' : 'secondary'}
-                      onPress={() => setLeaderId(j.id)}
+                      label="Save panel members"
+                      disabled={
+                        busy ||
+                        Boolean(
+                          editingPanel.leaderId &&
+                          !memberIds.includes(editingPanel.leaderId),
+                        )
+                      }
+                      onPress={() =>
+                        void run(() =>
+                          api.command(`/judging/panels/${panelId}/members`, {
+                            expectedVersion: editingPanel.version,
+                            judgeIds: memberIds,
+                          }),
+                        )
+                      }
                     />
-                  )}
-                </View>
-              ))}
-            <View style={layout.row}>
-              {editingPanel ? (
-                <>
+                    <Button
+                      label={editingPanel.leaderId ? 'Replace leader' : 'Set leader'}
+                      disabled={
+                        busy ||
+                        !leaderId ||
+                        leaderId === editingPanel.leaderId ||
+                        !editingPanel.judgeIds.includes(leaderId)
+                      }
+                      onPress={() =>
+                        void run(() =>
+                          api.command(`/judging/panels/${panelId}/leader`, {
+                            expectedVersion: editingPanel.version,
+                            leaderId,
+                          }),
+                        )
+                      }
+                    />
+                    <Button
+                      label="Delete empty panel"
+                      variant="danger"
+                      disabled={busy || teams.some((t) => t.panelId === panelId)}
+                      onPress={() =>
+                        setConfirmation({
+                          title: 'Delete empty panel?',
+                          description:
+                            'Only a panel with no teams or observations can be deleted.',
+                          work: async () => {
+                            await api.command(
+                              `/judging/panels/${panelId}`,
+                              { expectedVersion: editingPanel.version },
+                              { method: 'DELETE' },
+                            )
+                            choosePanel()
+                            setPanelMode('dashboard')
+                          },
+                        })
+                      }
+                    />
+                  </>
+                ) : (
                   <Button
-                    label="Save panel members"
-                    disabled={busy || !memberIds.includes(editingPanel.leaderId)}
-                    onPress={() =>
-                      void run(() =>
-                        api.command(`/judging/panels/${panelId}/members`, {
-                          expectedVersion: editingPanel.version,
-                          judgeIds: memberIds,
-                        }),
-                      )
-                    }
-                  />
-                  <Button
-                    label="Replace leader"
+                    label="Create panel"
                     disabled={
                       busy ||
-                      !leaderId ||
-                      leaderId === editingPanel.leaderId ||
-                      !editingPanel.judgeIds.includes(leaderId)
+                      !panelName.trim() ||
+                      (memberIds.length > 0 && !memberIds.includes(leaderId))
                     }
                     onPress={() =>
-                      void run(() =>
-                        api.command(`/judging/panels/${panelId}/leader`, {
-                          expectedVersion: editingPanel.version,
-                          leaderId,
-                        }),
-                      )
+                      void run(async () => {
+                        await api.command('/judging/panels', {
+                          name: panelName,
+                          ...(leaderId ? { leaderId } : {}),
+                          judgeIds: memberIds,
+                        })
+                        choosePanel()
+                        setPanelMode('dashboard')
+                      })
                     }
                   />
+                )}
+              </View>
+              {editingPanel && (
+                <>
+                  <Body>
+                    Replace the leader before removing or transferring that judge.
+                  </Body>
+                  <Body>Transfer a judge</Body>
+                  <View style={layout.row}>
+                    {judges
+                      .filter(
+                        (j) => j.panelId === panelId && j.id !== editingPanel.leaderId,
+                      )
+                      .map((j) => (
+                        <Button
+                          key={j.id}
+                          label={j.name ?? j.email}
+                          variant={transferJudge === j.id ? 'primary' : 'secondary'}
+                          onPress={() => {
+                            setTransferJudge(j.id)
+                            setTargetId('')
+                          }}
+                        />
+                      ))}
+                  </View>
+                  <View style={layout.row}>
+                    {panels
+                      .filter((p) => p.id !== panelId)
+                      .map((p) => {
+                        const picked = judges.find((j) => j.id === transferJudge)
+                        const hits = picked
+                          ? judgeConflictsWithPanel(picked, p.id, teams)
+                          : []
+                        return (
+                          <React.Fragment key={p.id}>
+                            <Button
+                              label={`To ${p.name}`}
+                              variant={targetId === p.id ? 'primary' : 'secondary'}
+                              disabled={hits.length > 0}
+                              onPress={() => setTargetId(p.id)}
+                            />
+                            {hits.length > 0 && (
+                              <Badge
+                                label={`Conflict: ${hits.join(', ')}`}
+                                tone="danger"
+                              />
+                            )}
+                          </React.Fragment>
+                        )
+                      })}
+                  </View>
                   <Button
-                    label="Delete empty panel"
-                    variant="danger"
-                    disabled={busy || teams.some((t) => t.panelId === panelId)}
+                    label="Transfer selected judge"
+                    disabled={busy || !transferJudge || !targetId}
                     onPress={() =>
-                      setConfirmation({
-                        title: 'Delete empty panel?',
-                        description:
-                          'Only a panel with no teams or observations can be deleted.',
-                        work: async () => {
-                          await api.command(
-                            `/judging/panels/${panelId}`,
-                            { expectedVersion: editingPanel.version },
-                            { method: 'DELETE' },
-                          )
-                          choosePanel()
-                        },
+                      void run(async () => {
+                        const judge = judges.find((j) => j.id === transferJudge)
+                        const target = panels.find((p) => p.id === targetId)
+                        if (judge && target)
+                          await api.command(`/judging/judges/${judge.id}/transfer`, {
+                            sourcePanelId: editingPanel.id,
+                            targetPanelId: target.id,
+                            sourceVersion: editingPanel.version,
+                            targetVersion: target.version,
+                            expectedVersion: judge.version,
+                          })
+                        setTransferJudge('')
                       })
                     }
                   />
                 </>
-              ) : (
-                <Button
-                  label="Create panel"
-                  disabled={
-                    busy ||
-                    !panelName.trim() ||
-                    !leaderId ||
-                    !memberIds.includes(leaderId)
-                  }
-                  onPress={() =>
-                    void run(async () => {
-                      await api.command('/judging/panels', {
-                        name: panelName,
-                        leaderId,
-                        judgeIds: memberIds,
-                      })
-                      choosePanel()
-                    })
-                  }
-                />
               )}
-            </View>
-            {editingPanel && (
-              <>
-                <Body>
-                  Replace the leader before removing or transferring that judge.
-                </Body>
-                <Body>Transfer a judge</Body>
-                <View style={layout.row}>
-                  {judges
-                    .filter(
-                      (j) => j.panelId === panelId && j.id !== editingPanel.leaderId,
-                    )
-                    .map((j) => (
-                      <Button
-                        key={j.id}
-                        label={j.name ?? j.email}
-                        variant={transferJudge === j.id ? 'primary' : 'secondary'}
-                        onPress={() => setTransferJudge(j.id)}
-                      />
-                    ))}
-                </View>
-                <View style={layout.row}>
-                  {panels
-                    .filter((p) => p.id !== panelId)
-                    .map((p) => (
-                      <Button
-                        key={p.id}
-                        label={`To ${p.name}`}
-                        variant={targetId === p.id ? 'primary' : 'secondary'}
-                        onPress={() => setTargetId(p.id)}
-                      />
-                    ))}
-                </View>
-                <Button
-                  label="Transfer selected judge"
-                  disabled={busy || !transferJudge || !targetId}
-                  onPress={() =>
-                    void run(async () => {
-                      const judge = judges.find((j) => j.id === transferJudge)
-                      const target = panels.find((p) => p.id === targetId)
-                      if (judge && target)
-                        await api.command(`/judging/judges/${judge.id}/transfer`, {
-                          sourcePanelId: editingPanel.id,
-                          targetPanelId: target.id,
-                          sourceVersion: editingPanel.version,
-                          targetVersion: target.version,
-                          expectedVersion: judge.version,
+            </Card>
+          )}
+          {panelMode === 'manage' && editingPanel && (
+            <Card title={`${editingPanel.name} teams`}>
+              <Body>
+                Leader:{' '}
+                {editingPanel.leaderId ? judgeName(editingPanel.leaderId) : 'Not set'} ·
+                Countries:{' '}
+                {panelCountries(editingPanel.id, teams).join(', ') || 'none yet'}
+              </Body>
+              {teams
+                .filter((t) => t.panelId === editingPanel.id)
+                .map((t) => (
+                  <View key={t.id} style={layout.row}>
+                    <Body>
+                      {t.team.officialId} · {t.team.name} ({t.team.country})
+                    </Body>
+                    <Badge label={t.evaluationStatus} />
+                    <Button
+                      label={`Review ${t.team.name}`}
+                      variant="secondary"
+                      onPress={() =>
+                        navigate(() => {
+                          setTab('teams')
+                          setSelected(t.teamId)
                         })
-                      setTransferJudge('')
-                    })
-                  }
-                />
-              </>
-            )}
-          </Card>
+                      }
+                    />
+                  </View>
+                ))}
+              {!teams.some((t) => t.panelId === editingPanel.id) && (
+                <Notice text="No teams in this panel yet." />
+              )}
+            </Card>
+          )}
         </>
+      )}
+      {tab === 'judges' && advisor && cycle && (
+        <JudgesSheet
+          judges={judges}
+          panels={panels}
+          teams={teams}
+          busy={busy}
+          onSave={(judge, countries) =>
+            void run(() =>
+              api.command(
+                `/judging/judges/${judge.id}/conflict`,
+                { expectedVersion: judge.conflictVersion, countries },
+                { method: 'PUT' },
+              ),
+            )
+          }
+        />
       )}
       {tab === 'closure' && advisor && (
         <>

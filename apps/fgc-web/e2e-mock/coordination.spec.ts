@@ -16,7 +16,9 @@ test('a judge advisor creates a panel with a leader from judges who have none', 
   await page.getByRole('button', { name: 'Select Max Multi', exact: true }).click()
   await page.getByRole('button', { name: 'Make leader: Max Multi' }).click()
   await page.getByRole('button', { name: 'Create panel', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Panel C', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Open Panel C', exact: true }),
+  ).toBeVisible()
 })
 
 test('an advisor withdraws a team with a reason, then reactivates it', async ({
