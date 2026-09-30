@@ -47,15 +47,18 @@ test('admin plus Judging roles never reach Judging', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Open judging' })).toHaveCount(0)
 })
 
-test('the official information link is shown when configured', async ({ page }) => {
+test('Useful resources opens a dropdown of links without leaving the app', async ({
+  page,
+}) => {
   await signIn(page, 'film@fgc.test', 'Fran Filmmaker')
-  await expect(
-    page.getByRole('button', { name: 'Official information' }).first(),
-  ).toBeVisible()
   const nav = page
     .getByRole('navigation', { name: 'Workspaces' })
-    .getByRole('button', { name: 'Official information' })
+    .getByRole('button', { name: 'Useful resources' })
   await expect(nav).toBeVisible()
+  await nav.click()
+  await expect(page.getByRole('link', { name: 'Event information' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Live streams' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Results' })).toBeVisible()
 
   await page
     .context()
@@ -63,8 +66,8 @@ test('the official information link is shown when configured', async ({ page }) 
       route.fulfill({ contentType: 'text/html', body: '<title>Event</title>' }),
     )
   const popup = page.waitForEvent('popup')
-  await nav.click()
-  expect((await popup).url()).toBe('https://first.global/event/')
+  await page.getByRole('link', { name: 'Live streams' }).click()
+  expect((await popup).url()).toBe('https://first.global/live/')
   await expect(page.getByText('Welcome, Fran Filmmaker')).toBeVisible()
 })
 

@@ -33,7 +33,6 @@ import {
   ToastProvider,
   layout,
   MockAccounts,
-  openOfficialInformation,
   type NavItem,
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
@@ -214,9 +213,10 @@ function Shell() {
     ...(caps.schedule
       ? [
           {
-            id: 'official-information',
+            id: 'useful-resources',
             label: t('navSchedule'),
             icon: 'calendar',
+            resources: true,
           } as const,
         ]
       : []),
@@ -311,7 +311,7 @@ function Shell() {
                     title={t('officialSchedule')}
                     hint={t('moduleHintOfficial')}
                     icon="calendar"
-                    onPress={openOfficialInformation}
+                    resources
                   />
                 )}
               </View>
@@ -341,11 +341,7 @@ function Shell() {
           <BottomNav
             items={navItems}
             active={activeNav}
-            onSelect={(id) =>
-              id === 'official-information'
-                ? openOfficialInformation()
-                : navigate(id as Route)
-            }
+            onSelect={(id) => navigate(id as Route)}
           />
         </>
       )}
