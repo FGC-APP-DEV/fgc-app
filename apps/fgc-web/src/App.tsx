@@ -41,6 +41,7 @@ type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager'
 const mockInfoUrl = process.env.FGC_MOCK ? '/__mock/info' : undefined
 function Login() {
   const auth = useAuth()
+  const { t } = useI18n()
   const [identifier, setIdentifier] = useState('')
   const [problem, setProblem] = useState('')
   const input = classifyLoginInput(identifier)
@@ -53,7 +54,7 @@ function Login() {
       await work()
     } catch (e) {
       // Operational errors come from the auth context; unmatched credentials get one generic message.
-      setProblem(loginFailureMessage(e) ?? '')
+      setProblem(loginFailureMessage(e) ? t('loginNotRegistered') : '')
     } finally {
       setBusy(false)
     }
@@ -65,20 +66,17 @@ function Login() {
     })
   return (
     <LoginShell>
-      <LoginCard
-        title="Welcome to FGC-Ops"
-        subtitle="Sign in to continue to competition operations."
-      >
+      <LoginCard title={t('loginWelcome')} subtitle={t('loginSubtitle')}>
         {(problem || auth.error) && <Notice text={problem || auth.error} error />}
         {auth.hasAuthLink && (
           <Button
-            label="Confirm email sign-in"
+            label={t('loginConfirmLink')}
             disabled={busy}
             onPress={() => void run(auth.confirmLink)}
           />
         )}
         <Field
-          label="Email or mentor access code"
+          label={t('loginIdentifier')}
           value={identifier}
           onChangeText={(value) => {
             setIdentifier(value)
@@ -91,15 +89,15 @@ function Login() {
           autoComplete="email"
         />
         {input.kind === 'email' && !input.valid && (
-          <Notice text="Enter a valid email address." error />
+          <Notice text={t('loginInvalidEmail')} error />
         )}
         <Button
           label={
             busy
-              ? 'Please wait…'
+              ? t('loginWait')
               : input.kind === 'code'
-                ? 'Open team messages'
-                : 'Send sign-in email'
+                ? t('loginOpenMessages')
+                : t('loginSendEmail')
           }
           disabled={
             busy ||
@@ -118,15 +116,15 @@ function Login() {
         />
         {sent && input.kind === 'email' && (
           <>
-            <Notice text="Check your email. Enter the code on this device or confirm the sign-in link. If no email arrives, this address may not be registered: contact an administrator." />
+            <Notice text={t('loginCheckEmail')} />
             <Field
-              label="Email code"
+              label={t('loginCode')}
               value={code}
               onChangeText={setCode}
               keyboardType="number-pad"
             />
             <Button
-              label="Verify code"
+              label={t('loginVerify')}
               disabled={busy || !code}
               onPress={() => void run(() => auth.verify(code))}
             />
@@ -344,9 +342,9 @@ function Shell() {
       )}
       {pending && (
         <Confirm
-          title="Unsaved observations"
-          description="Your changes have not been saved. Continue editing or discard them before leaving."
-          confirmLabel="Discard changes"
+          title={t('unsavedTitle')}
+          description={t('unsavedBody')}
+          confirmLabel={t('discardChanges')}
           onCancel={() => setPending(null)}
           onConfirm={() => {
             pending()

@@ -2,7 +2,17 @@ import React, { useState } from 'react'
 import { View } from 'react-native'
 import { useAuth } from '@fgc/auth'
 import type { ImportPreview } from '@fgc/contracts'
-import { Body, Button, Card, Field, Heading, Notice, Screen, layout } from '@fgc/ui'
+import {
+  Body,
+  Button,
+  Card,
+  Field,
+  Heading,
+  Notice,
+  Screen,
+  layout,
+  useI18n,
+} from '@fgc/ui'
 
 export interface ImportFile {
   fileName: string
@@ -17,6 +27,7 @@ export function ImportScreen({
   onBack: () => void
 }) {
   const { api } = useAuth()
+  const { t, locale } = useI18n()
   const [file, setFile] = useState<ImportFile | null>(null)
   const [mapping, setMapping] = useState({
     officialId: 'id',
@@ -52,8 +63,7 @@ export function ImportScreen({
       const countries: Record<string, string> = {}
       for (const line of countryMap.split('\n').filter((l) => l.trim())) {
         const [name, code] = line.split('=')
-        if (!name || !code)
-          throw new Error('Use Country name=ISO code, one mapping per line.')
+        if (!name || !code) throw new Error(t('importMappingError'))
         countries[name.trim()] = code.trim().toUpperCase()
       }
       const data = await api.command<ImportPreview>('/imports/preview', {
@@ -83,8 +93,12 @@ export function ImportScreen({
       >(`/imports/${preview.id}/commit`, { expectedVersion: preview.version })
       setResult(
         [
-          ...data.results.map((r) => `Row ${r.row}: ${r.status}`),
-          ...data.errors.map((r) => `Row ${r.row}: ${r.message}`),
+          ...data.results.map((r) =>
+            t('importRowResult', { row: r.row, status: r.status }),
+          ),
+          ...data.errors.map((r) =>
+            t('importRowResult', { row: r.row, status: r.message }),
+          ),
         ].join('\n'),
       )
       setPreview(data)
@@ -96,16 +110,14 @@ export function ImportScreen({
   }
   return (
     <Screen>
-      <Button label="Back to administration" variant="secondary" onPress={onBack} />
-      <Heading>Import teams</Heading>
-      <Body>
-        Upload, map, review, then confirm. Existing identifiers are never overwritten.
-      </Body>
-      <Notice text="XLSX, UTF-8 CSV/TXT or flat JSON arrays. Maximum 5 MiB, 5,000 records, 50 columns and 2,000 characters per field. Official identifier, name and country are provisional fields pending the official sample." />
+      <Button label={t('importBack')} variant="secondary" onPress={onBack} />
+      <Heading>{t('importTitle')}</Heading>
+      <Body>{t('importIntro')}</Body>
+      <Notice text={t('importFormats')} />
       {error && <Notice text={error} error />}
-      <Card title="Choose and map your file">
+      <Card title={t('importChooseTitle')}>
         <Button
-          label={file ? 'Choose another file' : 'Choose file'}
+          label={file ? t('importChooseAnother') : t('importChooseFile')}
           disabled={busy}
           onPress={() => void choose()}
         />
@@ -113,7 +125,7 @@ export function ImportScreen({
         {Object.entries(mapping).map(([field, value]) => (
           <Field
             key={field}
-            label={`Column for ${field}`}
+            label={t('importColumnFor', { field })}
             value={value}
             onChangeText={(text) => {
               setMapping({ ...mapping, [field]: text })
@@ -125,7 +137,7 @@ export function ImportScreen({
           {([',', ';', '\t'] as const).map((value) => (
             <Button
               key={value}
-              label={value === '\t' ? 'Tab separated' : `Delimiter ${value}`}
+              label={value === '\t' ? t('importTab') : t('importDelimiter', { value })}
               variant={value === delimiter ? 'primary' : 'secondary'}
               onPress={() => {
                 setDelimiter(value)
@@ -135,7 +147,7 @@ export function ImportScreen({
           ))}
         </View>
         <Field
-          label="XLSX worksheet name (required when multiple sheets)"
+          label={t('importSheet')}
           value={sheet}
           onChangeText={(v) => {
             setSheet(v)
@@ -143,7 +155,7 @@ export function ImportScreen({
           }}
         />
         <Field
-          label="Country mappings (example: Brazil=BR)"
+          label={t('importCountryMap')}
           multiline
           value={countryMap}
           onChangeText={(v) => {
@@ -152,17 +164,19 @@ export function ImportScreen({
           }}
         />
         <Button
-          label={busy ? 'Processing…' : 'Review preview'}
+          label={busy ? t('importProcessing') : t('importReview')}
           disabled={busy || !file}
           onPress={() => void inspect()}
         />
       </Card>
       {preview && (
-        <Card title="Preview — nothing is saved until you confirm">
+        <Card title={t('importPreviewTitle')}>
           <Body>
-            {preview.rows.filter((row) => row.status === 'ready').length} ready of{' '}
-            {preview.rows.length} rows. Preview expires{' '}
-            {new Date(preview.expiresAt).toLocaleTimeString()}.
+            {t('importPreviewSummary', {
+              ready: preview.rows.filter((row) => row.status === 'ready').length,
+              total: preview.rows.length,
+              time: new Date(preview.expiresAt).toLocaleTimeString(locale),
+            })}
           </Body>
           {preview.rows.map((row) => (
             <View key={row.row} style={layout.stack}>
@@ -178,14 +192,14 @@ export function ImportScreen({
             </View>
           ))}
           <Button
-            label="Confirm and import valid rows"
+            label={t('importConfirm')}
             disabled={busy || !preview.rows.some((row) => row.status === 'ready')}
             onPress={() => void commit()}
           />
         </Card>
       )}
       {result && (
-        <Card title="Import results">
+        <Card title={t('importResults')}>
           <Body>{result}</Body>
         </Card>
       )}
