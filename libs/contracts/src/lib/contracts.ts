@@ -12,15 +12,20 @@ export const profileInput = versionInput.extend({
 export const panelInput = z
   .object({
     name: z.string().trim().min(1).max(80),
-    leaderId: uuid,
-    judgeIds: z.array(uuid).min(1).max(100),
+    // A panel can be created as an empty shell: teams first, judges and leader later.
+    leaderId: uuid.optional(),
+    judgeIds: z.array(uuid).max(100).default([]),
   })
   .strict()
   .refine(
     (v) =>
-      v.judgeIds.includes(v.leaderId) && new Set(v.judgeIds).size === v.judgeIds.length,
+      new Set(v.judgeIds).size === v.judgeIds.length &&
+      (v.leaderId ? v.judgeIds.includes(v.leaderId) : true),
     'Leader must belong to unique panel members',
   )
+export const judgeConflictInput = versionInput.extend({
+  countries: z.array(z.string().trim().min(2).max(60)).max(50),
+})
 export const leaderInput = versionInput.extend({ leaderId: uuid })
 export const membersInput = versionInput.extend({ judgeIds: z.array(uuid).max(100) })
 export const assignTeamInput = versionInput.extend({ teamId: uuid })
@@ -221,7 +226,7 @@ export interface Team {
 export interface Panel {
   id: string
   name: string
-  leaderId: string
+  leaderId: string | null
   judgeIds: string[]
   version: number
 }

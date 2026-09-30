@@ -16,7 +16,9 @@ test('a judge advisor creates a panel with a leader from judges who have none', 
   await page.getByRole('button', { name: 'Select Max Multi', exact: true }).click()
   await page.getByRole('button', { name: 'Make leader: Max Multi' }).click()
   await page.getByRole('button', { name: 'Create panel', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Panel C', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Open Panel C', exact: true }),
+  ).toBeVisible()
 })
 
 test('an advisor withdraws a team with a reason, then reactivates it', async ({
@@ -55,7 +57,8 @@ test('a scheduled pager stays hidden from the mentor until it is due', async ({
   const admin = await (await browser.newContext()).newPage()
   await signIn(admin, 'admin@fgc.test')
   await admin.getByRole('button', { name: 'Open administration' }).click()
-  await admin.getByRole('textbox', { name: 'Find team for mentor code' }).fill('Spain')
+  await admin.getByRole('button', { name: 'Open Mentor access codes' }).click()
+  await admin.getByRole('textbox', { name: 'Filter by team name' }).fill('Spain')
   await admin.getByRole('button', { name: 'Issue code for Team Spain' }).click()
   const code = /Team Spain: (\S+)/.exec(
     await admin.getByText(/Copy this code now/).innerText(),
