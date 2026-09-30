@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View } from 'react-native'
+import { Text, View } from 'react-native'
 import { WebView } from 'react-native-webview'
 import {
   Button,
@@ -15,7 +15,8 @@ import {
 import { useI18n } from './i18n'
 import { EVENT_LOAD_TIMEOUT_MS } from './event-frame'
 
-/** Official event page in a WebView (native). Load, HTTP and timeout failures show an error. */
+/** Official event page in a WebView (native). Load, HTTP and timeout failures show an error;
+ * the footer with "Reload" and "Open in browser" is always available, as on web. */
 export function EventFrame() {
   const { t } = useI18n()
   const [attempt, setAttempt] = useState(0)
@@ -26,7 +27,7 @@ export function EventFrame() {
     const timer = setTimeout(() => setFailed(true), EVENT_LOAD_TIMEOUT_MS)
     return () => clearTimeout(timer)
   }, [attempt, loaded, failed])
-  const retry = () => {
+  const reload = () => {
     setLoaded(false)
     setFailed(false)
     setAttempt((n) => n + 1)
@@ -37,12 +38,7 @@ export function EventFrame() {
         <View style={layout.stack}>
           <Notice error text={t('eventLoadError')} />
           <View style={layout.row}>
-            <Button label={t('tryAgain')} onPress={retry} />
-            <Button
-              label={t('openInBrowser')}
-              variant="secondary"
-              onPress={openOfficialInformation}
-            />
+            <Button label={t('tryAgain')} onPress={reload} />
           </View>
         </View>
       ) : (
@@ -72,6 +68,17 @@ export function EventFrame() {
           />
         </View>
       )}
+      <View style={layout.stack}>
+        <Text style={layout.muted}>{t('eventNotLoadingHint')}</Text>
+        <View style={layout.row}>
+          <Button label={t('reload')} variant="secondary" onPress={reload} />
+          <Button
+            label={t('openInBrowser')}
+            variant="secondary"
+            onPress={openOfficialInformation}
+          />
+        </View>
+      </View>
     </Card>
   )
 }
