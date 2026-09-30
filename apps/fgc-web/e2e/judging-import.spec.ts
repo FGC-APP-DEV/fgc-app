@@ -169,7 +169,9 @@ async function fixture(
     return fail(404, 'NOT_FOUND', `Unexpected fixture request: ${path}`)
   })
   await page.goto('/')
-  await page.getByRole('textbox', { name: 'Email address' }).fill('test@example.org')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('test@example.org')
   await page.getByRole('button', { name: 'Send sign-in email' }).click()
   await page.getByRole('textbox', { name: 'Email code' }).fill('123456')
   await page.getByRole('button', { name: 'Verify code' }).click()
@@ -255,7 +257,7 @@ test('import previews invalid rows and commits only ready rows after explicit co
 }) => {
   const writes = await fixture(page, 'admin')
   await page.getByRole('button', { name: 'Open administration' }).click()
-  await page.getByRole('button', { name: 'Import teams', exact: true }).click()
+  await page.getByRole('button', { name: 'Open Import teams', exact: true }).click()
   const chooser = page.waitForEvent('filechooser')
   await page.getByRole('button', { name: 'Choose file', exact: true }).click()
   await (

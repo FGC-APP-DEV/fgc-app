@@ -4,7 +4,7 @@ import { signIn } from './helpers'
 async function openImport(page: Page, csv: string) {
   await signIn(page, 'admin@fgc.test')
   await page.getByRole('button', { name: 'Open administration' }).click()
-  await page.getByRole('button', { name: 'Import teams', exact: true }).click()
+  await page.getByRole('button', { name: 'Open Import teams', exact: true }).click()
   const chooser = page.waitForEvent('filechooser')
   await page.getByRole('button', { name: 'Choose file', exact: true }).click()
   await (
@@ -40,7 +40,8 @@ test('re-importing an existing team never overwrites it', async ({ page }) => {
     .click()
   await expect(page.getByText(/Row 1: existing/)).toBeVisible()
   await page.getByRole('button', { name: 'Back to administration' }).click()
-  await page.getByRole('textbox', { name: 'Find team for mentor code' }).fill('Brazil')
+  await page.getByRole('button', { name: 'Open Mentor access codes' }).click()
+  await page.getByRole('textbox', { name: 'Filter by team name' }).fill('Brazil')
   await expect(page.getByText('Team Brazil', { exact: true })).toBeVisible()
   await expect(page.getByText('Renamed Brazil')).toHaveCount(0)
 })
