@@ -8,7 +8,14 @@ import { ROLES, filterUsers, paginate } from './lib/admin'
 
 type Filters = { name: string; email: string; role: Role | '' }
 const NO_FILTERS: Filters = { name: '', email: '', role: '' }
-const cell = { fontFamily: 'Inter', fontSize: 14, color: tokens.text } as const
+// `color` is a getter so it follows the active theme instead of the palette at import time.
+const cell = {
+  fontFamily: 'Inter',
+  fontSize: 14,
+  get color() {
+    return tokens.text
+  },
+} as const
 
 export function UsersPage() {
   const { api } = useAuth()
