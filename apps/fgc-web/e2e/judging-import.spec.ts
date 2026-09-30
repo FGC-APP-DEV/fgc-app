@@ -169,7 +169,9 @@ async function fixture(
     return fail(404, 'NOT_FOUND', `Unexpected fixture request: ${path}`)
   })
   await page.goto('/')
-  await page.getByRole('textbox', { name: 'Email address' }).fill('test@example.org')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('test@example.org')
   await page.getByRole('button', { name: 'Send sign-in email' }).click()
   await page.getByRole('textbox', { name: 'Email code' }).fill('123456')
   await page.getByRole('button', { name: 'Verify code' }).click()

@@ -32,7 +32,9 @@ test('an email that was never approved cannot open the app', async ({ page }) =>
 
 test('a wrong email code is rejected', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('textbox', { name: 'Email address' }).fill('film@fgc.test')
+  await page
+    .getByRole('textbox', { name: 'Email or mentor access code' })
+    .fill('film@fgc.test')
   await page.getByRole('button', { name: 'Send sign-in email' }).click()
   await page.getByRole('textbox', { name: 'Email code' }).fill('000000')
   await page.getByRole('button', { name: 'Verify code' }).click()
