@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native'
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native'
 import { Icon } from './icons'
 import { useI18n } from './i18n'
 import { Body, Button, Card, elevation, layout, radius, tokens } from './operations'
@@ -16,12 +23,18 @@ export function paginate<T>(items: readonly T[], page: number, size = PAGE_SIZE)
   }
 }
 
+// `color` is a getter so it follows the active theme instead of the palette at import time.
 const cellText = {
   fontFamily: 'Inter',
   fontSize: 14,
   lineHeight: 20,
-  color: tokens.text,
+  get color() {
+    return tokens.text
+  },
 } as const
+
+/** Below this window width the "three dots" column is dropped and the whole row is the button. */
+export const COMPACT_TABLE_WIDTH = 640
 
 export interface Column<T> {
   key: string
@@ -65,66 +78,85 @@ export function DataTable<T>({
   useEffect(() => setPage(1), [resetKey])
   const view = paginate(rows, page, pageSize)
   const { t } = useI18n()
+  const compact = useWindowDimensions().width < COMPACT_TABLE_WIDTH
+  const actionLabel = (row: T) => rowActionLabel?.(row) ?? t('rowActions')
   return (
     <View style={{ gap: 8 }}>
-      <ScrollView
-        horizontal
-        scrollEnabled={false}
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
-        <View accessibilityRole="none" style={{ flex: 1 }}>
-          <View
-            style={{
+      <View accessibilityRole="none" style={{ width: '100%' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingVertical: 8,
+            borderBottomWidth: 2,
+            borderColor: tokens.border,
+          }}
+        >
+          {columns.map((column) => (
+            <Text
+              key={column.key}
+              style={[
+                cellText,
+                {
+                  flex: column.flex ?? 1,
+                  minWidth: 0,
+                  fontWeight: '700',
+                  paddingHorizontal: 4,
+                },
+              ]}
+            >
+              {column.title}
+            </Text>
+          ))}
+          {onRowAction && !compact && <View style={{ width: 44 }} />}
+        </View>
+        {!loading &&
+          view.items.map((row) => {
+            const cells = columns.map((column) => {
+              const content = column.render(row)
+              return (
+                <View
+                  key={column.key}
+                  style={{ flex: column.flex ?? 1, minWidth: 0, paddingHorizontal: 4 }}
+                >
+                  {typeof content === 'string' ? (
+                    <Text style={cellText}>{content}</Text>
+                  ) : (
+                    content
+                  )}
+                </View>
+              )
+            })
+            const rowStyle = {
               flexDirection: 'row',
-              paddingVertical: 8,
-              borderBottomWidth: 2,
+              alignItems: 'center',
+              minHeight: 48,
+              paddingVertical: 4,
+              borderBottomWidth: 1,
               borderColor: tokens.border,
-            }}
-          >
-            {columns.map((column) => (
-              <Text
-                key={column.key}
-                style={[
-                  cellText,
-                  { flex: column.flex ?? 1, fontWeight: '700', paddingHorizontal: 4 },
-                ]}
-              >
-                {column.title}
-              </Text>
-            ))}
-            {onRowAction && <View style={{ width: 44 }} />}
-          </View>
-          {!loading &&
-            view.items.map((row) => (
-              <View
-                key={rowKey(row)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  minHeight: 48,
-                  borderBottomWidth: 1,
-                  borderColor: tokens.border,
-                }}
-              >
-                {columns.map((column) => {
-                  const content = column.render(row)
-                  return (
-                    <View
-                      key={column.key}
-                      style={{ flex: column.flex ?? 1, paddingHorizontal: 4 }}
-                    >
-                      {typeof content === 'string' ? (
-                        <Text style={cellText}>{content}</Text>
-                      ) : (
-                        content
-                      )}
-                    </View>
-                  )
-                })}
+            } as const
+            // On a narrow screen the row itself opens the modal; otherwise the dots button does.
+            if (onRowAction && compact)
+              return (
+                <Pressable
+                  key={rowKey(row)}
+                  accessibilityRole="button"
+                  accessibilityLabel={actionLabel(row)}
+                  onPress={() => onRowAction(row)}
+                  style={({ pressed }) => [
+                    rowStyle,
+                    { backgroundColor: pressed ? tokens.surfaceLow : 'transparent' },
+                  ]}
+                >
+                  {cells}
+                </Pressable>
+              )
+            return (
+              <View key={rowKey(row)} style={rowStyle}>
+                {cells}
                 {onRowAction && (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={rowActionLabel?.(row) ?? t('rowActions')}
+                    accessibilityLabel={actionLabel(row)}
                     onPress={() => onRowAction(row)}
                     style={({ pressed }) => ({
                       width: 44,
@@ -139,9 +171,9 @@ export function DataTable<T>({
                   </Pressable>
                 )}
               </View>
-            ))}
-        </View>
-      </ScrollView>
+            )
+          })}
+      </View>
       {!loading && rows.length === 0 && <Body>{empty}</Body>}
       <Pagination
         page={view.page}
