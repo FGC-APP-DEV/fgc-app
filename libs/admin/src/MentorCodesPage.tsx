@@ -12,6 +12,7 @@ import {
   Field,
   Notice,
   layout,
+  useI18n,
   useToast,
   useToastOn,
   type Column,
@@ -31,6 +32,7 @@ export function MentorCodesPage() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const toast = useToast()
+  const { t } = useI18n()
   useToastOn(error, 'error')
 
   const load = async () => {
@@ -60,7 +62,7 @@ export function MentorCodesPage() {
         expectedVersion: codes.find((c) => c.teamId === team.id)?.version ?? 0,
       })
       setSecret(`${team.name}: ${data.code}`)
-      toast.success(`Access code issued for ${team.name}`)
+      toast.success(t('codesIssued', { team: team.name }))
       await load()
     } catch (e) {
       setError((e as Error).message)
@@ -76,41 +78,36 @@ export function MentorCodesPage() {
   )
   const codeOf = (team: Team) => codes.find((c) => c.teamId === team.id)
   const columns: Column<Team>[] = [
-    { key: 'team', title: 'Team', flex: 3, render: (t) => t.name },
-    { key: 'country', title: 'Country', render: (t) => t.countryCode },
+    { key: 'team', title: t('codesTeam'), flex: 3, render: (team) => team.name },
+    { key: 'country', title: t('codesCountry'), render: (team) => team.countryCode },
     {
       key: 'code',
-      title: 'Code',
+      title: t('codesCode'),
       flex: 2,
-      render: (t) => (codeOf(t) ? 'Active' : 'Not issued'),
+      render: (team) => (codeOf(team) ? t('codesActive') : t('codesNotIssued')),
     },
   ]
   const has = acting ? Boolean(codeOf(acting)) : false
 
   return (
     <View style={layout.stack}>
-      <Card title="Mentor access codes">
-        <Body>
-          Codes and sessions last seven days. Regenerating revokes the previous code, all
-          linked sessions and push devices.
-        </Body>
-        {Boolean(secret) && (
-          <Notice text={`Copy this code now. It is shown only once. ${secret}`} />
-        )}
+      <Card title={t('adminCodes')}>
+        <Body>{t('codesIntro')}</Body>
+        {Boolean(secret) && <Notice text={t('codesCopy', { secret })} />}
         <Button
-          label="Refresh access codes"
+          label={t('codesRefresh')}
           variant="secondary"
           icon="refresh"
           onPress={() => void load()}
         />
         <Field
-          label="Filter by team name"
+          label={t('codesFilterName')}
           icon="search"
           value={name}
           onChangeText={setName}
         />
         <Field
-          label="Filter by country (e.g. BR, BRA or Brazil)"
+          label={t('codesFilterCountry')}
           icon="search"
           autoCapitalize="characters"
           value={country}
@@ -120,19 +117,19 @@ export function MentorCodesPage() {
           columns={columns}
           rows={filtered}
           rowKey={(t) => t.id}
-          noun="teams"
+          noun={t('teamsNoun')}
           loading={teams === null}
-          empty="No teams match these filters."
+          empty={t('codesNoMatch')}
           resetKey={`${name}|${country}`}
-          rowActionLabel={(t) => `Actions for ${t.name}`}
+          rowActionLabel={(team) => t('actionsFor', { name: team.name })}
           onRowAction={setActing}
         />
       </Card>
       {acting && (
         <ActionModal
-          title={`Mentor code for ${acting.name}`}
+          title={t('codesFor', { team: acting.name })}
           onClose={() => setActing(null)}
-          confirmLabel={has ? 'Regenerate code' : 'Issue code'}
+          confirmLabel={has ? t('codesRegenerate') : t('codesIssue')}
           confirmDisabled={busy}
           onConfirm={() => {
             const team = acting
@@ -142,8 +139,8 @@ export function MentorCodesPage() {
         >
           <Body>
             {has
-              ? `Previous sessions for ${acting.name} will stop working. The new code is shown once.`
-              : `Issue a mentor code for ${acting.name}. The code is shown once.`}
+              ? t('codesRegenerateBody', { team: acting.name })
+              : t('codesIssueBody', { team: acting.name })}
           </Body>
         </ActionModal>
       )}

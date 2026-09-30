@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native'
 import { Icon } from './icons'
+import { useI18n } from './i18n'
 import { Body, Button, Card, elevation, layout, radius, tokens } from './operations'
 
 export const PAGE_SIZE = 15
@@ -63,6 +64,7 @@ export function DataTable<T>({
   const [page, setPage] = useState(1)
   useEffect(() => setPage(1), [resetKey])
   const view = paginate(rows, page, pageSize)
+  const { t } = useI18n()
   return (
     <View style={{ gap: 8 }}>
       <ScrollView
@@ -122,7 +124,7 @@ export function DataTable<T>({
                 {onRowAction && (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={rowActionLabel?.(row) ?? 'Actions'}
+                    accessibilityLabel={rowActionLabel?.(row) ?? t('rowActions')}
                     onPress={() => onRowAction(row)}
                     style={({ pressed }) => ({
                       width: 44,
@@ -165,6 +167,7 @@ export function Pagination({
   noun: string
   onPage: (page: number) => void
 }) {
+  const { t } = useI18n()
   const arrow = (
     name: 'chevronLeft' | 'chevronRight',
     label: string,
@@ -194,13 +197,13 @@ export function Pagination({
   )
   return (
     <View style={[layout.row, { justifyContent: 'space-between', alignItems: 'center' }]}>
-      {arrow('chevronLeft', 'Previous page', page <= 1, page - 1)}
+      {arrow('chevronLeft', t('previousPage'), page <= 1, page - 1)}
       <Text
         style={[cellText, { color: tokens.muted, flexShrink: 1, textAlign: 'center' }]}
       >
-        Page {page} of {pages} · {total} {noun}
+        {t('pageOf', { page, pages, total, noun })}
       </Text>
-      {arrow('chevronRight', 'Next page', page >= pages, page + 1)}
+      {arrow('chevronRight', t('nextPage'), page >= pages, page + 1)}
     </View>
   )
 }
@@ -210,7 +213,7 @@ export function ActionModal({
   title,
   onClose,
   onConfirm,
-  confirmLabel = 'Confirm',
+  confirmLabel,
   confirmDisabled = false,
   confirmVariant = 'primary',
   children,
@@ -223,15 +226,19 @@ export function ActionModal({
   confirmVariant?: 'primary' | 'danger'
   children?: React.ReactNode
 }) {
+  const { t, dirStyle } = useI18n()
   return (
     <Modal transparent animationType="fade" visible onRequestClose={onClose}>
       <View
-        style={{
-          flex: 1,
-          padding: 20,
-          backgroundColor: tokens.scrim,
-          justifyContent: 'center',
-        }}
+        style={[
+          {
+            flex: 1,
+            padding: 20,
+            backgroundColor: tokens.scrim,
+            justifyContent: 'center',
+          },
+          dirStyle,
+        ]}
       >
         <View
           accessibilityViewIsModal
@@ -240,9 +247,9 @@ export function ActionModal({
           <Card title={title}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Close"
+              accessibilityLabel={t('close')}
               onPress={onClose}
-              style={{ position: 'absolute', top: 8, right: 8, padding: 8, zIndex: 1 }}
+              style={{ position: 'absolute', top: 8, end: 8, padding: 8, zIndex: 1 }}
             >
               <Icon name="x" size={20} color={tokens.primary} />
             </Pressable>
@@ -254,12 +261,12 @@ export function ActionModal({
             </ScrollView>
             <View style={layout.row}>
               <Button
-                label={confirmLabel}
+                label={confirmLabel ?? t('confirm')}
                 variant={confirmVariant}
                 disabled={confirmDisabled}
                 onPress={onConfirm}
               />
-              <Button label="Cancel" variant="secondary" onPress={onClose} />
+              <Button label={t('cancel')} variant="secondary" onPress={onClose} />
             </View>
           </Card>
         </View>
@@ -331,6 +338,7 @@ export function Select({
   onChange: (value: string) => void
 }) {
   const [open, setOpen] = useState(false)
+  const { t, dirStyle } = useI18n()
   const current = options.find((option) => option.value === value)
   return (
     <View style={{ gap: 4, flexGrow: 1, flexBasis: 160 }}>
@@ -367,14 +375,17 @@ export function Select({
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Close ${label}`}
+            accessibilityLabel={t('closeSelect', { label })}
             onPress={() => setOpen(false)}
-            style={{
-              flex: 1,
-              padding: 20,
-              justifyContent: 'center',
-              backgroundColor: tokens.backdrop,
-            }}
+            style={[
+              {
+                flex: 1,
+                padding: 20,
+                justifyContent: 'center',
+                backgroundColor: tokens.backdrop,
+              },
+              dirStyle,
+            ]}
           >
             <View
               accessibilityLabel={label}

@@ -1,11 +1,24 @@
 import React, { useState } from 'react'
 import { useAuth } from '@fgc/auth'
 import type { User } from '@fgc/contracts'
-import { Body, Button, Card, Field, Notice, useToast, useToastOn } from '@fgc/ui'
+import type { ShellMessageKey } from '@fgc/shared'
+import { Body, Button, Card, Field, Notice, useI18n, useToast, useToastOn } from '@fgc/ui'
 import { duplicateEmails, parseAccessCsv } from './lib/admin'
 
+const CSV_ERRORS: Record<string, ShellMessageKey> = {
+  'Invalid email address': 'csvInvalidEmail',
+  'Add at least one role': 'csvNoRole',
+  'Admin and judging roles cannot be combined': 'csvAdminJudge',
+}
 export function ApproveAccessPage() {
   const { api } = useAuth()
+  const { t } = useI18n()
+  // The parser reports English messages; show them in the active language.
+  const csvError = (message: string) => {
+    if (CSV_ERRORS[message]) return t(CSV_ERRORS[message])
+    const unknown = /^Unknown role: (.*)$/.exec(message)
+    return unknown ? t('csvUnknownRole', { roles: unknown[1] }) : message
+  }
   const [text, setText] = useState('')
   const [result, setResult] = useState('')
   const [error, setError] = useState('')
@@ -20,7 +33,13 @@ export function ApproveAccessPage() {
     if (!rows.length) return
     const invalid = rows.filter((row) => row.error)
     if (invalid.length) {
-      setError(invalid.map((row) => `Line ${row.line}: ${row.error}`).join('\n'))
+      setError(
+        invalid
+          .map((row) =>
+            t('approveLine', { line: row.line, error: csvError(row.error ?? '') }),
+          )
+          .join('\n'),
+      )
       return
     }
     setBusy(true)
@@ -38,17 +57,17 @@ export function ApproveAccessPage() {
           { emails: [row.email], roles: row.roles, mode: 'add', expectedVersion },
         )
         lines.push(
-          `${row.email}: ${receipt?.error ?? `Access added (${row.roles.join(', ')})`}`,
+          receipt?.error
+            ? `${row.email}: ${receipt.error}`
+            : t('approveAdded', { email: row.email, roles: row.roles.join(', ') }),
         )
         if (receipt?.error) failed.push(row.email)
       }
       const repeated = duplicateEmails(rows)
       if (repeated.length)
-        lines.push(
-          `Repeated emails (the last line of each was used): ${repeated.join(', ')}`,
-        )
+        lines.push(t('approveRepeated', { emails: repeated.join(', ') }))
       setResult(lines.join('\n'))
-      if (failed.length < byEmail.size) toast.success('Access saved')
+      if (failed.length < byEmail.size) toast.success(t('approveSaved'))
       // Keep only the rows that failed so they can be corrected and resent.
       setText(
         rows
@@ -63,7 +82,7 @@ export function ApproveAccessPage() {
     }
   }
   return (
-    <Card title="Approve staff access">
+    <Card title={t('adminApprove')}>
       <Body>
         One person per line: email, then roles separated by commas. Example:
         {'\n'}ada@example.org, admin{'\n'}sam@example.org, [filmmaker, judge]{'\n'}
@@ -71,7 +90,7 @@ export function ApproveAccessPage() {
         already has; edit or remove roles from Current users.
       </Body>
       <Field
-        label="Access list (CSV: email, roles)"
+        label={t('approveList')}
         multiline
         value={text}
         onChangeText={setText}
@@ -79,7 +98,7 @@ export function ApproveAccessPage() {
         placeholder="email@example.org, filmmaker"
       />
       <Button
-        label="Save access"
+        label={t('approveSave')}
         disabled={busy || !text.trim()}
         onPress={() => void submit()}
       />
