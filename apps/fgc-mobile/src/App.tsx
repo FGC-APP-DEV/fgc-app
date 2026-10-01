@@ -79,6 +79,9 @@ function Login() {
     <LoginShell>
       <LoginCard title={t('loginWelcome')} subtitle={t('loginSubtitle')}>
         {Boolean(problem || auth.error) && <Notice text={problem || auth.error} error />}
+        {!problem && auth.sessionRetryable && (
+          <Button label={t('tryAgain')} onPress={auth.retrySession} />
+        )}
         {auth.hasAuthLink && (
           <Button
             label={t('loginConfirmLink')}
@@ -250,6 +253,12 @@ function Shell() {
         userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
       {Boolean(error) && <Notice text={error} error />}
+      {auth.sessionRetryable && (
+        <>
+          <Notice text={auth.error} error />
+          <Button label={t('tryAgain')} onPress={auth.retrySession} />
+        </>
+      )}
       {auth.mentor ? (
         <>
           <MentorNotifications onMessage={onMessage} />
@@ -259,6 +268,7 @@ function Shell() {
         <Screen>
           <Card title={t('completeProfile')}>
             <Field label={t('fullName')} value={name} onChangeText={setName} />
+            <Notice text={t('nameCannotChange')} />
             <Button
               label={t('saveProfile')}
               disabled={!name.trim()}

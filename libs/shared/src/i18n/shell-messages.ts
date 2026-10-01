@@ -55,6 +55,7 @@ const en = {
   reload: 'Reload',
   completeProfile: 'Complete your profile',
   fullName: 'Full name',
+  nameCannotChange: 'Once saved, your name cannot be changed.',
   saveProfile: 'Save profile',
   mentor: 'Mentor',
 }
@@ -112,6 +113,7 @@ const fr: Messages = {
   reload: 'Recharger',
   completeProfile: 'Complétez votre profil',
   fullName: 'Nom complet',
+  nameCannotChange: 'Une fois enregistré, votre nom ne pourra plus être modifié.',
   saveProfile: 'Enregistrer le profil',
   mentor: 'Mentor',
 }
@@ -166,6 +168,7 @@ const es: Messages = {
   reload: 'Recargar',
   completeProfile: 'Completa tu perfil',
   fullName: 'Nombre completo',
+  nameCannotChange: 'Una vez guardado, tu nombre no se podrá cambiar.',
   saveProfile: 'Guardar perfil',
   mentor: 'Mentor',
 }
@@ -218,6 +221,7 @@ const ar: Messages = {
   reload: 'إعادة التحميل',
   completeProfile: 'أكمل ملفك الشخصي',
   fullName: 'الاسم الكامل',
+  nameCannotChange: 'بعد الحفظ، لا يمكن تغيير اسمك.',
   saveProfile: 'حفظ الملف الشخصي',
   mentor: 'مرشد',
 }
