@@ -45,6 +45,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       ...config.android,
       package: process.env.FGC_ANDROID_PACKAGE,
+      // EAS file env var (path at build time) or a local path; never commit the file.
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
       intentFilters: domain
         ? [
             {
