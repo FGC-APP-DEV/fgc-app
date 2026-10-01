@@ -253,6 +253,12 @@ function Shell() {
         userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
       {Boolean(error) && <Notice text={error} error />}
+      {auth.sessionRetryable && (
+        <>
+          <Notice text={auth.error} error />
+          <Button label={t('tryAgain')} onPress={auth.retrySession} />
+        </>
+      )}
       {auth.mentor ? (
         <>
           <MentorNotifications onMessage={onMessage} />
