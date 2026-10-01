@@ -113,9 +113,13 @@ Run from `apps/fgc-mobile`. `eas.json` has `development` (dev client) and `previ
 1. `npx eas-cli login`. Create the project with `npx eas-cli init`; because
    `app.config.ts` is dynamic, init cannot write the ID back and may end with
    `Cannot read properties of undefined (reading 'projectId')` even though the
-   project was created. Read the ID with `npx eas-cli project:info`.
-2. Create EAS env vars per environment (`eas env:create`): `FGC_EAS_PROJECT_ID`,
-   `FGC_APP_SCHEME`, and `GOOGLE_SERVICES_JSON` as a **file** variable holding the
+   project was created. Read the ID from the project page on expo.dev.
+   `app.config.ts` takes `extra.eas.projectId` only from the **local** environment, so
+   export it in the shell before every project-scoped EAS command (`eas env:create`,
+   `eas credentials`, `eas build`): `export FGC_EAS_PROJECT_ID=<id>` (PowerShell:
+   `$env:FGC_EAS_PROJECT_ID="<id>"`). Storing it only as a remote EAS variable is not enough.
+2. Create EAS env vars per environment (`eas env:create`): `FGC_EAS_PROJECT_ID`
+   (so cloud builds get it too), `FGC_APP_SCHEME`, and `GOOGLE_SERVICES_JSON` as a **file** variable holding the
    Firebase `google-services.json` (git-ignored, never commit it).
    `FGC_ANDROID_PACKAGE` is set in `eas.json` (`mobile.test.alertmvp`) and must equal
    the package in `google-services.json`.
