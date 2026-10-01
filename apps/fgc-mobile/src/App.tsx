@@ -79,6 +79,9 @@ function Login() {
     <LoginShell>
       <LoginCard title={t('loginWelcome')} subtitle={t('loginSubtitle')}>
         {Boolean(problem || auth.error) && <Notice text={problem || auth.error} error />}
+        {!problem && auth.sessionRetryable && (
+          <Button label={t('tryAgain')} onPress={auth.retrySession} />
+        )}
         {auth.hasAuthLink && (
           <Button
             label={t('loginConfirmLink')}
@@ -259,6 +262,7 @@ function Shell() {
         <Screen>
           <Card title={t('completeProfile')}>
             <Field label={t('fullName')} value={name} onChangeText={setName} />
+            <Notice text={t('nameCannotChange')} />
             <Button
               label={t('saveProfile')}
               disabled={!name.trim()}
