@@ -129,6 +129,16 @@ Run from `apps/fgc-mobile`. `eas.json` has `development` (dev client) and `previ
 5. Trigger a push manually:
    `curl -fsS -X POST -H "Authorization: Bearer $WORKER_SECRET" https://<api>/internal/tick`
 
+Mobile login in the demo uses the **email code** typed in the app (`/auth/verify`),
+not the email link. The API only accepts HTTPS `AUTH_MOBILE_CALLBACK_URL` and
+`AUTH_MOBILE_EXCHANGE_URL`, so the custom scheme (`FGC_APP_SCHEME=fgcapp`) cannot be
+the callback; those two vars only need valid HTTPS URLs for now.
+
+Pending (not done): Android App Link so the email link opens the app. Needs an owned
+HTTPS domain set in `FGC_APP_LINK_DOMAIN`, `https://<domain>/.well-known/assetlinks.json`
+with the package and the signing-certificate SHA-256 of the build, and
+`AUTH_MOBILE_CALLBACK_URL`/`AUTH_MOBILE_EXCHANGE_URL` pointing at that domain.
+
 Unit/HTTP tests use synthetic data. `fgc-web:e2e` runs two Playwright projects in
 Edge: `contract` (static server on 127.0.0.1:3000, intercepted API) and
 `fullstack` (127.0.0.1:3100: real UI, REST API and SQL on the mock stack). Neither
