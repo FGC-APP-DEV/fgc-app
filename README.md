@@ -110,11 +110,15 @@ the Expo environment. `fgc-mobile:start-go` is for compatible UI checks;
 Run from `apps/fgc-mobile`. `eas.json` has `development` (dev client) and `preview`
 (standalone APK, no Metro needed; use it for demos). Both internal-distribution APKs.
 
-1. `npx eas-cli login` and `npx eas-cli init` (links the EAS project).
+1. `npx eas-cli login`. Create the project with `npx eas-cli init`; because
+   `app.config.ts` is dynamic, init cannot write the ID back and may end with
+   `Cannot read properties of undefined (reading 'projectId')` even though the
+   project was created. Read the ID with `npx eas-cli project:info`.
 2. Create EAS env vars per environment (`eas env:create`): `FGC_EAS_PROJECT_ID`,
-   `FGC_ANDROID_PACKAGE` (must equal the package in `google-services.json`),
    `FGC_APP_SCHEME`, and `GOOGLE_SERVICES_JSON` as a **file** variable holding the
    Firebase `google-services.json` (git-ignored, never commit it).
+   `FGC_ANDROID_PACKAGE` is set in `eas.json` (`mobile.test.alertmvp`) and must equal
+   the package in `google-services.json`.
 3. `npx eas-cli credentials` -> Android -> upload the FCM V1 service account key.
 4. `npx eas-cli build --profile preview --platform android`, then install the APK
    on a physical device.

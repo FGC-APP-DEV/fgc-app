@@ -11,7 +11,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fgc-api-ajvq.onrender.com/api/v1"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fgc-api-ajvq.onrender.com/api/v1",
+        "FGC_ANDROID_PACKAGE": "mobile.test.alertmvp"
       }
     },
     "preview": {
@@ -20,7 +21,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fgc-api-ajvq.onrender.com/api/v1"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fgc-api-ajvq.onrender.com/api/v1",
+        "FGC_ANDROID_PACKAGE": "mobile.test.alertmvp"
       }
     }
   }
