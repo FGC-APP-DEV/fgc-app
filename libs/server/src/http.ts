@@ -268,6 +268,7 @@ export function createApi(config: ApiConfig) {
           if (query.sourceArea === 'judges') await staff(req, 'judging')
         }
         if (route.rpc === 'observations_list') params.p_team = c.uuid.parse(req.params.id)
+        if (route.rpc === 'annotations_search') params.p_query = query.search ?? ''
         const data = await rpc.rpc(route.rpc, params)
         return send(
           res,

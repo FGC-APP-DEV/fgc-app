@@ -251,6 +251,7 @@ export const reads: {
     rpc: 'observations_list',
     capability: 'judging',
   },
+  { path: '/judging/annotations', rpc: 'annotations_search', capability: 'judging' },
   { path: '/judging/audit', rpc: 'judging_audit', capability: 'advisor' },
   { path: '/filming/tracker', rpc: 'tracker', capability: 'filming', paginated: true },
   {
