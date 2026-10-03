@@ -213,6 +213,16 @@ export async function seed(mock: MockGateway, mentorSecret: string) {
     },
     p_key: key(),
   })
+  const judge3 = await session('judge3@fgc.test')
+  await judge3.rpc('observation_put', {
+    p_input: {
+      teamId: teams[6].id,
+      panelId: panel('Panel B').id,
+      expectedVersion: 0,
+      text: 'Confident presentation; the robot recovered well from a failed run.',
+    },
+    p_key: key(),
+  })
   await ja.rpc('flag_put', {
     p_input: { teamId: teams[1].id, type: 'absent', expectedVersion: 0 },
     p_key: key(),
