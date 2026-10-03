@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <title>FGC-Ops — Quick guide by role</title>
+    <style>
+      :root {
+        --primary: #000615;
+        --primary-container: #0b1f3a;
+        --secondary: #4059aa;
+        --background: #f8fafc;
+        --surface: #ffffff;
+        --surface-low: #f5f3f6;
+        --text: #1b1b1e;
+        --muted: #44474d;
+        --outline: #75777e;
+        --border: #e5e7eb;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --link: #0b1f3a;
+        --on-primary: #ffffff;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --primary: #e6ebf5;
+          --primary-container: #3a55a6;
+          --secondary: #8fa6e8;
+          --background: #0b0f17;
+          --surface: #151b26;
+          --surface-low: #1d2431;
+          --text: #e6e8ec;
+          --muted: #b4b9c4;
+          --outline: #8a909c;
+          --border: #2c3546;
+          --link: #a9bbf0;
+          --shadow: none;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--text);
+        background: var(--background);
+      }
+      header.bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        min-height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0 16px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+      .brand { font-size: 18px; font-weight: 800; letter-spacing: -0.025em; color: var(--primary); }
+      .bar a.back {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 16px;
+        border-radius: 12px;
+        background: var(--primary-container);
+        color: var(--on-primary);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      main { width: 100%; max-width: 896px; margin: 0 auto; padding: 16px 16px 64px; }
+      @media (min-width: 768px) { main { padding: 24px 24px 80px; } }
+      h1 { margin: 8px 0 4px; font-size: 24px; line-height: 32px; font-weight: 800; letter-spacing: -0.025em; color: var(--primary); }
+      h2 { margin: 0 0 8px; font-size: 20px; line-height: 28px; font-weight: 800; color: var(--primary); }
+      h3 { margin: 16px 0 4px; font-size: 14px; font-weight: 800; color: var(--primary); }
+      .label { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); }
+      p { margin: 0 0 8px; }
+      ul, ol { margin: 0 0 8px; padding-left: 20px; }
+      li { margin: 2px 0; }
+      a { color: var(--link); font-weight: 600; }
+      .lead { color: var(--muted); font-size: 16px; }
+      .card {
+        margin-top: 24px;
+        padding: 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+      }
+      .card.summary { border-left: 4px solid var(--secondary); }
+      .card.tldr { border-left: 4px solid var(--success); }
+      nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+      nav.toc a {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--link);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      nav.toc a:hover, nav.toc a:focus-visible { background: var(--surface-low); outline: 2px solid var(--secondary); }
+      .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+      @media (min-width: 768px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+      .tile { padding: 16px; background: var(--surface-low); border-radius: 12px; }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        background: color-mix(in srgb, var(--secondary) 12%, transparent);
+        color: var(--link);
+      }
+      .note { margin-top: 8px; padding: 12px 16px; border-radius: 12px; background: color-mix(in srgb, var(--warning) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent); }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      th { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); }
+      .table-wrap { overflow-x: auto; }
+      footer { margin-top: 32px; text-align: center; color: var(--outline); font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <header class="bar">
+      <span class="brand">FGC-Ops · Guide</span>
+      <a class="back" href="/">Back to the app</a>
+    </header>
+    <main>
+      <p class="label">Quick guide</p>
+      <h1>How to use FGC-Ops, by role</h1>
+      <p class="lead">One short tutorial for each role. Find yours and skip the rest.</p>
+      <nav class="toc" aria-label="Guide sections">
+        <a href="#overview">Overview</a>
+        <a href="#start">Signing in</a>
+        <a href="#admin">Admin</a>
+        <a href="#advisor">Judge Advisor</a>
+        <a href="#judge">Judge</a>
+        <a href="#filmmaker">Filmmaker</a>
+        <a href="#mentor">Mentor</a>
+        <a href="#pager">Pager</a>
+        <a href="#tldr">TL;DR</a>
+      </nav>
+
+      <section class="card summary" id="overview" aria-labelledby="overview-h">
+        <p class="label">Executive summary</p>
+        <h2 id="overview-h">What the app is for</h2>
+        <p>
+          FGC-Ops is the operations app for the FIRST Global Challenge. It runs on web,
+          Android and iOS, in several languages, with light and dark themes. It needs an
+          internet connection: nothing is saved until the app confirms it.
+        </p>
+        <ul>
+          <li><strong>Judging</strong> — panels, teams and judges' observations, with live progress.</li>
+          <li><strong>Filming</strong> — shot list, Step &amp; Repeat coverage and a team map.</li>
+          <li><strong>Pager</strong> — send a message to a team's mentor and read the reply.</li>
+          <li><strong>Administration</strong> — who has access, the shared team register and mentor codes.</li>
+        </ul>
+        <p>What you see depends on the roles an administrator gave you:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Role</th><th>Modules</th><th>Can't do</th></tr></thead>
+            <tbody>
+              <tr><td>Admin</td><td>Admin, Filming</td><td>Open Judging or read notes</td></tr>
+              <tr><td>Judge Advisor (JA)</td><td>Judging (all panels)</td><td>—</td></tr>
+              <tr><td>Judge</td><td>Judging (own panel)</td><td>Manage panels</td></tr>
+              <tr><td>Filmmaker</td><td>Filming</td><td>Open Judging or Admin</td></tr>
+              <tr><td>Mentor</td><td>Team messages</td><td>Anything else</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Every signed-in person also gets <strong>Home</strong> and
+          <strong>Useful resources</strong> (event page, live streams, results).
+        </p>
+      </section>
+
+      <section class="card" id="start" aria-labelledby="start-h">
+        <p class="label">Everyone</p>
+        <h2 id="start-h">Signing in and getting around</h2>
+        <ol>
+          <li>Open the app and type your <strong>email</strong>, then choose <em>Send sign-in email</em>.</li>
+          <li>Open the link in the email, or type the code it contains and choose <em>Verify code</em>.</li>
+          <li>First time only: enter your full name and save your profile.</li>
+          <li>
+            If you see “Your email is verified. Ask an administrator to enable access”, you
+            have no role yet — ask an admin.
+          </li>
+        </ol>
+        <p>Mentors don't use email: type the team access code in the same field.</p>
+        <h3>Header and menu</h3>
+        <ul>
+          <li>Language and light/dark switches sit in the header, next to your account menu.</li>
+          <li>The account menu has <strong>Feedback</strong>, <strong>Report a bug</strong> and <strong>Sign out</strong>.</li>
+          <li>The bottom bar (or side menu on wide screens) lists your modules and <strong>Useful resources</strong>.</li>
+        </ul>
+        <div class="note">
+          If the connection drops while saving, the app warns you and keeps what you typed.
+          Fix the connection and press save again.
+        </div>
+      </section>
+
+      <section class="card" id="admin" aria-labelledby="admin-h">
+        <p class="label">Role</p>
+        <h2 id="admin-h">Admin</h2>
+        <p>Admins control access and the shared data. Open <strong>Admin</strong> from the menu.</p>
+        <h3>Grant or change access</h3>
+        <ol>
+          <li>Open <em>Current users</em> and search for the person.</li>
+          <li>Set their roles (Judge, Judge Advisor, Filmmaker, Admin) or remove them.</li>
+        </ol>
+        <p>An admin can't also be a judge: keep the two apart.</p>
+        <h3>Import the teams</h3>
+        <ol>
+          <li>Open <em>Import teams</em> and choose a file (.xlsx, .csv, .txt or .json).</li>
+          <li>Map each column to the app's fields (suggestions are filled in; check them).</li>
+          <li>Review the preview. Nothing is saved yet. Valid and rejected rows are listed apart.</li>
+          <li>Choose <em>Confirm and import valid rows</em>. The result lists what was imported, rejected or already registered.</li>
+        </ol>
+        <p>Re-importing never changes teams that already exist.</p>
+        <h3>Mentor codes</h3>
+        <ol>
+          <li>Open <em>Mentor codes</em> and filter by team name or country.</li>
+          <li>Choose <em>Issue code</em> (or <em>Regenerate code</em> to replace one).</li>
+          <li>Copy it at once — it is shown only one time — and give it to the mentor.</li>
+        </ol>
+        <p>A code works for 7 days. Regenerating signs out the old devices.</p>
+      </section>
+
+      <section class="card" id="advisor" aria-labelledby="advisor-h">
+        <p class="label">Role</p>
+        <h2 id="advisor-h">Judge Advisor (JA)</h2>
+        <p>The JA organises judging and follows progress across all panels.</p>
+        <h3>Set up</h3>
+        <ol>
+          <li>Add teams to Judging by picking from the imported register (you can't create new ones).</li>
+          <li>Create a panel and choose its <strong>leader</strong> — a panel can't exist without one.</li>
+          <li>Assign judges and teams. Each judge and each team belongs to one panel at a time.</li>
+        </ol>
+        <h3>During the event</h3>
+        <ul>
+          <li>The dashboard shows progress: evaluated teams out of active teams.</li>
+          <li>You can read observations from every panel.</li>
+          <li>Flag a team as <em>absent</em>, <em>online interview</em> or <em>other impediment</em> (reason required). These are informational.</li>
+          <li><em>Withdrawn from evaluation</em> blocks new notes and completion; give a reason. Reactivating restores the earlier status.</li>
+          <li>Move a pending team without notes, or a judge, to another panel. To move a leader, name a new one first.</li>
+          <li>Reopen a completed team if judges need to add or edit notes.</li>
+        </ul>
+        <h3>When the competition ends</h3>
+        <p>
+          Use the end-of-competition cleanup. It asks for <strong>two confirmations</strong>
+          because deleting the judging data cannot be undone. Cancelling any step deletes nothing.
+        </p>
+      </section>
+
+      <section class="card" id="judge" aria-labelledby="judge-h">
+        <p class="label">Role</p>
+        <h2 id="judge-h">Judge</h2>
+        <p>Open <strong>Judging</strong> to see your panel and its teams.</p>
+        <ol>
+          <li>Pick a team from your panel.</li>
+          <li>Write your observation and <strong>save it explicitly</strong>. Success is shown only after the server confirms.</li>
+          <li>If saving fails, your text stays on screen. Try again.</li>
+          <li>Leaving a note with unsaved changes asks whether to keep editing or discard.</li>
+        </ol>
+        <ul>
+          <li>You can read the notes of the other judges on your panel.</li>
+          <li>You can edit or delete only your own notes, while the team is active and pending.</li>
+          <li>Need the team now? Use <em>Page this team</em>; it opens the pager on that team.</li>
+        </ul>
+        <h3>Panel leader</h3>
+        <p>
+          Only the leader marks a team as <strong>evaluated</strong>. The app asks you to
+          confirm every time, even with no notes. The status is shared by the whole panel.
+          The leader or the JA can reopen it.
+        </p>
+      </section>
+
+      <section class="card" id="filmmaker" aria-labelledby="filmmaker-h">
+        <p class="label">Role</p>
+        <h2 id="filmmaker-h">Filmmaker</h2>
+        <p>Open <strong>Filming</strong> to capture the competition one team at a time.</p>
+        <ol>
+          <li>Use <em>Coverage</em> to see how many teams are captured. Filter by continent, or switch between list and map.</li>
+          <li>Open a team and set its status: <em>Captured</em>, <em>Skipped</em> or back to <em>Pending</em>. Add shot notes if useful.</li>
+          <li>In the <em>Shot list</em>, tick shots as complete or reopen them. Search by team or shot.</li>
+          <li>Add your own categories and shots; delete a shot you no longer need.</li>
+          <li>Need a team in front of the camera? Use <em>Page team</em>.</li>
+        </ol>
+      </section>
+
+      <section class="card" id="mentor" aria-labelledby="mentor-h">
+        <p class="label">Role</p>
+        <h2 id="mentor-h">Mentor</h2>
+        <p>Mentors only receive and reply. No email is needed.</p>
+        <ol>
+          <li>On the sign-in screen, type the <strong>team access code</strong> the admin gave you.</li>
+          <li>Open <em>Team messages</em>. Judging and filming messages are labelled.</li>
+          <li>When a message asks for a response, tap one quick reply: <em>On our way</em>, <em>ETA ~10 min</em> or <em>Can't come now</em>.</li>
+          <li>The <em>Filming checklist</em> shows what your team's shoot needs.</li>
+        </ol>
+        <p>Codes last 7 days. If yours stops working, ask an admin for a new one.</p>
+      </section>
+
+      <section class="card" id="pager" aria-labelledby="pager-h">
+        <p class="label">Judges, JA, filmmakers</p>
+        <h2 id="pager-h">Using the pager</h2>
+        <ol>
+          <li>Open the pager from your module, or from <em>Page this team</em> / <em>Page team</em>.</li>
+          <li>Find the team (or change it).</li>
+          <li>Choose a ready-made message or write your own (500 characters at most).</li>
+          <li>Choose <em>Send now</em>, or schedule it in a few minutes, then <em>Send message</em>.</li>
+          <li>Watch <em>Message history</em>: it shows <em>Awaiting response</em> or the mentor's answer. Filter by team if the list is long.</li>
+        </ol>
+      </section>
+
+      <section class="card tldr" id="tldr" aria-labelledby="tldr-h">
+        <p class="label">Remember</p>
+        <h2 id="tldr-h">TL;DR</h2>
+        <ul>
+          <li><span class="badge">Access</span> An admin gives roles. No role, no modules.</li>
+          <li><span class="badge">Saving</span> Always press save. Trust a success message, not a hunch.</li>
+          <li><span class="badge">Judges</span> Notes are yours to edit; the leader completes teams; the JA runs panels.</li>
+          <li><span class="badge">Filming</span> Mark each team captured or skipped; page teams from the same screen.</li>
+          <li><span class="badge">Mentors</span> Sign in with the team code and tap a quick reply.</li>
+          <li><span class="badge">Stuck?</span> Use <em>Feedback</em> or <em>Report a bug</em> in the account menu.</li>
+        </ul>
+      </section>
+      <footer>FGC-Ops · MVP guide</footer>
+    </main>
+  </body>
+</html>

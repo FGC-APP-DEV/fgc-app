@@ -688,7 +688,15 @@ export const USEFUL_RESOURCES = [
     titleKey: 'resourceResults',
     url: 'https://results.first.global/?_gl=1*12iyc13*_ga*NTU0OTI4MzYzLjE3MzQ0NjEzNTk.*_ga_1H5H2VKTMR*czE3OTA3MzcyMjUkbzIyJGcxJHQxNzkwNzM4MzQ4JGozMiRsMCRoMA..',
   },
+  { id: 'guide', titleKey: 'resourceGuide', path: '/guide/index.html' },
 ] as const
+/** Absolute address of the web app, needed to open its own pages from native builds. */
+const WEB_APP_URL = process.env.EXPO_PUBLIC_WEB_APP_URL?.replace(/\/$/, '')
+function resourceUrl(link: (typeof USEFUL_RESOURCES)[number]): string | undefined {
+  if ('url' in link) return link.url
+  if (Platform.OS === 'web') return link.path
+  return WEB_APP_URL ? WEB_APP_URL + link.path : undefined
+}
 interface Anchor {
   x: number
   y: number
@@ -759,37 +767,40 @@ export function useResourcesMenu() {
             elevation.xl,
           ]}
         >
-          {USEFUL_RESOURCES.map((link) => (
-            <Pressable
-              key={link.id}
-              accessibilityRole="link"
-              accessibilityLabel={t(link.titleKey)}
-              onPress={() => {
-                close()
-                openExternal(link.url)
-              }}
-              style={({ pressed }) => ({
-                minHeight: 48,
-                paddingHorizontal: 16,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 12,
-                backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
-              })}
-            >
-              <Icon name="chevronRight" size={16} color={tokens.muted} />
-              <Text
-                style={{
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  fontWeight: '700',
-                  color: tokens.text,
+          {USEFUL_RESOURCES.map((link) => {
+            const url = resourceUrl(link)
+            return url ? (
+              <Pressable
+                key={link.id}
+                accessibilityRole="link"
+                accessibilityLabel={t(link.titleKey)}
+                onPress={() => {
+                  close()
+                  openExternal(url)
                 }}
+                style={({ pressed }) => ({
+                  minHeight: 48,
+                  paddingHorizontal: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
+                })}
               >
-                {t(link.titleKey)}
-              </Text>
-            </Pressable>
-          ))}
+                <Icon name="chevronRight" size={16} color={tokens.muted} />
+                <Text
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: '700',
+                    color: tokens.text,
+                  }}
+                >
+                  {t(link.titleKey)}
+                </Text>
+              </Pressable>
+            ) : null
+          })}
         </View>
       </Pressable>
     </Modal>
