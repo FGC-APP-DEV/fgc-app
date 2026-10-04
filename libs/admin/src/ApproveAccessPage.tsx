@@ -86,8 +86,8 @@ export function ApproveAccessPage() {
       <Body>
         One person per line: email, then roles separated by commas. Example:
         {'\n'}ada@example.org, admin{'\n'}sam@example.org, [filmmaker, judge]{'\n'}
-        Roles: admin, judge, judgeAdvisor, filmmaker. Roles are added to any the person
-        already has; edit or remove roles from Current users.
+        Roles: admin, judge, judgeAdvisor, filmmaker, headReferee. Roles are added to any
+        the person already has; edit or remove roles from Current users.
       </Body>
       <Field
         label={t('approveList')}

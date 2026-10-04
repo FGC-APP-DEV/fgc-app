@@ -91,7 +91,10 @@ export function UsersPage() {
     }
   }
   const conflict =
-    roles.includes('admin') && (roles.includes('judge') || roles.includes('judgeAdvisor'))
+    roles.includes('admin') &&
+    (roles.includes('judge') ||
+      roles.includes('judgeAdvisor') ||
+      roles.includes('headReferee'))
   const columns: Column<User>[] = [
     { key: 'name', title: t('usersName'), flex: 2, render: (u) => u.name ?? '-' },
     { key: 'email', title: t('usersEmail'), flex: 3, render: (u) => u.email },
