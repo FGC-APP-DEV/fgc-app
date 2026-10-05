@@ -45,7 +45,9 @@ export function parseAccessCsv(text: string): AccessRow[] {
     else if (!roles.length) error = 'Add at least one role'
     else if (
       roles.includes('admin') &&
-      (roles.includes('judge') || roles.includes('judgeAdvisor'))
+      (roles.includes('judge') ||
+        roles.includes('judgeAdvisor') ||
+        roles.includes('headReferee'))
     )
       error = 'Admin and judging roles cannot be combined'
     rows.push({ line: index + 1, email, roles, error })

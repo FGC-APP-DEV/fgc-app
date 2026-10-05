@@ -23,6 +23,7 @@ import {
 } from '@fgc/ui'
 import { AnnotationsSearch } from './AnnotationsSearch'
 import { ObservationEditor } from './ObservationEditor'
+import { RefereeNotesPanel } from './RefereeNotesScreen'
 import { judgingAccess, progress } from './judging-state'
 import { JudgesSheet } from './JudgesSheet'
 import { PanelsDashboard } from './PanelsDashboard'
@@ -527,6 +528,7 @@ export function JudgingScreen({
                 ) : (
                   <Loading />
                 ))}
+              {current.panelId && <RefereeNotesPanel teamId={current.teamId} />}
               <Card title={tr('jdEvaluation')}>
                 <View style={layout.row}>
                   {access.complete && (

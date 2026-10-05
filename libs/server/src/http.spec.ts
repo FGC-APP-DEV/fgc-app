@@ -67,6 +67,64 @@ it('forwards the annotations search term and rejects non-judging roles', async (
   expect(denied.status).toBe(403)
   expect(other.rpc.mock.calls.map((c) => c[0])).not.toContain('annotations_search')
 })
+it('lets a role-less person read /me but nothing else', async () => {
+  const { app, rpc } = setup([])
+  expect(
+    (await request(app).get('/api/v1/me').set('Authorization', 'Bearer verified')).status,
+  ).toBe(200)
+  for (const path of [
+    '/api/v1/teams',
+    '/api/v1/judging/panels',
+    '/api/v1/referee/annotations',
+  ])
+    expect(
+      (await request(app).get(path).set('Authorization', 'Bearer verified')).status,
+    ).toBe(403)
+  expect(rpc.mock.calls.map((c) => c[0]).filter((name) => name !== 'me')).toEqual([])
+})
+it('limits the referee routes to the head referee', async () => {
+  const judge = setup(['judge'])
+  expect(
+    (
+      await request(judge.app)
+        .get('/api/v1/referee/annotations')
+        .set('Authorization', 'Bearer verified')
+    ).status,
+  ).toBe(403)
+  const referee = setup(['headReferee'])
+  expect(
+    (
+      await request(referee.app)
+        .get('/api/v1/referee/annotations')
+        .set('Authorization', 'Bearer verified')
+    ).status,
+  ).toBe(200)
+  expect(referee.rpc.mock.calls.map((c) => c[0])).toContain('referee_annotations')
+  const put = await request(referee.app)
+    .put(`/api/v1/referee/teams/${id}/note`)
+    .set('Authorization', 'Bearer verified')
+    .set('Idempotency-Key', id)
+    .send({ text: 'Refs note', expectedVersion: 0 })
+  expect(put.status).toBe(200)
+  expect(referee.rpc).toHaveBeenCalledWith('referee_note_put', {
+    p_input: { text: 'Refs note', expectedVersion: 0, teamId: id },
+    p_key: id,
+  })
+  const denied = await request(judge.app)
+    .put(`/api/v1/referee/teams/${id}/note`)
+    .set('Authorization', 'Bearer verified')
+    .set('Idempotency-Key', id)
+    .send({ text: 'Refs note', expectedVersion: 0 })
+  expect(denied.status).toBe(403)
+})
+it('lets judges read refs notes of a team through the judging route', async () => {
+  const { app, rpc } = setup(['judge'])
+  const result = await request(app)
+    .get(`/api/v1/judging/teams/${id}/referee-notes`)
+    .set('Authorization', 'Bearer verified')
+  expect(result.status).toBe(200)
+  expect(rpc).toHaveBeenCalledWith('referee_notes_list', { p_team: id })
+})
 it('rejects author injection before calling the mutation', async () => {
   const { app, rpc } = setup()
   const result = await request(app)

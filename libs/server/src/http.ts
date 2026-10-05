@@ -268,7 +268,8 @@ export function createApi(config: ApiConfig) {
           params.p_source_area = query.sourceArea ?? null
           if (query.sourceArea === 'judges') await staff(req, 'judging')
         }
-        if (route.rpc === 'observations_list') params.p_team = c.uuid.parse(req.params.id)
+        if (route.rpc === 'observations_list' || route.rpc === 'referee_notes_list')
+          params.p_team = c.uuid.parse(req.params.id)
         if (route.rpc === 'annotations_search') {
           // Teams store alpha-2 codes: resolve alpha-3 codes and English names before the search.
           const term = (query.search ?? '').trim()

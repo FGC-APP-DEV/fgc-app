@@ -6,7 +6,14 @@ export interface CommandRoute {
   path: string
   rpc: string
   schema: ZodTypeAny
-  capability: 'admin' | 'judging' | 'advisor' | 'filming' | 'schedule'
+  capability:
+    | 'admin'
+    | 'judging'
+    | 'advisor'
+    | 'filming'
+    | 'schedule'
+    | 'member'
+    | 'headReferee'
   params?: Record<string, string>
 }
 export const commands: CommandRoute[] = [
@@ -15,7 +22,7 @@ export const commands: CommandRoute[] = [
     path: '/me/profile',
     rpc: 'profile_update',
     schema: c.profileInput,
-    capability: 'schedule',
+    capability: 'member',
   },
   {
     method: 'post',
@@ -109,6 +116,22 @@ export const commands: CommandRoute[] = [
     rpc: 'observation_delete',
     schema: c.observationDeleteInput,
     capability: 'judging',
+    params: { id: 'teamId' },
+  },
+  {
+    method: 'put',
+    path: '/referee/teams/:id/note',
+    rpc: 'referee_note_put',
+    schema: c.refereeNoteInput,
+    capability: 'headReferee',
+    params: { id: 'teamId' },
+  },
+  {
+    method: 'delete',
+    path: '/referee/teams/:id/note',
+    rpc: 'referee_note_delete',
+    schema: c.versionInput,
+    capability: 'headReferee',
     params: { id: 'teamId' },
   },
   {
@@ -233,7 +256,7 @@ export const reads: {
   capability: CommandRoute['capability']
   paginated?: boolean
 }[] = [
-  { path: '/me', rpc: 'me', capability: 'schedule' },
+  { path: '/me', rpc: 'me', capability: 'member' },
   { path: '/teams', rpc: 'teams_list', capability: 'schedule', paginated: true },
   { path: '/admin/users', rpc: 'users_list', capability: 'admin', paginated: true },
   { path: '/admin/mentor-codes', rpc: 'mentor_codes_list', capability: 'admin' },
@@ -253,6 +276,14 @@ export const reads: {
   },
   { path: '/judging/annotations', rpc: 'annotations_search', capability: 'judging' },
   { path: '/judging/audit', rpc: 'judging_audit', capability: 'advisor' },
+  { path: '/referee/annotations', rpc: 'referee_annotations', capability: 'headReferee' },
+  // Judges and advisors read the refs notes of the teams they can already read; the DB enforces it.
+  {
+    path: '/judging/teams/:id/referee-notes',
+    rpc: 'referee_notes_list',
+    capability: 'judging',
+  },
+
   { path: '/filming/tracker', rpc: 'tracker', capability: 'filming', paginated: true },
   {
     path: '/filming/categories',

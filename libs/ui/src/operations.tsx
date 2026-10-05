@@ -688,6 +688,12 @@ export const USEFUL_RESOURCES = [
     titleKey: 'resourceResults',
     url: 'https://results.first.global/?_gl=1*12iyc13*_ga*NTU0OTI4MzYzLjE3MzQ0NjEzNTk.*_ga_1H5H2VKTMR*czE3OTA3MzcyMjUkbzIyJGcxJHQxNzkwNzM4MzQ4JGozMiRsMCRoMA..',
   },
+  {
+    id: 'robot-kit',
+    titleKey: 'resourceRobotKit',
+    url: 'https://first.global/fgc/robot-kit/',
+  },
+  { id: 'bob', titleKey: 'resourceBobHelp', url: 'https://www.bob-bird.com/' },
 ] as const
 interface Anchor {
   x: number
