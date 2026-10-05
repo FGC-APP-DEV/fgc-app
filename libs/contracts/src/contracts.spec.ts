@@ -54,5 +54,13 @@ describe('REST boundary contracts', () => {
     expect(contract.capabilities(['admin', 'judge', 'judgeAdvisor']).judging).toBe(false)
     expect(contract.capabilities(['judge']).judging).toBe(true)
     expect(contract.capabilities([]).schedule).toBe(false)
+    expect(contract.capabilities([]).member).toBe(true)
+  })
+  it('grants the head referee capability apart from admin and judging', () => {
+    expect(contract.capabilities(['headReferee']).headReferee).toBe(true)
+    expect(contract.capabilities(['headReferee']).judging).toBe(false)
+    expect(contract.capabilities(['admin', 'headReferee']).headReferee).toBe(false)
+    expect(contract.capabilities(['headReferee']).schedule).toBe(true)
+    expect(contract.capabilities(['judge']).headReferee).toBe(false)
   })
 })

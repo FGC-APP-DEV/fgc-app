@@ -6,7 +6,7 @@ import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
 import { ImportScreen } from '@fgc/imports'
 import { FilmingScreen } from '@fgc/filming'
-import { JudgingScreen } from '@fgc/judging'
+import { JudgingScreen, RefereeNotesScreen } from '@fgc/judging'
 import { PagerScreen } from '@fgc/messaging'
 import { MentorScreen } from '@fgc/mentor'
 import {
@@ -45,7 +45,7 @@ import { useFonts } from 'expo-font'
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular'
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold'
 
-type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager'
+type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'referee' | 'pager'
 const mockInfoUrl =
   process.env.EXPO_PUBLIC_FGC_MOCK === '1' && process.env.EXPO_PUBLIC_API_BASE_URL
     ? process.env.EXPO_PUBLIC_API_BASE_URL.replace(/\/api\/v1\/?$/, '') + '/__mock/info'
@@ -218,10 +218,13 @@ function Shell() {
     ...(caps.judging
       ? [{ id: 'judging', label: t('navJudging'), icon: 'judging' } as const]
       : []),
+    ...(caps.headReferee
+      ? [{ id: 'referee', label: t('navReferee'), icon: 'judging' } as const]
+      : []),
     ...(caps.filming
       ? [{ id: 'filming', label: t('navFilming'), icon: 'video' } as const]
       : []),
-    ...(caps.schedule
+    ...(caps.member
       ? [
           {
             id: 'useful-resources',
@@ -315,6 +318,15 @@ function Shell() {
                     onPress={() => navigate('judging')}
                   />
                 )}
+                {caps.headReferee && (
+                  <ModuleCard
+                    title={t('referee')}
+                    label={t('openReferee')}
+                    hint={t('moduleHintReferee')}
+                    icon="judging"
+                    onPress={() => navigate('referee')}
+                  />
+                )}
                 {caps.filming && (
                   <ModuleCard
                     title={t('filming')}
@@ -324,7 +336,7 @@ function Shell() {
                     onPress={() => navigate('filming')}
                   />
                 )}
-                {caps.schedule && (
+                {caps.member && (
                   <ModuleCard
                     title={t('officialSchedule')}
                     hint={t('moduleHintOfficial')}
@@ -348,6 +360,7 @@ function Shell() {
           {route === 'judging' && caps.judging && (
             <JudgingScreen onPage={(id) => page('judges', id)} onDirtyChange={setDirty} />
           )}
+          {route === 'referee' && caps.headReferee && <RefereeNotesScreen />}
           {route === 'pager' &&
             (pageSource === 'judges' ? caps.judging : caps.filming) && (
               <PagerScreen
