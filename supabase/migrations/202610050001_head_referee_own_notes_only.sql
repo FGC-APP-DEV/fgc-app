@@ -5,7 +5,7 @@ grant create on schema private, api to fgc_command;
 
 -- The head referee no longer reads the judges' annotations: the list keeps the teams (with their
 -- panel) and returns only the caller's own refs notes. Judges and advisors still read the refs
--- notes of the teams they can read.
+-- notes of the teams they can read, also when the same account holds the headReferee role too.
 create or replace function api.referee_annotations() returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare c uuid; a uuid;
 begin
@@ -20,7 +20,7 @@ begin
 end $$;
 
 create or replace function api.referee_notes_list(p_team uuid) returns jsonb language plpgsql stable security definer set search_path='' as $$
-declare c uuid; a uuid; own_only boolean:=private.has_role('headReferee') and not private.has_role('admin');
+declare c uuid; a uuid; own_only boolean:=private.has_role('headReferee') and not private.has_role('admin') and not private.has_role('judge') and not private.has_role('judgeAdvisor');
 begin
  if own_only then null;
  else perform private.require_team_read(p_team); end if;
