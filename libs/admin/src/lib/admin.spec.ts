@@ -8,22 +8,22 @@ import {
 } from './admin'
 
 describe('parseAccessCsv', () => {
-  it('parses plain, bracketed and quoted role lists', () => {
+  it('parses plain, bracketed and quoted single roles', () => {
     const rows = parseAccessCsv(
-      'A@x.test, filmmaker\nb@x.test, [judge,judgeAdvisor]\nc@x.test,"admin"\n\n',
+      'A@x.test, filmmaker\nb@x.test, [judge]\nc@x.test,"admin"\n\n',
     )
     expect(rows.map((r) => [r.email, r.roles, r.error])).toEqual([
       ['a@x.test', ['filmmaker'], undefined],
-      ['b@x.test', ['judge', 'judgeAdvisor'], undefined],
+      ['b@x.test', ['judge'], undefined],
       ['c@x.test', ['admin'], undefined],
     ])
   })
   it('never rewrites the email and still unwraps quoted or bracketed roles', () => {
     const rows = parseAccessCsv(
-      'D\'Arcy@x.test, [judge, \'judgeAdvisor\']\no\'neil@x.test,"filmmaker"\nq@x.test, "admin"',
+      'D\'Arcy@x.test, [\'judgeAdvisor\']\no\'neil@x.test,"filmmaker"\nq@x.test, "admin"',
     )
     expect(rows.map((r) => [r.email, r.roles, r.error])).toEqual([
-      ["d'arcy@x.test", ['judge', 'judgeAdvisor'], undefined],
+      ["d'arcy@x.test", ['judgeAdvisor'], undefined],
       ["o'neil@x.test", ['filmmaker'], undefined],
       ['q@x.test', ['admin'], undefined],
     ])
@@ -36,7 +36,7 @@ describe('parseAccessCsv', () => {
       'Invalid email address',
       'Add at least one role',
       'Unknown role: boss',
-      'Admin and judging roles cannot be combined',
+      'Only one role per person',
     ])
   })
 })

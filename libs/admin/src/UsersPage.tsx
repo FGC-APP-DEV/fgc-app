@@ -26,7 +26,7 @@ export function UsersPage() {
   const [users, setUsers] = useState<User[] | null>(null)
   const [filters, setFilters] = useState<Filters>(NO_FILTERS)
   const [editing, setEditing] = useState<User | null>(null)
-  const [roles, setRoles] = useState<Role[]>([])
+  const [role, setRole] = useState<Role | ''>('')
   const [removeAccess, setRemoveAccess] = useState(false)
   const [error, setError] = useState('')
   const [modalError, setModalError] = useState('')
@@ -53,14 +53,15 @@ export function UsersPage() {
   }
   const close = () => {
     setEditing(null)
-    setRoles([])
+    setRole('')
     setRemoveAccess(false)
     setModalError('')
   }
   const open = (user: User) => {
     close()
     setEditing(user)
-    setRoles(user.roles)
+    // One role per person; a legacy account holding several shows its first one until replaced.
+    setRole(user.roles[0] ?? '')
   }
   const save = async (next: Role[], done: string) => {
     if (!editing) return
@@ -90,11 +91,6 @@ export function UsersPage() {
       setBusy(false)
     }
   }
-  const conflict =
-    roles.includes('admin') &&
-    (roles.includes('judge') ||
-      roles.includes('judgeAdvisor') ||
-      roles.includes('headReferee'))
   const columns: Column<User>[] = [
     { key: 'name', title: t('usersName'), flex: 2, render: (u) => u.name ?? '-' },
     { key: 'email', title: t('usersEmail'), flex: 3, render: (u) => u.email },
@@ -149,23 +145,21 @@ export function UsersPage() {
           onClose={close}
           confirmLabel={removeAccess ? t('usersConfirmRemove') : t('confirm')}
           confirmVariant={removeAccess ? 'danger' : 'primary'}
-          confirmDisabled={busy || (!removeAccess && conflict)}
+          confirmDisabled={busy || (!removeAccess && !role)}
           onConfirm={() =>
             void (removeAccess
               ? save([], t('usersAccessRemoved'))
-              : save(roles, t('usersRolesUpdated')))
+              : save(role ? [role] : [], t('usersRolesUpdated')))
           }
         >
           <Body>{editing.email}</Body>
-          {ROLES.map((role) => (
+          {ROLES.map((option) => (
             <Checkbox
-              key={role}
-              label={role}
-              checked={!removeAccess && roles.includes(role)}
+              key={option}
+              label={option}
+              checked={!removeAccess && role === option}
               disabled={removeAccess}
-              onChange={(on) =>
-                setRoles(on ? [...roles, role] : roles.filter((r) => r !== role))
-              }
+              onChange={(on) => setRole(on ? option : '')}
             />
           ))}
           <Body>{t('usersRolesRule')}</Body>

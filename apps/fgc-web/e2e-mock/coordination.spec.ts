@@ -13,8 +13,8 @@ test('a judge advisor creates a panel with a leader from judges who have none', 
   await page.getByRole('textbox', { name: 'Panel name' }).fill('Panel C')
   // Judges already on a panel are not offered again.
   await expect(page.getByRole('button', { name: /Select Jo Judge/ })).toHaveCount(0)
-  await page.getByRole('button', { name: 'Select Max Multi', exact: true }).click()
-  await page.getByRole('button', { name: 'Make leader: Max Multi' }).click()
+  await page.getByRole('button', { name: 'Select Max Judge', exact: true }).click()
+  await page.getByRole('button', { name: 'Make leader: Max Judge' }).click()
   await page.getByRole('button', { name: 'Create panel', exact: true }).click()
   await expect(
     page.getByRole('button', { name: 'Open Panel C', exact: true }),

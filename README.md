@@ -77,7 +77,7 @@ observation, a flag, Filming shots and shot-list items, three mentor codes and
 pending pagers. Only the identity provider is replaced: every account signs in
 with code `123456`, and no email is sent. The login screen shows a **Mock
 accounts** panel for one-tap sign-in (admin, judge advisor, judges, filmmaker,
-mixed-role users, mentor codes). Data resets whenever the process restarts.
+head referee, mentor codes). Data resets whenever the process restarts.
 Details and limits: [docs/mock-development.md](docs/mock-development.md).
 
 ## Development and verification

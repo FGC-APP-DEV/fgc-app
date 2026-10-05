@@ -14,8 +14,8 @@ export interface AccessRow {
 const EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/
 
 /**
- * Parses "email, role1, role2" lines. Roles may also be wrapped as
- * `email, [role1,role2]` or `email, "role1,role2"`. Blank lines are ignored.
+ * Parses "email, role" lines (one role per person). The role may also be wrapped as
+ * `email, [role]` or `email, "role"`. Blank lines are ignored.
  */
 export function parseAccessCsv(text: string): AccessRow[] {
   const rows: AccessRow[] = []
@@ -43,13 +43,7 @@ export function parseAccessCsv(text: string): AccessRow[] {
     if (!EMAIL.test(email)) error = 'Invalid email address'
     else if (unknown.length) error = `Unknown role: ${unknown.join(', ')}`
     else if (!roles.length) error = 'Add at least one role'
-    else if (
-      roles.includes('admin') &&
-      (roles.includes('judge') ||
-        roles.includes('judgeAdvisor') ||
-        roles.includes('headReferee'))
-    )
-      error = 'Admin and judging roles cannot be combined'
+    else if (roles.length > 1) error = 'Only one role per person'
     rows.push({ line: index + 1, email, roles, error })
   })
   return rows

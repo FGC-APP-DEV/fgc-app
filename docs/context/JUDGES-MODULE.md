@@ -8,7 +8,7 @@ A interface segue o [design system](design-system.md). O [catálogo M01–M30](f
 
 ## Head referee (`headReferee`)
 
-Papel separado de admin (não pode ser combinado com `admin`) e do papel de juiz. **Não** lê as anotações dos juízes. Lista as equipes com seu painel e vê apenas as próprias "Refs notes" (`api.referee_annotations`, `api.referee_notes_list`), que escreve, edita e exclui por equipe (`referee_note_put/delete`, uma nota por árbitro e equipe, com versão). Juízes do painel da equipe e JAs leem essas notas em modo somente leitura (`api.referee_notes_list`), na tela da equipe. As notas pertencem ao ciclo e são descartadas junto com ele.
+Papel único por pessoa (ninguém acumula papéis; `access_grant` recusa mais de um). **Não** lê as anotações dos juízes. Lista as equipes com seu painel e vê apenas as próprias "Refs notes" (`api.referee_annotations`, `api.referee_notes_list`), que escreve, edita e exclui por equipe (`referee_note_put/delete`, uma nota por árbitro e equipe, com versão). Juízes do painel da equipe e JAs leem essas notas em modo somente leitura (`api.referee_notes_list`), na tela da equipe. As notas pertencem ao ciclo e são descartadas junto com ele.
 
 ## Pessoas sem papel
 

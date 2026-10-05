@@ -91,21 +91,12 @@ export const accessInput = z
       )
       .min(1)
       .max(100),
-    roles: z.array(roleSchema).max(5),
+    // One role per person; an empty list removes the person's access.
+    roles: z.array(roleSchema).max(1),
     mode: z.enum(['add', 'replace']),
     expectedVersion: version.optional(),
   })
   .strict()
-  .refine(
-    (v) =>
-      !(
-        v.roles.includes('admin') &&
-        (v.roles.includes('judge') ||
-          v.roles.includes('judgeAdvisor') ||
-          v.roles.includes('headReferee'))
-      ),
-    'Administrative and judging access cannot be combined',
-  )
 export const mentorCodeInput = versionInput.extend({ teamId: uuid })
 export const redeemInput = z
   .object({
