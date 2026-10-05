@@ -28,8 +28,7 @@ point (`apps/fgc-api/src/main.ts`) never imports it.
 | judge1@fgc.test / judge3@fgc.test | judge                     | leaders of Panel A / Panel B (complete evaluations)    |
 | judge2@fgc.test / judge4@fgc.test | judge                     | panel members                                          |
 | film@fgc.test                     | filmmaker                 | tracker, map, shot list, pager                         |
-| multi@fgc.test                    | filmmaker + judge         | launcher with two modules; judge without a panel       |
-| admin-judge@fgc.test              | admin + judge             | admin deny wins over Judging                           |
+| judge5@fgc.test                   | judge                     | judge without a panel yet                              |
 | newcomer@fgc.test                 | approved, never signed in | pending access and first-login profile                 |
 | MOCKMENTOR001-003                 | mentor codes              | teams 001-003 with pagers, shots and responses         |
 

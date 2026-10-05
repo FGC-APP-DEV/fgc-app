@@ -24,13 +24,17 @@ describe('REST boundary contracts', () => {
     ).toBe(false)
     expect(contract.observationInput.safeParse({ text: 'Note' }).success).toBe(false)
   })
-  it('rejects mixed administrative and judging access', () => {
+  it('allows at most one role per person', () => {
+    const base = { emails: ['a@example.org'], mode: 'replace' as const }
+    expect(contract.accessInput.safeParse({ ...base, roles: ['judge'] }).success).toBe(
+      true,
+    )
+    expect(contract.accessInput.safeParse({ ...base, roles: [] }).success).toBe(true)
     expect(
-      contract.accessInput.safeParse({
-        emails: ['admin@example.org'],
-        roles: ['admin', 'judge'],
-        mode: 'replace',
-      }).success,
+      contract.accessInput.safeParse({ ...base, roles: ['admin', 'judge'] }).success,
+    ).toBe(false)
+    expect(
+      contract.accessInput.safeParse({ ...base, roles: ['filmmaker', 'judge'] }).success,
     ).toBe(false)
   })
   it('allows only approved mentor responses and enforces pager limits', () => {

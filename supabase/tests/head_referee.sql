@@ -67,7 +67,16 @@ select api.referee_note_delete('{"teamId":"30000000-0000-4000-8000-000000000001"
 select pg_temp.assert_true(api.referee_notes_list('30000000-0000-4000-8000-000000000001')='[]'::jsonb,'note deleted');
 -- Admin cannot combine admin and headReferee.
 select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000001","session_id":"10000000-0000-4000-8000-000000000001"}',true);
-select pg_temp.expect_error($q$select api.access_grant('{"email":"x@example.invalid","roles":["admin","headReferee"],"mode":"add","expectedVersion":0}',gen_random_uuid())$q$,'FORBIDDEN');
+-- One role per person: two roles in one grant, or a second role added on top of the first, are refused.
+select pg_temp.expect_error($q$select api.access_grant('{"email":"x@example.invalid","roles":["admin","headReferee"],"mode":"add","expectedVersion":0}',gen_random_uuid())$q$,'VALIDATION_ERROR');
+select pg_temp.expect_error($q$select api.access_grant('{"email":"x@example.invalid","roles":["judge","filmmaker"],"mode":"replace","expectedVersion":0}',gen_random_uuid())$q$,'VALIDATION_ERROR');
 select api.access_grant('{"email":"ref@example.invalid","roles":["headReferee"],"mode":"add","expectedVersion":0}',gen_random_uuid());
+select pg_temp.expect_error($q$select api.access_grant('{"email":"ref@example.invalid","roles":["filmmaker"],"mode":"add","expectedVersion":1}',gen_random_uuid())$q$,'VALIDATION_ERROR');
+select api.access_grant('{"email":"ref@example.invalid","roles":["headReferee"],"mode":"add","expectedVersion":1}',gen_random_uuid());
+select api.access_grant('{"email":"ref@example.invalid","roles":["filmmaker"],"mode":"replace","expectedVersion":2}',gen_random_uuid());
+select pg_temp.assert_true((select roles='{filmmaker}'::text[] from core.approved_emails where email='ref@example.invalid'),'replace swaps the single role');
 select pg_temp.expect_error('select api.referee_annotations()','FORBIDDEN');
+-- The table constraint holds for writes outside access_grant too (checked as the table owner).
+reset role;
+select pg_temp.expect_error($q$update core.approved_emails set roles='{judge,filmmaker}' where email='ref@example.invalid'$q$,'new row for relation "approved_emails" violates check constraint "approved_emails_single_role"');
 rollback;

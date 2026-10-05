@@ -8,7 +8,7 @@ import { duplicateEmails, parseAccessCsv } from './lib/admin'
 const CSV_ERRORS: Record<string, ShellMessageKey> = {
   'Invalid email address': 'csvInvalidEmail',
   'Add at least one role': 'csvNoRole',
-  'Admin and judging roles cannot be combined': 'csvAdminJudge',
+  'Only one role per person': 'csvOneRole',
 }
 export function ApproveAccessPage() {
   const { api } = useAuth()
@@ -50,8 +50,15 @@ export function ApproveAccessPage() {
       // The last line wins when an email is repeated.
       const byEmail = new Map(rows.map((row) => [row.email, row]))
       for (const row of byEmail.values()) {
-        const expectedVersion =
-          users.find((u) => u.email.toLowerCase() === row.email)?.version ?? 0
+        const existing = users.find((u) => u.email.toLowerCase() === row.email)
+        const other = existing?.roles.find((role) => role !== row.roles[0])
+        if (other) {
+          // One role per person: changing a role is done from Current users.
+          lines.push(t('approveHasRole', { email: row.email, role: other }))
+          failed.push(row.email)
+          continue
+        }
+        const expectedVersion = existing?.version ?? 0
         const [receipt] = await api.command<{ email: string; error?: string }[]>(
           '/admin/access',
           { emails: [row.email], roles: row.roles, mode: 'add', expectedVersion },
@@ -84,10 +91,10 @@ export function ApproveAccessPage() {
   return (
     <Card title={t('adminApprove')}>
       <Body>
-        One person per line: email, then roles separated by commas. Example:
-        {'\n'}ada@example.org, admin{'\n'}sam@example.org, [filmmaker, judge]{'\n'}
-        Roles: admin, judge, judgeAdvisor, filmmaker, headReferee. Roles are added to any
-        the person already has; edit or remove roles from Current users.
+        One person per line: email, then one role. Example:
+        {'\n'}ada@example.org, admin{'\n'}sam@example.org, [filmmaker]{'\n'}
+        Roles: admin, judge, judgeAdvisor, filmmaker, headReferee. A person has only one
+        role; change or remove it from Current users.
       </Body>
       <Field
         label={t('approveList')}

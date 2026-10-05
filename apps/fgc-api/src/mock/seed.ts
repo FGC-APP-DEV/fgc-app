@@ -51,16 +51,10 @@ export const accounts: MockAccount[] = [
     note: 'Filming tracker and pager.',
   },
   {
-    email: 'multi@fgc.test',
-    name: 'Max Multi',
-    roles: ['filmmaker', 'judge'],
-    note: 'Filming + Judging (no panel yet).',
-  },
-  {
-    email: 'admin-judge@fgc.test',
-    name: 'Alex Both',
-    roles: ['admin', 'judge'],
-    note: 'Mixed role: the admin deny wins over Judging.',
+    email: 'judge5@fgc.test',
+    name: 'Max Judge',
+    roles: ['judge'],
+    note: 'Judge without a panel yet.',
   },
   {
     email: 'referee@fgc.test',
