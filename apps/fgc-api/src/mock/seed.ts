@@ -66,7 +66,7 @@ export const accounts: MockAccount[] = [
     email: 'referee@fgc.test',
     name: 'Riley Referee',
     roles: ['headReferee'],
-    note: 'Head referee: reads every annotation and writes refs notes.',
+    note: 'Head referee: writes and sees only their own refs notes (no judge annotations).',
   },
   {
     email: 'norole@fgc.test',

@@ -31,8 +31,8 @@ export function matchTeams(teams: readonly TeamAnnotations[], term: string) {
 }
 
 /**
- * Head referee page: every judge annotation for a team (read only) plus the head referee's own
- * "refs notes" topic, which the judges of the team's panel can read.
+ * Head referee page: the head referee's own "refs notes" per team, which the judges of the team's
+ * panel can read. The judges' annotations are never shown here.
  */
 export function RefereeNotesScreen() {
   const { api } = useAuth()
@@ -81,7 +81,6 @@ function TeamRefereeCard({
   const { t } = useI18n()
   const toast = useToast()
   const own = team.notes.find((n) => n.authorId === user?.id)
-  const others = team.notes.filter((n) => n.authorId !== user?.id)
   const [text, setText] = useState(own?.text ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -108,20 +107,7 @@ function TeamRefereeCard({
         <Badge label={team.country} />
         <Badge label={team.panelName ?? t('refNoPanel')} />
       </View>
-      <Card title={t('refJudgeAnnotations')}>
-        {team.observations.length === 0 && <Notice text={t('refNoAnnotations')} />}
-        {team.observations.map((o) => (
-          <Card key={o.id} title={o.authorName}>
-            <Body>{o.text}</Body>
-          </Card>
-        ))}
-      </Card>
       <Card title={t('refNotes')}>
-        {others.map((n) => (
-          <Card key={n.id} title={n.authorName}>
-            <Body>{n.text}</Body>
-          </Card>
-        ))}
         <Field
           label={t('refYourNote')}
           multiline

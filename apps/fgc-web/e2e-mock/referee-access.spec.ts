@@ -21,7 +21,7 @@ test('a registered person without a role sees only home and useful resources', a
   await expect(page.getByRole('link', { name: 'Get help from Bob' })).toBeVisible()
 })
 
-test('the head referee reads every annotation and writes refs notes the judges can read', async ({
+test('the head referee writes refs notes the judges can read and never sees judge annotations', async ({
   page,
 }) => {
   await signIn(page, 'referee@fgc.test', 'Riley Referee')
@@ -33,6 +33,7 @@ test('the head referee reads every annotation and writes refs notes the judges c
   await page
     .getByRole('textbox', { name: 'Search by country, team or panel' })
     .fill('Team Kenya')
+  await expect(page.getByText('Judge annotations')).toHaveCount(0)
   await page
     .getByRole('textbox', { name: 'Your refs note' })
     .first()
