@@ -69,6 +69,7 @@ export function AuthProvider({
       attempt?: { id: string; verifier: string }
       installationId: string
       epoch: number
+      onSessionLost?: () => void
     } = { mentorMode: false, installationId: '', epoch: 0 }
     const raw = new ApiClient({
       baseUrl: runtime.baseUrl,
@@ -87,6 +88,24 @@ export function AuthProvider({
     const api = new ApiClient({
       baseUrl: runtime.baseUrl,
       createId: runtime.randomId,
+      // The server rejected the access token (revoked, or issued before an API restart) although
+      // it has not expired locally: renew once instead of leaving every screen on a 401.
+      onUnauthenticated: async () => {
+        if (value.mentorMode || !value.manager?.current) return false
+        const epoch = value.epoch
+        try {
+          await value.manager.refresh(true)
+          return true
+        } catch (e) {
+          if (
+            e instanceof ApiError &&
+            e.code === 'UNAUTHENTICATED' &&
+            epoch === value.epoch
+          )
+            value.onSessionLost?.()
+          return false
+        }
+      },
       getAuthorization: () =>
         value.mentorToken
           ? `Mentor ${value.mentorToken}`
@@ -201,6 +220,11 @@ export function AuthProvider({
       return restoring
     }
     restoreRef.current = restore
+    state.value.onSessionLost = () => {
+      if (disposed) return
+      state.manager.clear()
+      setUser(null)
+    }
     void restore()
     const unsubscribe = runtime.subscribeResume?.(() => {
       void restore()

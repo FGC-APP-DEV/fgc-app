@@ -39,12 +39,17 @@ export class SessionManager {
     this.current = value
     return value
   }
-  refresh(): Promise<SessionResult> {
+  /** `force` renews even when the stored token looks unexpired (the server rejected it). */
+  refresh(force = false): Promise<SessionResult> {
     if (this.signingOut) return Promise.reject(new Error('Sign out is in progress.'))
     if (this.pending) return this.pending
     const generation = this.generation
     const work = async () => {
-      if (this.current && Date.parse(this.current.expiresAt) > Date.now() + 30000)
+      if (
+        !force &&
+        this.current &&
+        Date.parse(this.current.expiresAt) > Date.now() + 30000
+      )
         return this.current
       const refreshToken =
         this.options.platform === 'mobile'
