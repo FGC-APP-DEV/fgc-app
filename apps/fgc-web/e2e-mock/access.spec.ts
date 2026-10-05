@@ -62,6 +62,8 @@ test('Useful resources opens a dropdown of links without leaving the app', async
   await expect(page.getByRole('link', { name: 'Event information' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Live streams' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Results' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Robot kit' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Get help from Bob' })).toBeVisible()
 
   await page
     .context()

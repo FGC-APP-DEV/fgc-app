@@ -100,7 +100,9 @@ are absent. It never runs migrations or seeds on startup.
 
 For native development, configure `apps/fgc-mobile/.env.local` with a reachable
 `EXPO_PUBLIC_API_BASE_URL` including `/api/v1`; device localhost is not the
-workstation. Supply actual bundle identifiers, scheme/domain and EAS project in
+workstation. Set `EXPO_PUBLIC_WEB_APP_URL` (for example `https://fgc-ops.org`, no trailing
+slash) so native builds can open the role guide from Useful resources; without it the
+item is hidden on native. Supply actual bundle identifiers, scheme/domain and EAS project in
 the Expo environment. `fgc-mobile:start-go` is for compatible UI checks;
 `fgc-mobile:start-dev-client` and installed builds are needed for push and links.
 `fgc-mobile:export` compiles bundles only, without signing or publishing.

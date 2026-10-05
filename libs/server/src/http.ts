@@ -14,6 +14,7 @@ import {
 } from 'node:crypto'
 import { ZodError } from 'zod'
 import * as c from '@fgc/contracts'
+import { normalizeCountry } from '@fgc/shared'
 import { commands, reads } from './routes'
 import { DomainError } from './errors'
 import { readImport } from './imports'
@@ -267,7 +268,13 @@ export function createApi(config: ApiConfig) {
           params.p_source_area = query.sourceArea ?? null
           if (query.sourceArea === 'judges') await staff(req, 'judging')
         }
-        if (route.rpc === 'observations_list') params.p_team = c.uuid.parse(req.params.id)
+        if (route.rpc === 'observations_list' || route.rpc === 'referee_notes_list')
+          params.p_team = c.uuid.parse(req.params.id)
+        if (route.rpc === 'annotations_search') {
+          // Teams store alpha-2 codes: resolve alpha-3 codes and English names before the search.
+          const term = (query.search ?? '').trim()
+          params.p_query = (term.length >= 3 && normalizeCountry(term)) || term
+        }
         const data = await rpc.rpc(route.rpc, params)
         return send(
           res,
