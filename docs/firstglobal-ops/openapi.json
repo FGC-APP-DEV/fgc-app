@@ -14,7 +14,7 @@
     "/me/profile": {
       "patch": {
         "operationId": "patch_me_profile",
-        "summary": "Requires current schedule capability",
+        "summary": "Requires current member capability",
         "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
         "security": [
           {
@@ -493,11 +493,11 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "minItems": 1,
-                    "maxItems": 100
+                    "maxItems": 100,
+                    "default": []
                   }
                 },
-                "required": ["name", "leaderId", "judgeIds"],
+                "required": ["name"],
                 "additionalProperties": false
               }
             }
@@ -3562,6 +3562,457 @@
         }
       }
     },
+    "/judging/judges/{id}/conflict": {
+      "put": {
+        "operationId": "put_judging_judges__id__conflict",
+        "summary": "Requires current advisor capability",
+        "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
+        "security": [
+          {
+            "staff": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Reuse exactly the same normalized request for a manual retry. Reauthorize before replay. No automatic retries."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 60
+                    },
+                    "maxItems": 50
+                  }
+                },
+                "required": ["expectedVersion", "countries"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Immutable receipt only; query current entity separately.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Receipt"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "required": ["requestId"],
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "nextCursor": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/judging/teams/{id}/transfer": {
       "post": {
         "operationId": "post_judging_teams__id__transfer",
@@ -5398,6 +5849,893 @@
                   }
                 },
                 "required": ["expectedVersion", "panelId"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Immutable receipt only; query current entity separately.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Receipt"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "required": ["requestId"],
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "nextCursor": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/referee/teams/{id}/note": {
+      "put": {
+        "operationId": "put_referee_teams__id__note",
+        "summary": "Requires current headReferee capability",
+        "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
+        "security": [
+          {
+            "staff": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Reuse exactly the same normalized request for a manual retry. Reauthorize before replay. No automatic retries."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 10000
+                  }
+                },
+                "required": ["expectedVersion", "text"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Immutable receipt only; query current entity separately.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Receipt"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "required": ["requestId"],
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "nextCursor": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_referee_teams__id__note",
+        "summary": "Requires current headReferee capability",
+        "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
+        "security": [
+          {
+            "staff": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Reuse exactly the same normalized request for a manual retry. Reauthorize before replay. No automatic retries."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["expectedVersion"],
                 "additionalProperties": false
               }
             }
@@ -13738,7 +15076,7 @@
     "/me": {
       "get": {
         "operationId": "get_me",
-        "summary": "Requires current schedule capability",
+        "summary": "Requires current member capability",
         "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
         "security": [
           {
@@ -17474,6 +18812,408 @@
         }
       }
     },
+    "/judging/annotations": {
+      "get": {
+        "operationId": "get_judging_annotations",
+        "summary": "Requires current judging capability",
+        "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
+        "security": [
+          {
+            "staff": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success envelope; read projections follow @fgc/contracts DTOs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "properties": {
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "required": ["requestId"],
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "nextCursor": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/judging/audit": {
       "get": {
         "operationId": "get_judging_audit",
@@ -17485,6 +19225,820 @@
           }
         ],
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success envelope; read projections follow @fgc/contracts DTOs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "properties": {
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "required": ["requestId"],
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "nextCursor": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/referee/annotations": {
+      "get": {
+        "operationId": "get_referee_annotations",
+        "summary": "Requires current headReferee capability",
+        "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
+        "security": [
+          {
+            "staff": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success envelope; read projections follow @fgc/contracts DTOs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "properties": {
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "required": ["requestId"],
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "nextCursor": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe canonical error. Authorization and SQL rules are rechecked on every request, including receipt replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["code", "message"],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHENTICATED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "VERSION_CONFLICT",
+                            "STATE_CONFLICT",
+                            "DUPLICATE",
+                            "IDEMPOTENCY_EXPIRED",
+                            "SECRET_ALREADY_ISSUED",
+                            "PAYLOAD_TOO_LARGE",
+                            "RATE_LIMITED",
+                            "DEPENDENCY_UNAVAILABLE"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "fieldErrors": {
+                          "type": "object"
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/judging/teams/{id}/referee-notes": {
+      "get": {
+        "operationId": "get_judging_teams__id__referee_notes",
+        "summary": "Requires current judging capability",
+        "description": "Client DTOs are defined in @fgc/contracts. Business constraints and current-session authorization also run transactionally in SQL. Refinements that involve multiple fields are enforced at runtime.",
+        "security": [
+          {
+            "staff": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success envelope; read projections follow @fgc/contracts DTOs.",
@@ -21680,9 +24234,15 @@
                     "type": "array",
                     "items": {
                       "type": "string",
-                      "enum": ["admin", "judge", "judgeAdvisor", "filmmaker"]
+                      "enum": [
+                        "admin",
+                        "judge",
+                        "judgeAdvisor",
+                        "filmmaker",
+                        "headReferee"
+                      ]
                     },
-                    "maxItems": 4
+                    "maxItems": 1
                   },
                   "mode": {
                     "type": "string",
