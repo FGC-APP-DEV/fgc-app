@@ -67,6 +67,14 @@ it('forwards the annotations search term and rejects non-judging roles', async (
   expect(denied.status).toBe(403)
   expect(other.rpc.mock.calls.map((c) => c[0])).not.toContain('annotations_search')
 })
+it('ignores a leftover mentor cookie when a staff Bearer token is presented', async () => {
+  const { app } = setup(['headReferee'])
+  const result = await request(app)
+    .get('/api/v1/referee/annotations')
+    .set('Authorization', 'Bearer verified')
+    .set('Cookie', 'fgc_mentor=' + 'a'.repeat(64))
+  expect(result.status).toBe(200)
+})
 it('lets a role-less person read /me but nothing else', async () => {
   const { app, rpc } = setup([])
   expect(

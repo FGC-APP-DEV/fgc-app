@@ -127,3 +127,26 @@ it('a failed logout preserves the session so the user can explicitly retry', asy
   expect(manager.current).toEqual(result)
   expect(store.remove).not.toHaveBeenCalled()
 })
+
+it('renews a locally valid token when refresh is forced', async () => {
+  const store = {
+    get: async () => null,
+    set: async () => undefined,
+    remove: async () => undefined,
+  }
+  const post = jest.fn(async () => ({
+    ...result,
+    accessToken: 'renewed',
+    expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
+  }))
+  const manager = new session.SessionManager({ platform: 'web', store, post })
+  await manager.accept({
+    ...result,
+    expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
+  })
+  await manager.refresh()
+  expect(post).not.toHaveBeenCalled()
+  await manager.refresh(true)
+  expect(post).toHaveBeenCalledTimes(1)
+  expect(manager.authorization()).toBe('Bearer renewed')
+})

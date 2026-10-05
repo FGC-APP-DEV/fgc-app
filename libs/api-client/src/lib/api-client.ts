@@ -17,13 +17,22 @@ export interface ApiClientOptions {
   getCsrfToken?: () => Promise<string | undefined>
   fetcher?: typeof fetch
   createId?: () => string
+  /**
+   * Called when an authenticated request is rejected with 401, so the session can be renewed.
+   * Resolves true when a fresh credential is available; only GET requests are then retried once.
+   */
+  onUnauthenticated?: () => Promise<boolean>
 }
 export class ApiClient {
   constructor(private readonly options: ApiClientOptions) {}
   newKey(): string {
     return this.options.createId?.() ?? globalThis.crypto.randomUUID()
   }
-  async envelope<T>(path: string, init: RequestInit = {}): Promise<Envelope<T>> {
+  async envelope<T>(
+    path: string,
+    init: RequestInit = {},
+    retried = false,
+  ): Promise<Envelope<T>> {
     if (!/^\/[a-z]/i.test(path) || path.includes('..') || path.includes('\\'))
       throw new Error('Invalid API path')
     const headers = new Headers(init.headers)
@@ -51,6 +60,16 @@ export class ApiClient {
       | Envelope<T>
       | ErrorEnvelope
       | null
+    if (
+      response.status === 401 &&
+      authorization &&
+      !retried &&
+      !path.startsWith('/auth/') &&
+      this.options.onUnauthenticated &&
+      (await this.options.onUnauthenticated().catch(() => false)) &&
+      (!init.method || init.method === 'GET')
+    )
+      return this.envelope<T>(path, init, true)
     if (!response.ok) {
       if (result && 'error' in result)
         throw new ApiError(

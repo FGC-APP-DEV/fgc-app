@@ -100,8 +100,9 @@ export function createApi(config: ApiConfig) {
     capability: keyof ReturnType<typeof c.capabilities>,
   ): Promise<Staff> {
     const authorization = req.get('Authorization')
-    if (!authorization?.startsWith('Bearer ') || cookies(req)[cookieName])
-      throw new DomainError('UNAUTHENTICATED')
+    // Staff auth is the explicit Bearer header only. A leftover mentor cookie (httpOnly, 7 days)
+    // is not a staff credential and must not lock staff out after a mentor session on this origin.
+    if (!authorization?.startsWith('Bearer ')) throw new DomainError('UNAUTHENTICATED')
     const token = authorization.slice(7)
     await config.gateway.verify(token)
     const rpc = config.gateway.staff(token)
@@ -384,12 +385,30 @@ export function createApi(config: ApiConfig) {
       wrap(async (req, res) => {
         const token = mentor(req)
         const { query, args } = pagination(req)
-        const data = await config.gateway.service.rpc(`mentor_${resource}`, {
-          p_token_hash: hash(token),
-          ...(resource === 'pages'
-            ? { ...args, p_installation_id: c.uuid.parse(req.get('X-Installation-Id')) }
-            : {}),
-        })
+        let data: unknown
+        try {
+          data = await config.gateway.service.rpc(`mentor_${resource}`, {
+            p_token_hash: hash(token),
+            ...(resource === 'pages'
+              ? { ...args, p_installation_id: c.uuid.parse(req.get('X-Installation-Id')) }
+              : {}),
+          })
+        } catch (error) {
+          // The session behind a browser cookie no longer exists: drop the cookie so it stops
+          // shadowing the sign-in flow.
+          if (
+            resource === 'me' &&
+            error instanceof DomainError &&
+            ['UNAUTHENTICATED', 'FORBIDDEN', 'NOT_FOUND'].includes(error.code)
+          )
+            res.clearCookie(cookieName, {
+              httpOnly: true,
+              secure: !config.development,
+              sameSite: 'lax',
+              path: '/',
+            })
+          throw error
+        }
         return send(
           res,
           data,
