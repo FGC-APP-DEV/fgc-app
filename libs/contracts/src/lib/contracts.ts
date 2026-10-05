@@ -263,6 +263,17 @@ export interface Observation {
   version: number
   updatedAt: string
 }
+/** A team (country) found by the cross-panel annotations search, with every panel's notes on it. */
+export interface CountryAnnotations {
+  teamId: string
+  officialId: string
+  teamName: string
+  country: string
+  countryCode: string
+  panelId: string
+  panelName: string
+  observations: (Observation & { panelName: string })[]
+}
 /** A head referee's note ("refs notes") about a team, readable by the judges of the team's panel. */
 export interface RefereeNote {
   id: string

@@ -21,6 +21,7 @@ import {
   useToast,
   useToastOn,
 } from '@fgc/ui'
+import { AnnotationsSearch } from './AnnotationsSearch'
 import { ObservationEditor } from './ObservationEditor'
 import { RefereeNotesPanel } from './RefereeNotesScreen'
 import { judgingAccess, progress } from './judging-state'
@@ -93,10 +94,9 @@ export function JudgingScreen({
   }
   useToastOn(error, 'error')
   const [busy, setBusy] = useState(false)
-  const [tab, setTab] = useRememberedState<'teams' | 'panels' | 'judges' | 'closure'>(
-    'judging.tab',
-    'teams',
-  )
+  const [tab, setTab] = useRememberedState<
+    'teams' | 'annotations' | 'panels' | 'judges' | 'closure'
+  >('judging.tab', 'teams')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<string | null>(null)
   const [observations, setObservations] = useState<Observation[]>([])
@@ -354,6 +354,16 @@ export function JudgingScreen({
             })
           }
         />
+        <Button
+          label={tr('jdTabAnnotations')}
+          variant={tab === 'annotations' ? 'primary' : 'secondary'}
+          onPress={() =>
+            navigate(() => {
+              setSelected(null)
+              setTab('annotations')
+            })
+          }
+        />
         {advisor && (
           <>
             <Button
@@ -410,6 +420,7 @@ export function JudgingScreen({
       {Boolean(planNotice) && tab === 'panels' && <Notice text={planNotice} />}
       {!loaded && <Loading />}
       {loaded && !cycle && <Notice text={tr('jdNoCycle')} />}
+      {tab === 'annotations' && <AnnotationsSearch />}
       {tab === 'teams' && (
         <>
           <Card title={tr('jdProgress')}>

@@ -274,6 +274,7 @@ export const reads: {
     rpc: 'observations_list',
     capability: 'judging',
   },
+  { path: '/judging/annotations', rpc: 'annotations_search', capability: 'judging' },
   { path: '/judging/audit', rpc: 'judging_audit', capability: 'advisor' },
   { path: '/referee/annotations', rpc: 'referee_annotations', capability: 'headReferee' },
   // Judges and advisors read the refs notes of the teams they can already read; the DB enforces it.
