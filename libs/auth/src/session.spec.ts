@@ -183,3 +183,31 @@ it('a forced refresh issued during a normal refresh still renews a rejected toke
   expect(post).toHaveBeenCalledTimes(1)
   expect(manager.authorization()).toBe('Bearer renewed-1')
 })
+
+it('a queued forced refresh is abandoned when the session is cleared meanwhile', async () => {
+  const expiresAt = new Date(Date.now() + 600000).toISOString()
+  const post = jest.fn(async () => ({ ...result, accessToken: 'renewed', expiresAt }))
+  const store = {
+    get: async () => 'refresh',
+    set: async () => undefined,
+    remove: async () => undefined,
+  }
+  const manager = new session.SessionManager({
+    platform: 'web',
+    store,
+    post: post as session.SessionOptions['post'],
+    coordinate: async (work) => {
+      await new Promise((r) => setTimeout(r, 20))
+      return work()
+    },
+  })
+  manager.current = { ...result, accessToken: 'rejected', expiresAt }
+  const normal = manager.refresh()
+  const forced = manager.refresh(true)
+  manager.clear()
+  await normal.catch(() => undefined)
+  await expect(forced).rejects.toThrow('Session was signed out.')
+  // Only the refresh already in flight posted; the queued forced one added nothing.
+  expect(post).toHaveBeenCalledTimes(1)
+  expect(manager.authorization()).toBeUndefined()
+})

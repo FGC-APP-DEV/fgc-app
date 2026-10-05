@@ -48,13 +48,17 @@ export class SessionManager {
       // A normal refresh in flight may keep the token the server just rejected: once it
       // settles, force a renewal unless it already replaced that token.
       const rejected = this.current?.accessToken
+      const queuedGeneration = this.generation
       return this.pending
         .catch(() => undefined)
-        .then(() =>
-          this.current && this.current.accessToken !== rejected
+        .then(() => {
+          // clear() ran while queued: do not renew a session that was signed out.
+          if (queuedGeneration !== this.generation)
+            throw new Error('Session was signed out.')
+          return this.current && this.current.accessToken !== rejected
             ? this.current
-            : this.refresh(true),
-        )
+            : this.refresh(true)
+        })
     }
     const generation = this.generation
     const work = async () => {
