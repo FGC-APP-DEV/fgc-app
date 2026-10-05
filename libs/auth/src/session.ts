@@ -14,6 +14,7 @@ export interface SessionOptions {
 export class SessionManager {
   current: SessionResult | null = null
   private pending: Promise<SessionResult> | null = null
+  private pendingForced = false
   private generation = 0
   private signingOut = false
   private storageWrite: Promise<void> = Promise.resolve()
@@ -42,7 +43,19 @@ export class SessionManager {
   /** `force` renews even when the stored token looks unexpired (the server rejected it). */
   refresh(force = false): Promise<SessionResult> {
     if (this.signingOut) return Promise.reject(new Error('Sign out is in progress.'))
-    if (this.pending) return this.pending
+    if (this.pending) {
+      if (!force || this.pendingForced) return this.pending
+      // A normal refresh in flight may keep the token the server just rejected: once it
+      // settles, force a renewal unless it already replaced that token.
+      const rejected = this.current?.accessToken
+      return this.pending
+        .catch(() => undefined)
+        .then(() =>
+          this.current && this.current.accessToken !== rejected
+            ? this.current
+            : this.refresh(true),
+        )
+    }
     const generation = this.generation
     const work = async () => {
       if (
@@ -62,12 +75,17 @@ export class SessionManager {
       if (generation !== this.generation) throw new Error('Session was signed out.')
       return this.accept(value, generation)
     }
-    this.pending = (
+    this.pendingForced = force
+    const pending: Promise<SessionResult> = (
       this.options.coordinate ? this.options.coordinate(work) : work()
     ).finally(() => {
-      this.pending = null
+      if (this.pending === pending) {
+        this.pending = null
+        this.pendingForced = false
+      }
     })
-    return this.pending
+    this.pending = pending
+    return pending
   }
   clear(): void {
     this.generation++
