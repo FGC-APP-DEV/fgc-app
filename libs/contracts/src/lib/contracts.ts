@@ -284,7 +284,7 @@ export interface RefereeNote {
   version: number
   updatedAt: string
 }
-/** One team of the active cycle with every judge annotation and the refs notes, for the head referee. */
+/** One team of the active cycle with the head referee's own refs notes (never the judges' annotations). */
 export interface TeamAnnotations {
   teamId: string
   officialId: string
@@ -292,7 +292,6 @@ export interface TeamAnnotations {
   country: string
   panelId: string | null
   panelName: string | null
-  observations: (Observation & { panelName?: string })[]
   notes: RefereeNote[]
 }
 export interface Shot {
