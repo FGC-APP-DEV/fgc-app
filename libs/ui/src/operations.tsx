@@ -703,6 +703,9 @@ function resourceUrl(link: (typeof USEFUL_RESOURCES)[number]): string | undefine
   if (Platform.OS === 'web') return link.path
   return WEB_APP_URL ? WEB_APP_URL + link.path : undefined
 }
+/** Address of the role guide, or undefined when native builds have no web address configured. */
+const GUIDE_RESOURCE = USEFUL_RESOURCES.find((link) => link.id === 'guide')
+const guideUrl = GUIDE_RESOURCE ? resourceUrl(GUIDE_RESOURCE) : undefined
 interface Anchor {
   x: number
   y: number
@@ -963,6 +966,36 @@ export function AppHeader({
                     </Text>
                   )}
                 </View>
+              )}
+              {guideUrl && (
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={t('resourceGuide')}
+                  onPress={() => {
+                    setMenu(null)
+                    openExternal(guideUrl)
+                  }}
+                  style={({ pressed }) => ({
+                    minHeight: 48,
+                    paddingHorizontal: 16,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 12,
+                    backgroundColor: pressed ? tokens.surfaceLow : 'transparent',
+                  })}
+                >
+                  <Icon name="globe" size={16} color={tokens.muted} />
+                  <Text
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      fontWeight: '700',
+                      color: tokens.text,
+                    }}
+                  >
+                    {t('resourceGuide')}
+                  </Text>
+                </Pressable>
               )}
               <Pressable
                 accessibilityRole="link"
