@@ -73,7 +73,10 @@ module.exports = {
       template: path.resolve(appRoot, 'src/index.html'),
     }),
     new CopyWebpackPlugin({
-      patterns: [{ from: path.resolve(appRoot, 'src/favicon'), to: '.' }],
+      patterns: [
+        { from: path.resolve(appRoot, 'src/favicon'), to: '.' },
+        { from: path.resolve(appRoot, 'src/guide'), to: 'guide' },
+      ],
     }),
     new SubresourceIntegrityPlugin(),
     new webpack.DefinePlugin({
