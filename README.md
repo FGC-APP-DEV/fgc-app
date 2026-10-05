@@ -107,6 +107,30 @@ the Expo environment. `fgc-mobile:start-go` is for compatible UI checks;
 `fgc-mobile:start-dev-client` and installed builds are needed for push and links.
 `fgc-mobile:export` compiles bundles only, without signing or publishing.
 
+### Android test build (EAS, push enabled)
+
+Run from `apps/fgc-mobile`. `eas.json` has `development` (dev client) and `preview`
+(standalone APK, no Metro needed; use it for demos). Both internal-distribution APKs.
+
+1. `npx eas-cli login`. Create the project with `npx eas-cli init`; because
+   `app.config.ts` is dynamic, init cannot write the ID back and may end with
+   `Cannot read properties of undefined (reading 'projectId')` even though the
+   project was created. Read the ID from the project page on expo.dev.
+   `app.config.ts` takes `extra.eas.projectId` only from the **local** environment, so
+   export it in the shell before every project-scoped EAS command (`eas env:create`,
+   `eas credentials`, `eas build`): `export FGC_EAS_PROJECT_ID=<id>` (PowerShell:
+   `$env:FGC_EAS_PROJECT_ID="<id>"`). Storing it only as a remote EAS variable is not enough.
+2. Create EAS env vars per environment (`eas env:create`): `FGC_EAS_PROJECT_ID`
+   (so cloud builds get it too), `FGC_APP_SCHEME`, and `GOOGLE_SERVICES_JSON` as a **file** variable holding the
+   Firebase `google-services.json` (git-ignored, never commit it).
+   `FGC_ANDROID_PACKAGE` is set in `eas.json` (`mobile.test.alertmvp`) and must equal
+   the package in `google-services.json`.
+3. `npx eas-cli credentials` -> Android -> upload the FCM V1 service account key.
+4. `npx eas-cli build --profile preview --platform android`, then install the APK
+   on a physical device.
+5. Trigger a push manually:
+   `curl -fsS -X POST -H "Authorization: Bearer $WORKER_SECRET" https://<api>/internal/tick`
+
 Unit/HTTP tests use synthetic data. `fgc-web:e2e` runs two Playwright projects in
 Edge: `contract` (static server on 127.0.0.1:3000, intercepted API) and
 `fullstack` (127.0.0.1:3100: real UI, REST API and SQL on the mock stack). Neither

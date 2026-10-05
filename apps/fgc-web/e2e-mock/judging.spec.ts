@@ -66,3 +66,31 @@ test('a judge advisor sees both panels and the closure tab; a judge does not', a
   await judge.getByRole('button', { name: 'Open judging' }).click()
   await expect(judge.getByRole('button', { name: 'Close & audit' })).toHaveCount(0)
 })
+
+test('a judge searches another panel’s country and reads its annotations', async ({
+  page,
+}) => {
+  await signIn(page, 'judge1@fgc.test')
+  await page.getByRole('button', { name: 'Open judging' }).click()
+  await page.getByRole('button', { name: 'Annotations', exact: true }).click()
+  // Nothing but the filter and the instructions until a search is made.
+  await expect(page.getByText(/Type a country code or name/)).toBeVisible()
+  await expect(page.getByRole('button', { name: /See all annotations/ })).toHaveCount(0)
+  // India belongs to Panel B; judge1 is only on Panel A.
+  await page.getByRole('textbox', { name: /Search by country/ }).fill('IN')
+  const open = page.getByRole('button', { name: 'See all annotations · IN' })
+  await expect(open).toBeVisible()
+  await open.click()
+  await expect(
+    page.getByText(/Confident presentation; the robot recovered/),
+  ).toBeVisible()
+  // A panel name lists the countries of that panel.
+  await page.getByRole('textbox', { name: /Search by country/ }).fill('India')
+  await expect(page.getByText('Team India', { exact: false }).first()).toBeVisible()
+  await page.getByRole('textbox', { name: /Search by country/ }).fill('Panel B')
+  await expect(
+    page.getByRole('button', { name: 'See all annotations' }).first(),
+  ).toBeVisible()
+  await page.getByRole('textbox', { name: /Search by country/ }).fill('zzzz')
+  await expect(page.getByText('No country or panel matches this search.')).toBeVisible()
+})
