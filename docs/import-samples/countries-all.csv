@@ -1,0 +1,250 @@
+id,name,country
+FGC-AD,Andorra,AD
+FGC-AE,United Arab Emirates,AE
+FGC-AF,Afghanistan,AF
+FGC-AG,Antigua & Barbuda,AG
+FGC-AI,Anguilla,AI
+FGC-AL,Albania,AL
+FGC-AM,Armenia,AM
+FGC-AO,Angola,AO
+FGC-AQ,Antarctica,AQ
+FGC-AR,Argentina,AR
+FGC-AS,American Samoa,AS
+FGC-AT,Austria,AT
+FGC-AU,Australia,AU
+FGC-AW,Aruba,AW
+FGC-AX,Åland Islands,AX
+FGC-AZ,Azerbaijan,AZ
+FGC-BA,Bosnia & Herzegovina,BA
+FGC-BB,Barbados,BB
+FGC-BD,Bangladesh,BD
+FGC-BE,Belgium,BE
+FGC-BF,Burkina Faso,BF
+FGC-BG,Bulgaria,BG
+FGC-BH,Bahrain,BH
+FGC-BI,Burundi,BI
+FGC-BJ,Benin,BJ
+FGC-BL,St. Barthélemy,BL
+FGC-BM,Bermuda,BM
+FGC-BN,Brunei,BN
+FGC-BO,Bolivia,BO
+FGC-BQ,Caribbean Netherlands,BQ
+FGC-BR,Brazil,BR
+FGC-BS,Bahamas,BS
+FGC-BT,Bhutan,BT
+FGC-BV,Bouvet Island,BV
+FGC-BW,Botswana,BW
+FGC-BY,Belarus,BY
+FGC-BZ,Belize,BZ
+FGC-CA,Canada,CA
+FGC-CC,Cocos (Keeling) Islands,CC
+FGC-CD,Congo - Kinshasa,CD
+FGC-CF,Central African Republic,CF
+FGC-CG,Congo - Brazzaville,CG
+FGC-CH,Switzerland,CH
+FGC-CI,Côte d’Ivoire,CI
+FGC-CK,Cook Islands,CK
+FGC-CL,Chile,CL
+FGC-CM,Cameroon,CM
+FGC-CN,China,CN
+FGC-CO,Colombia,CO
+FGC-CR,Costa Rica,CR
+FGC-CU,Cuba,CU
+FGC-CV,Cape Verde,CV
+FGC-CW,Curaçao,CW
+FGC-CX,Christmas Island,CX
+FGC-CY,Cyprus,CY
+FGC-CZ,Czechia,CZ
+FGC-DE,Germany,DE
+FGC-DJ,Djibouti,DJ
+FGC-DK,Denmark,DK
+FGC-DM,Dominica,DM
+FGC-DO,Dominican Republic,DO
+FGC-DZ,Algeria,DZ
+FGC-EC,Ecuador,EC
+FGC-EE,Estonia,EE
+FGC-EG,Egypt,EG
+FGC-EH,Western Sahara,EH
+FGC-ER,Eritrea,ER
+FGC-ES,Spain,ES
+FGC-ET,Ethiopia,ET
+FGC-FI,Finland,FI
+FGC-FJ,Fiji,FJ
+FGC-FK,Falkland Islands,FK
+FGC-FM,Micronesia,FM
+FGC-FO,Faroe Islands,FO
+FGC-FR,France,FR
+FGC-GA,Gabon,GA
+FGC-GB,United Kingdom,GB
+FGC-GD,Grenada,GD
+FGC-GE,Georgia,GE
+FGC-GF,French Guiana,GF
+FGC-GG,Guernsey,GG
+FGC-GH,Ghana,GH
+FGC-GI,Gibraltar,GI
+FGC-GL,Greenland,GL
+FGC-GM,Gambia,GM
+FGC-GN,Guinea,GN
+FGC-GP,Guadeloupe,GP
+FGC-GQ,Equatorial Guinea,GQ
+FGC-GR,Greece,GR
+FGC-GS,South Georgia & South Sandwich Islands,GS
+FGC-GT,Guatemala,GT
+FGC-GU,Guam,GU
+FGC-GW,Guinea-Bissau,GW
+FGC-GY,Guyana,GY
+FGC-HK,Hong Kong SAR China,HK
+FGC-HM,Heard & McDonald Islands,HM
+FGC-HN,Honduras,HN
+FGC-HR,Croatia,HR
+FGC-HT,Haiti,HT
+FGC-HU,Hungary,HU
+FGC-ID,Indonesia,ID
+FGC-IE,Ireland,IE
+FGC-IL,Israel,IL
+FGC-IM,Isle of Man,IM
+FGC-IN,India,IN
+FGC-IO,British Indian Ocean Territory,IO
+FGC-IQ,Iraq,IQ
+FGC-IR,Iran,IR
+FGC-IS,Iceland,IS
+FGC-IT,Italy,IT
+FGC-JE,Jersey,JE
+FGC-JM,Jamaica,JM
+FGC-JO,Jordan,JO
+FGC-JP,Japan,JP
+FGC-KE,Kenya,KE
+FGC-KG,Kyrgyzstan,KG
+FGC-KH,Cambodia,KH
+FGC-KI,Kiribati,KI
+FGC-KM,Comoros,KM
+FGC-KN,St. Kitts & Nevis,KN
+FGC-KP,North Korea,KP
+FGC-KR,South Korea,KR
+FGC-KW,Kuwait,KW
+FGC-KY,Cayman Islands,KY
+FGC-KZ,Kazakhstan,KZ
+FGC-LA,Laos,LA
+FGC-LB,Lebanon,LB
+FGC-LC,St. Lucia,LC
+FGC-LI,Liechtenstein,LI
+FGC-LK,Sri Lanka,LK
+FGC-LR,Liberia,LR
+FGC-LS,Lesotho,LS
+FGC-LT,Lithuania,LT
+FGC-LU,Luxembourg,LU
+FGC-LV,Latvia,LV
+FGC-LY,Libya,LY
+FGC-MA,Morocco,MA
+FGC-MC,Monaco,MC
+FGC-MD,Moldova,MD
+FGC-ME,Montenegro,ME
+FGC-MF,St. Martin,MF
+FGC-MG,Madagascar,MG
+FGC-MH,Marshall Islands,MH
+FGC-MK,North Macedonia,MK
+FGC-ML,Mali,ML
+FGC-MM,Myanmar (Burma),MM
+FGC-MN,Mongolia,MN
+FGC-MO,Macao SAR China,MO
+FGC-MP,Northern Mariana Islands,MP
+FGC-MQ,Martinique,MQ
+FGC-MR,Mauritania,MR
+FGC-MS,Montserrat,MS
+FGC-MT,Malta,MT
+FGC-MU,Mauritius,MU
+FGC-MV,Maldives,MV
+FGC-MW,Malawi,MW
+FGC-MX,Mexico,MX
+FGC-MY,Malaysia,MY
+FGC-MZ,Mozambique,MZ
+FGC-NA,Namibia,NA
+FGC-NC,New Caledonia,NC
+FGC-NE,Niger,NE
+FGC-NF,Norfolk Island,NF
+FGC-NG,Nigeria,NG
+FGC-NI,Nicaragua,NI
+FGC-NL,Netherlands,NL
+FGC-NO,Norway,NO
+FGC-NP,Nepal,NP
+FGC-NR,Nauru,NR
+FGC-NU,Niue,NU
+FGC-NZ,New Zealand,NZ
+FGC-OM,Oman,OM
+FGC-PA,Panama,PA
+FGC-PE,Peru,PE
+FGC-PF,French Polynesia,PF
+FGC-PG,Papua New Guinea,PG
+FGC-PH,Philippines,PH
+FGC-PK,Pakistan,PK
+FGC-PL,Poland,PL
+FGC-PM,St. Pierre & Miquelon,PM
+FGC-PN,Pitcairn Islands,PN
+FGC-PR,Puerto Rico,PR
+FGC-PS,Palestinian Territories,PS
+FGC-PT,Portugal,PT
+FGC-PW,Palau,PW
+FGC-PY,Paraguay,PY
+FGC-QA,Qatar,QA
+FGC-RE,Réunion,RE
+FGC-RO,Romania,RO
+FGC-RS,Serbia,RS
+FGC-RU,Russia,RU
+FGC-RW,Rwanda,RW
+FGC-SA,Saudi Arabia,SA
+FGC-SB,Solomon Islands,SB
+FGC-SC,Seychelles,SC
+FGC-SD,Sudan,SD
+FGC-SE,Sweden,SE
+FGC-SG,Singapore,SG
+FGC-SH,St. Helena,SH
+FGC-SI,Slovenia,SI
+FGC-SJ,Svalbard & Jan Mayen,SJ
+FGC-SK,Slovakia,SK
+FGC-SL,Sierra Leone,SL
+FGC-SM,San Marino,SM
+FGC-SN,Senegal,SN
+FGC-SO,Somalia,SO
+FGC-SR,Suriname,SR
+FGC-SS,South Sudan,SS
+FGC-ST,São Tomé & Príncipe,ST
+FGC-SV,El Salvador,SV
+FGC-SX,Sint Maarten,SX
+FGC-SY,Syria,SY
+FGC-SZ,Eswatini,SZ
+FGC-TC,Turks & Caicos Islands,TC
+FGC-TD,Chad,TD
+FGC-TF,French Southern Territories,TF
+FGC-TG,Togo,TG
+FGC-TH,Thailand,TH
+FGC-TJ,Tajikistan,TJ
+FGC-TK,Tokelau,TK
+FGC-TL,Timor-Leste,TL
+FGC-TM,Turkmenistan,TM
+FGC-TN,Tunisia,TN
+FGC-TO,Tonga,TO
+FGC-TR,Türkiye,TR
+FGC-TT,Trinidad & Tobago,TT
+FGC-TV,Tuvalu,TV
+FGC-TW,Taiwan,TW
+FGC-TZ,Tanzania,TZ
+FGC-UA,Ukraine,UA
+FGC-UG,Uganda,UG
+FGC-UM,U.S. Outlying Islands,UM
+FGC-US,United States,US
+FGC-UY,Uruguay,UY
+FGC-UZ,Uzbekistan,UZ
+FGC-VA,Vatican City,VA
+FGC-VC,St. Vincent & Grenadines,VC
+FGC-VE,Venezuela,VE
+FGC-VG,British Virgin Islands,VG
+FGC-VI,U.S. Virgin Islands,VI
+FGC-VN,Vietnam,VN
+FGC-VU,Vanuatu,VU
+FGC-WF,Wallis & Futuna,WF
+FGC-WS,Samoa,WS
+FGC-YE,Yemen,YE
+FGC-YT,Mayotte,YT
+FGC-ZA,South Africa,ZA
+FGC-ZM,Zambia,ZM
+FGC-ZW,Zimbabwe,ZW

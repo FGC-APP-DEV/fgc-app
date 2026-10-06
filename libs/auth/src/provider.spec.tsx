@@ -6,6 +6,7 @@ import { AuthProvider, useAuth, type AuthRuntime } from './provider'
 import type { SessionResult } from '@fgc/contracts'
 
 let mockRefreshError: ApiError | null = null
+let mockProfile: Record<string, unknown> = {}
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const mockPost = jest.fn()
 jest.mock('@fgc/api-client', () => {
@@ -17,6 +18,7 @@ jest.mock('@fgc/api-client', () => {
         if (path === '/mentor/me')
           throw new actual.ApiError('UNAUTHENTICATED', 'No mentor session', 401)
         if (path === '/auth/csrf') return { csrfToken: 'csrf' }
+        if (path === '/me') return { ...mockProfile }
         throw new Error('Unexpected read')
       }
       async post(path: string, body: unknown) {
@@ -39,6 +41,11 @@ function Consumer() {
     <>
       {auth.user ? <Draft /> : <p>Login</p>}
       <span>{auth.error}</span>
+      <b>{auth.user?.name ?? 'no-name'}</b>
+      {auth.sessionRetryable && <button onClick={auth.retrySession}>Try again</button>}
+      <button id="reload" onClick={() => void auth.reloadProfile()}>
+        Reload profile
+      </button>
       {auth.hasAuthLink && <button>Confirm email sign-in</button>}
     </>
   )
@@ -147,4 +154,31 @@ test('revoked session returns to login instead of retrying indefinitely', async 
     jest.advanceTimersByTime(60_000)
   })
   expect(mockPost).toHaveBeenCalledTimes(count)
+})
+test('a saved profile name survives the next session renewal instead of reverting to the stale cached user', async () => {
+  await mount()
+  expect(node.querySelector('b')?.textContent).toBe('no-name')
+  mockProfile = { ...result.user, name: 'Ada Lovelace', version: 2 }
+  await act(async () => {
+    node.querySelector<HTMLButtonElement>('#reload')!.click()
+  })
+  expect(node.querySelector('b')?.textContent).toBe('Ada Lovelace')
+  await act(async () => {
+    jest.advanceTimersByTime(16_000)
+  })
+  expect(node.querySelector('b')?.textContent).toBe('Ada Lovelace')
+})
+test('a failed session refresh offers a retry that recovers without a page reload', async () => {
+  mockRefreshError = new ApiError('NETWORK_ERROR', 'offline')
+  await mount()
+  expect(node.textContent).toContain('Session could not be refreshed')
+  const retry = Array.from(node.querySelectorAll('button')).find(
+    (b) => b.textContent === 'Try again',
+  )
+  expect(retry).toBeTruthy()
+  mockRefreshError = null
+  await act(async () => retry!.click())
+  expect(node.textContent).not.toContain('Session could not be refreshed')
+  expect(node.textContent).not.toContain('Try again')
+  expect(node.textContent).toContain('unsaved observation')
 })

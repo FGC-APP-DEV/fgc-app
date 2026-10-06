@@ -8,7 +8,7 @@ test('an administrator approves a filmmaker who then completes the profile and s
   await page.getByRole('button', { name: 'Open administration' }).click()
   await page.getByRole('button', { name: 'Open Approve staff access' }).click()
   await page
-    .getByRole('textbox', { name: 'Access list (CSV: email, roles)' })
+    .getByRole('textbox', { name: 'Access list (CSV: email, role)' })
     .fill('e2e-newcomer@fgc.test, filmmaker')
   await page.getByRole('button', { name: 'Save access', exact: true }).click()
   await expect(page.getByText(/e2e-newcomer@fgc.test: Access added/)).toBeVisible()
@@ -44,12 +44,6 @@ test('a wrong email code is rejected', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Open filming' })).toHaveCount(0)
 })
 
-test('admin plus Judging roles never reach Judging', async ({ page }) => {
-  await signIn(page, 'admin-judge@fgc.test', 'Alex Both')
-  await expect(page.getByRole('button', { name: 'Open administration' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Open judging' })).toHaveCount(0)
-})
-
 test('Useful resources opens a dropdown of links without leaving the app', async ({
   page,
 }) => {
@@ -62,6 +56,8 @@ test('Useful resources opens a dropdown of links without leaving the app', async
   await expect(page.getByRole('link', { name: 'Event information' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Live streams' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Results' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Robot kit' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Get help from Bob' })).toBeVisible()
 
   await page
     .context()
@@ -81,7 +77,7 @@ test('an administrator adds staff from CSV, then filters users and edits or remo
   await page.getByRole('button', { name: 'Open administration' }).click()
   await page.getByRole('button', { name: 'Open Approve staff access' }).click()
   await page
-    .getByRole('textbox', { name: 'Access list (CSV: email, roles)' })
+    .getByRole('textbox', { name: 'Access list (CSV: email, role)' })
     .fill('bulk1@fgc.test, filmmaker\nbulk2@fgc.test, [filmmaker]')
   await page.getByRole('button', { name: 'Save access', exact: true }).click()
   await expect(page.getByText(/bulk2@fgc.test: Access added/)).toBeVisible()
@@ -93,8 +89,11 @@ test('an administrator adds staff from CSV, then filters users and edits or remo
   await expect(page.getByText('bulk1@fgc.test')).toBeVisible()
 
   await page.getByRole('button', { name: 'Actions for bulk1@fgc.test' }).click()
-  await page.getByRole('checkbox', { name: 'filmmaker', exact: true }).click()
+  // One role per person: picking another role replaces the current one.
   await page.getByRole('checkbox', { name: 'judge', exact: true }).click()
+  await expect(
+    page.getByRole('checkbox', { name: 'filmmaker', exact: true }),
+  ).not.toBeChecked()
   await page.getByRole('button', { name: 'Confirm', exact: true }).click()
   await expect(page.getByText('bulk1@fgc.test: Roles updated')).toBeVisible()
 

@@ -24,13 +24,17 @@ describe('REST boundary contracts', () => {
     ).toBe(false)
     expect(contract.observationInput.safeParse({ text: 'Note' }).success).toBe(false)
   })
-  it('rejects mixed administrative and judging access', () => {
+  it('allows at most one role per person', () => {
+    const base = { emails: ['a@example.org'], mode: 'replace' as const }
+    expect(contract.accessInput.safeParse({ ...base, roles: ['judge'] }).success).toBe(
+      true,
+    )
+    expect(contract.accessInput.safeParse({ ...base, roles: [] }).success).toBe(true)
     expect(
-      contract.accessInput.safeParse({
-        emails: ['admin@example.org'],
-        roles: ['admin', 'judge'],
-        mode: 'replace',
-      }).success,
+      contract.accessInput.safeParse({ ...base, roles: ['admin', 'judge'] }).success,
+    ).toBe(false)
+    expect(
+      contract.accessInput.safeParse({ ...base, roles: ['filmmaker', 'judge'] }).success,
     ).toBe(false)
   })
   it('allows only approved mentor responses and enforces pager limits', () => {
@@ -54,5 +58,13 @@ describe('REST boundary contracts', () => {
     expect(contract.capabilities(['admin', 'judge', 'judgeAdvisor']).judging).toBe(false)
     expect(contract.capabilities(['judge']).judging).toBe(true)
     expect(contract.capabilities([]).schedule).toBe(false)
+    expect(contract.capabilities([]).member).toBe(true)
+  })
+  it('grants the head referee capability apart from admin and judging', () => {
+    expect(contract.capabilities(['headReferee']).headReferee).toBe(true)
+    expect(contract.capabilities(['headReferee']).judging).toBe(false)
+    expect(contract.capabilities(['admin', 'headReferee']).headReferee).toBe(false)
+    expect(contract.capabilities(['headReferee']).schedule).toBe(true)
+    expect(contract.capabilities(['judge']).headReferee).toBe(false)
   })
 })

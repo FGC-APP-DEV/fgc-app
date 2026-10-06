@@ -51,16 +51,22 @@ export const accounts: MockAccount[] = [
     note: 'Filming tracker and pager.',
   },
   {
-    email: 'multi@fgc.test',
-    name: 'Max Multi',
-    roles: ['filmmaker', 'judge'],
-    note: 'Filming + Judging (no panel yet).',
+    email: 'judge5@fgc.test',
+    name: 'Max Judge',
+    roles: ['judge'],
+    note: 'Judge without a panel yet.',
   },
   {
-    email: 'admin-judge@fgc.test',
-    name: 'Alex Both',
-    roles: ['admin', 'judge'],
-    note: 'Mixed role: the admin deny wins over Judging.',
+    email: 'referee@fgc.test',
+    name: 'Riley Referee',
+    roles: ['headReferee'],
+    note: 'Head referee: writes and sees only their own refs notes (no judge annotations).',
+  },
+  {
+    email: 'norole@fgc.test',
+    name: 'Nico NoRole',
+    roles: [],
+    note: 'Registered without a role: home and useful resources only.',
   },
 ]
 /** Approved by an administrator but never signed in: shows as pending access. */
@@ -210,6 +216,16 @@ export async function seed(mock: MockGateway, mentorSecret: string) {
       panelId: panel('Panel A').id,
       expectedVersion: 0,
       text: 'Strong robot design and clear team roles. Follow up on the outreach project.',
+    },
+    p_key: key(),
+  })
+  const judge3 = await session('judge3@fgc.test')
+  await judge3.rpc('observation_put', {
+    p_input: {
+      teamId: teams[6].id,
+      panelId: panel('Panel B').id,
+      expectedVersion: 0,
+      text: 'Confident presentation; the robot recovered well from a failed run.',
     },
     p_key: key(),
   })

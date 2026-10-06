@@ -5,7 +5,7 @@ import { capabilities, type PageSource } from '@fgc/contracts'
 import { AdminScreen } from '@fgc/admin'
 import { ImportScreen } from '@fgc/imports'
 import { FilmingScreen } from '@fgc/filming'
-import { JudgingScreen } from '@fgc/judging'
+import { JudgingScreen, RefereeNotesScreen } from '@fgc/judging'
 import { PagerScreen } from '@fgc/messaging'
 import { MentorScreen } from '@fgc/mentor'
 import {
@@ -40,7 +40,7 @@ import {
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 
-type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'pager'
+type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'referee' | 'pager'
 const mockInfoUrl = process.env.FGC_MOCK ? '/__mock/info' : undefined
 function Login() {
   const auth = useAuth()
@@ -71,6 +71,9 @@ function Login() {
     <LoginShell>
       <LoginCard title={t('loginWelcome')} subtitle={t('loginSubtitle')}>
         {Boolean(problem || auth.error) && <Notice text={problem || auth.error} error />}
+        {!problem && auth.sessionRetryable && (
+          <Button label={t('tryAgain')} onPress={auth.retrySession} />
+        )}
         {auth.hasAuthLink && (
           <Button
             label={t('loginConfirmLink')}
@@ -198,10 +201,13 @@ function Shell() {
     ...(caps.judging
       ? [{ id: 'judging', label: t('navJudging'), icon: 'judging' } as const]
       : []),
+    ...(caps.headReferee
+      ? [{ id: 'referee', label: t('navReferee'), icon: 'judging' } as const]
+      : []),
     ...(caps.filming
       ? [{ id: 'filming', label: t('navFilming'), icon: 'video' } as const]
       : []),
-    ...(caps.schedule
+    ...(caps.member
       ? [
           {
             id: 'useful-resources',
@@ -233,12 +239,19 @@ function Shell() {
         userRole={auth.user ? auth.user.roles.map(humanize).join(' · ') : t('mentor')}
       />
       {Boolean(error) && <Notice text={error} error />}
+      {auth.sessionRetryable && (
+        <>
+          <Notice text={auth.error} error />
+          <Button label={t('tryAgain')} onPress={auth.retrySession} />
+        </>
+      )}
       {auth.mentor ? (
         <MentorScreen />
       ) : !auth.user?.name ? (
         <Screen>
           <Card title={t('completeProfile')}>
             <Field label={t('fullName')} value={name} onChangeText={setName} />
+            <Notice text={t('nameCannotChange')} />
             <Button
               label={t('saveProfile')}
               disabled={!name.trim()}
@@ -286,6 +299,15 @@ function Shell() {
                       onPress={() => navigate('judging')}
                     />
                   )}
+                  {caps.headReferee && (
+                    <ModuleCard
+                      title={t('referee')}
+                      label={t('openReferee')}
+                      hint={t('moduleHintReferee')}
+                      icon="judging"
+                      onPress={() => navigate('referee')}
+                    />
+                  )}
                   {caps.filming && (
                     <ModuleCard
                       title={t('filming')}
@@ -295,7 +317,7 @@ function Shell() {
                       onPress={() => navigate('filming')}
                     />
                   )}
-                  {caps.schedule && (
+                  {caps.member && (
                     <ModuleCard
                       title={t('officialSchedule')}
                       hint={t('moduleHintOfficial')}
@@ -322,6 +344,7 @@ function Shell() {
                 onDirtyChange={setDirty}
               />
             )}
+            {route === 'referee' && caps.headReferee && <RefereeNotesScreen />}
             {route === 'pager' &&
               (pageSource === 'judges' ? caps.judging : caps.filming) && (
                 <PagerScreen

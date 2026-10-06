@@ -2,7 +2,13 @@ import { z } from 'zod'
 
 export const uuid = z.string().uuid()
 export const version = z.number().int().nonnegative()
-export const roleSchema = z.enum(['admin', 'judge', 'judgeAdvisor', 'filmmaker'])
+export const roleSchema = z.enum([
+  'admin',
+  'judge',
+  'judgeAdvisor',
+  'filmmaker',
+  'headReferee',
+])
 export type Role = z.infer<typeof roleSchema>
 export const platformSchema = z.enum(['web', 'mobile'])
 export const versionInput = z.object({ expectedVersion: version }).strict()
@@ -41,6 +47,9 @@ export const observationInput = versionInput.extend({
   text: z.string().trim().min(1).max(10000),
 })
 export const observationDeleteInput = versionInput.extend({ panelId: uuid })
+export const refereeNoteInput = versionInput.extend({
+  text: z.string().trim().min(1).max(10000),
+})
 export const completeInput = versionInput.extend({ confirmed: z.literal(true) })
 export const reasonInput = versionInput.extend({
   reason: z.string().trim().min(1).max(500),
@@ -82,19 +91,12 @@ export const accessInput = z
       )
       .min(1)
       .max(100),
-    roles: z.array(roleSchema).max(4),
+    // One role per person; an empty list removes the person's access.
+    roles: z.array(roleSchema).max(1),
     mode: z.enum(['add', 'replace']),
     expectedVersion: version.optional(),
   })
   .strict()
-  .refine(
-    (v) =>
-      !(
-        v.roles.includes('admin') &&
-        (v.roles.includes('judge') || v.roles.includes('judgeAdvisor'))
-      ),
-    'Administrative and judging access cannot be combined',
-  )
 export const mentorCodeInput = versionInput.extend({ teamId: uuid })
 export const redeemInput = z
   .object({
@@ -252,6 +254,37 @@ export interface Observation {
   version: number
   updatedAt: string
 }
+/** A team (country) found by the cross-panel annotations search, with every panel's notes on it. */
+export interface CountryAnnotations {
+  teamId: string
+  officialId: string
+  teamName: string
+  country: string
+  countryCode: string
+  panelId: string
+  panelName: string
+  observations: (Observation & { panelName: string })[]
+}
+/** A head referee's note ("refs notes") about a team, readable by the judges of the team's panel. */
+export interface RefereeNote {
+  id: string
+  authorId: string
+  authorName: string
+  teamId: string
+  text: string
+  version: number
+  updatedAt: string
+}
+/** One team of the active cycle with the head referee's own refs notes (never the judges' annotations). */
+export interface TeamAnnotations {
+  teamId: string
+  officialId: string
+  teamName: string
+  country: string
+  panelId: string | null
+  panelName: string | null
+  notes: RefereeNote[]
+}
 export interface Shot {
   id: string
   templateId: string
@@ -332,6 +365,9 @@ export function capabilities(roles: readonly Role[]) {
     judging,
     advisor: judging && roles.includes('judgeAdvisor'),
     filming: admin || roles.includes('filmmaker'),
+    headReferee: !admin && roles.includes('headReferee'),
+    /** Any person registered in the system, even without a role: home and useful resources only. */
+    member: true,
     schedule: roles.length > 0,
   }
 }

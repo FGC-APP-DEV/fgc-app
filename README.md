@@ -77,7 +77,7 @@ observation, a flag, Filming shots and shot-list items, three mentor codes and
 pending pagers. Only the identity provider is replaced: every account signs in
 with code `123456`, and no email is sent. The login screen shows a **Mock
 accounts** panel for one-tap sign-in (admin, judge advisor, judges, filmmaker,
-mixed-role users, mentor codes). Data resets whenever the process restarts.
+head referee, mentor codes). Data resets whenever the process restarts.
 Details and limits: [docs/mock-development.md](docs/mock-development.md).
 
 ## Development and verification
@@ -100,10 +100,46 @@ are absent. It never runs migrations or seeds on startup.
 
 For native development, configure `apps/fgc-mobile/.env.local` with a reachable
 `EXPO_PUBLIC_API_BASE_URL` including `/api/v1`; device localhost is not the
-workstation. Supply actual bundle identifiers, scheme/domain and EAS project in
+workstation. Set `EXPO_PUBLIC_WEB_APP_URL` (for example `https://fgc-ops.org`, no trailing
+slash) so native builds can open the role guide from Useful resources; without it the
+item is hidden on native. Supply actual bundle identifiers, scheme/domain and EAS project in
 the Expo environment. `fgc-mobile:start-go` is for compatible UI checks;
 `fgc-mobile:start-dev-client` and installed builds are needed for push and links.
 `fgc-mobile:export` compiles bundles only, without signing or publishing.
+
+### Android test build (EAS, push enabled)
+
+Run from `apps/fgc-mobile`. `eas.json` has `development` (dev client) and `preview`
+(standalone APK, no Metro needed; use it for demos). Both internal-distribution APKs.
+
+1. `npx eas-cli login`. Create the project with `npx eas-cli init`; because
+   `app.config.ts` is dynamic, init cannot write the ID back and may end with
+   `Cannot read properties of undefined (reading 'projectId')` even though the
+   project was created. Read the ID from the project page on expo.dev.
+   `app.config.ts` takes `extra.eas.projectId` only from the **local** environment, so
+   export it in the shell before every project-scoped EAS command (`eas env:create`,
+   `eas credentials`, `eas build`): `export FGC_EAS_PROJECT_ID=<id>` (PowerShell:
+   `$env:FGC_EAS_PROJECT_ID="<id>"`). Storing it only as a remote EAS variable is not enough.
+2. Create EAS env vars per environment (`eas env:create`): `FGC_EAS_PROJECT_ID`
+   (so cloud builds get it too), `FGC_APP_SCHEME`, and `GOOGLE_SERVICES_JSON` as a **file** variable holding the
+   Firebase `google-services.json` (git-ignored, never commit it).
+   `FGC_ANDROID_PACKAGE` is set in `eas.json` (`mobile.test.alertmvp`) and must equal
+   the package in `google-services.json`.
+3. `npx eas-cli credentials` -> Android -> upload the FCM V1 service account key.
+4. `npx eas-cli build --profile preview --platform android`, then install the APK
+   on a physical device.
+5. Trigger a push manually:
+   `curl -fsS -X POST -H "Authorization: Bearer $WORKER_SECRET" https://<api>/internal/tick`
+
+Mobile login in the demo uses the **email code** typed in the app (`/auth/verify`),
+not the email link. The API only accepts HTTPS `AUTH_MOBILE_CALLBACK_URL` and
+`AUTH_MOBILE_EXCHANGE_URL`, so the custom scheme (`FGC_APP_SCHEME=fgcapp`) cannot be
+the callback; those two vars only need valid HTTPS URLs for now.
+
+Pending (not done): Android App Link so the email link opens the app. Needs an owned
+HTTPS domain set in `FGC_APP_LINK_DOMAIN`, `https://<domain>/.well-known/assetlinks.json`
+with the package and the signing-certificate SHA-256 of the build, and
+`AUTH_MOBILE_CALLBACK_URL`/`AUTH_MOBILE_EXCHANGE_URL` pointing at that domain.
 
 Unit/HTTP tests use synthetic data. `fgc-web:e2e` runs two Playwright projects in
 Edge: `contract` (static server on 127.0.0.1:3000, intercepted API) and

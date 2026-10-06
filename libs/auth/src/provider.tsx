@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { ApiClient, ApiError } from '@fgc/api-client'
 import type { Mentor, SessionResult, User } from '@fgc/contracts'
 import { SessionManager, type SecretStore } from './session'
@@ -22,6 +29,9 @@ interface AuthValue {
   mentor: Mentor | null
   loading: boolean
   error: string
+  /** True when `error` came from a failed session refresh that `retrySession` can re-run. */
+  sessionRetryable: boolean
+  retrySession(): void
   installationId: string
   sendEmail(email: string): Promise<void>
   verify(code: string): Promise<void>
@@ -43,6 +53,8 @@ export function AuthProvider({
   const [mentor, setMentor] = useState<Mentor | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [sessionRetryable, setSessionRetryable] = useState(false)
+  const restoreRef = useRef<() => Promise<void>>(async () => undefined)
   const [installationId, setInstallation] = useState('')
   const [, setLinkRevision] = useState(0)
   useEffect(
@@ -57,6 +69,7 @@ export function AuthProvider({
       attempt?: { id: string; verifier: string }
       installationId: string
       epoch: number
+      onSessionLost?: () => void
     } = { mentorMode: false, installationId: '', epoch: 0 }
     const raw = new ApiClient({
       baseUrl: runtime.baseUrl,
@@ -75,6 +88,24 @@ export function AuthProvider({
     const api = new ApiClient({
       baseUrl: runtime.baseUrl,
       createId: runtime.randomId,
+      // The server rejected the access token (revoked, or issued before an API restart) although
+      // it has not expired locally: renew once instead of leaving every screen on a 401.
+      onUnauthenticated: async () => {
+        if (value.mentorMode || !value.manager?.current) return false
+        const epoch = value.epoch
+        try {
+          await value.manager.refresh(true)
+          return true
+        } catch (e) {
+          if (
+            e instanceof ApiError &&
+            e.code === 'UNAUTHENTICATED' &&
+            epoch === value.epoch
+          )
+            value.onSessionLost?.()
+          return false
+        }
+      },
       getAuthorization: () =>
         value.mentorToken
           ? `Mentor ${value.mentorToken}`
@@ -144,6 +175,7 @@ export function AuthProvider({
                 setMentor(profile)
                 setUser(null)
                 setError('')
+                setSessionRetryable(false)
               }
               return
             } catch (e) {
@@ -160,6 +192,7 @@ export function AuthProvider({
             setUser(session.user)
             setMentor(null)
             setError('')
+            setSessionRetryable(false)
             if (previousToken !== session.accessToken) runtime.publishSession?.(session)
           }
         } catch (e) {
@@ -170,10 +203,12 @@ export function AuthProvider({
               state.value.mentorMode = false
               setUser(null)
               setMentor(null)
-            } else
+            } else {
               setError(
                 'Session could not be refreshed. Your current screen is preserved. Check your connection and retry.',
               )
+              setSessionRetryable(true)
+            }
           }
         } finally {
           if (active()) setLoading(false)
@@ -183,6 +218,12 @@ export function AuthProvider({
         restoring = null
       })
       return restoring
+    }
+    restoreRef.current = restore
+    state.value.onSessionLost = () => {
+      if (disposed) return
+      state.manager.clear()
+      setUser(null)
     }
     void restore()
     const unsubscribe = runtime.subscribeResume?.(() => {
@@ -228,6 +269,7 @@ export function AuthProvider({
   }, [runtime, state])
   const action = async (work: () => Promise<void>) => {
     setError('')
+    setSessionRetryable(false)
     try {
       await work()
     } catch (e) {
@@ -243,6 +285,12 @@ export function AuthProvider({
     mentor,
     loading,
     error,
+    sessionRetryable,
+    retrySession: () => {
+      setError('')
+      setSessionRetryable(false)
+      void restoreRef.current()
+    },
     installationId,
     hasAuthLink: Boolean(runtime.getAuthLink?.()),
     sendEmail: (email) =>
@@ -333,7 +381,12 @@ export function AuthProvider({
         setMentor(null)
       }),
     reloadProfile: async () => {
-      setUser(await state.api.get<User>('/me'))
+      const profile = await state.api.get<User>('/me')
+      // The cached session still carries the user as it was when the token was issued;
+      // keep it in sync so the next refresh does not restore a stale (e.g. unnamed) user.
+      if (state.manager.current)
+        state.manager.current = { ...state.manager.current, user: profile }
+      setUser(profile)
     },
   }
   return <Context.Provider value={value}>{children}</Context.Provider>

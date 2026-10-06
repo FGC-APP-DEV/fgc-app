@@ -13,3 +13,6 @@ playwright-report/
 
 /tmp
 supabase/.temp*
+google-services.json
+*-firebase-adminsdk-*.json
+*.jks
