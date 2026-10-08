@@ -148,6 +148,17 @@ describe('TeamSearch', () => {
     await type('bra')
     expect(container.textContent).toContain('may be out of date')
   })
+  it('drops the earlier results and shows the error when a later refresh fails', async () => {
+    mockFetchTeams.mockResolvedValueOnce(result())
+    await type('brazil')
+    expect(container.textContent).toContain('Ranking Match 20')
+    await type('')
+    mockFetchTeams.mockRejectedValueOnce(new Error('down'))
+    await type('brazil')
+    expect(container.textContent).toContain('could not be loaded')
+    expect(container.textContent).not.toContain('Ranking Match 20')
+    expect(container.textContent).not.toContain('Brazil')
+  })
   it('shows an error with a retry that forces a refresh', async () => {
     mockFetchTeams.mockRejectedValueOnce(new Error('down'))
     await type('bra')
