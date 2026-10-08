@@ -17,6 +17,7 @@ import {
   Confirm,
   EventFrame,
   ModuleCard,
+  TeamSearch,
   Field,
   Heading,
   I18nProvider,
@@ -40,7 +41,15 @@ import {
 } from '@fgc/ui'
 import { runtime, pickFile } from './runtime'
 
-type Route = 'home' | 'admin' | 'imports' | 'filming' | 'judging' | 'referee' | 'pager'
+type Route =
+  | 'home'
+  | 'teams'
+  | 'admin'
+  | 'imports'
+  | 'filming'
+  | 'judging'
+  | 'referee'
+  | 'pager'
 const mockInfoUrl = process.env.FGC_MOCK ? '/__mock/info' : undefined
 function Login() {
   const auth = useAuth()
@@ -68,7 +77,8 @@ function Login() {
       await auth.verify(otp)
     })
   return (
-    <LoginShell>
+    <LoginShell maxWidth={560}>
+      <TeamSearch />
       <LoginCard title={t('loginWelcome')} subtitle={t('loginSubtitle')}>
         {Boolean(problem || auth.error) && <Notice text={problem || auth.error} error />}
         {!problem && auth.sessionRetryable && (
@@ -195,6 +205,7 @@ function Shell() {
   const caps = capabilities(auth.user?.roles ?? [])
   const navItems: NavItem[] = [
     { id: 'home', label: t('navHome'), icon: 'dashboard' },
+    { id: 'teams', label: t('navTeams'), icon: 'users' },
     ...(caps.admin
       ? [{ id: 'admin', label: t('navAdmin'), icon: 'admin' } as const]
       : []),
@@ -327,6 +338,11 @@ function Shell() {
                   )}
                 </View>
                 <EventFrame />
+              </Screen>
+            )}
+            {route === 'teams' && (
+              <Screen>
+                <TeamSearch />
               </Screen>
             )}
             {route === 'admin' && caps.admin && (

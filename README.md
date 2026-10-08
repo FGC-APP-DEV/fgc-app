@@ -153,6 +153,10 @@ rechecks delivery authorization, sends generic content only, and runs due purge.
 Do not replace the scheduler with an in-process timer. Production scheduler,
 Vault configuration and monitoring still need operational verification.
 
+## Team search
+
+The signed-out landing page and the **Teams** navigation item search the FGC 2026 teams by country name or code, using `api.first.global`. See [libs/shared/src/fgc/README.md](libs/shared/src/fgc/README.md).
+
 ## Boundaries
 
 Shared `contracts` define strict inputs, capabilities, DTOs and receipts.
