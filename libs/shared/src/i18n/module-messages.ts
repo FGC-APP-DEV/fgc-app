@@ -420,7 +420,8 @@ const en = {
   jdSt_other: 'other',
   jdSt_evaluated: 'evaluated',
   teamsTitle: 'Find a team',
-  teamsSubtitle: 'Search the FGC 2026 teams by country name or code.',
+  teamsSubtitle:
+    'Search an FGC 2026 team by country name or code to see its match times and fields.',
   teamsSearchLabel: 'Team name or code',
   teamsSearchPlaceholder: 'e.g. Brazil or BRA',
   teamsPrompt: 'Type a country name or code to see its team.',
@@ -429,6 +430,11 @@ const en = {
   teamsSnapshotNotice: 'Showing saved data, which may be out of date.',
   teamsNumber: 'Team {number}',
   teamsResultCount: '{count} found',
+  teamsField: 'Field #{number}',
+  teamsNoMatches: 'No matches scheduled yet.',
+  teamsRefine: 'Narrow your search to see match times.',
+  matchRedAlliance: 'Red alliance',
+  matchBlueAlliance: 'Blue alliance',
 }
 
 export type ModuleMessageKey = keyof typeof en
@@ -869,7 +875,8 @@ const fr: Messages = {
   jdSt_other: 'autre',
   jdSt_evaluated: 'évaluée',
   teamsTitle: 'Trouver une équipe',
-  teamsSubtitle: 'Recherchez les équipes FGC 2026 par nom de pays ou code.',
+  teamsSubtitle:
+    'Recherchez une équipe FGC 2026 par nom de pays ou code pour voir l’horaire et le terrain de ses matchs.',
   teamsSearchLabel: 'Nom ou code de l’équipe',
   teamsSearchPlaceholder: 'p. ex. Brazil ou BRA',
   teamsPrompt: 'Saisissez un nom de pays ou un code pour afficher son équipe.',
@@ -878,6 +885,11 @@ const fr: Messages = {
   teamsSnapshotNotice: 'Données enregistrées affichées ; elles peuvent être obsolètes.',
   teamsNumber: 'Équipe {number}',
   teamsResultCount: '{count} trouvée(s)',
+  teamsField: 'Terrain n° {number}',
+  teamsNoMatches: 'Aucun match programmé pour l’instant.',
+  teamsRefine: 'Affinez la recherche pour voir les horaires des matchs.',
+  matchRedAlliance: 'Alliance rouge',
+  matchBlueAlliance: 'Alliance bleue',
 }
 
 const es: Messages = {
@@ -1308,7 +1320,8 @@ const es: Messages = {
   jdSt_other: 'otro',
   jdSt_evaluated: 'evaluada',
   teamsTitle: 'Buscar un equipo',
-  teamsSubtitle: 'Busca los equipos de FGC 2026 por nombre o código de país.',
+  teamsSubtitle:
+    'Busca un equipo de FGC 2026 por nombre o código de país para ver el horario y el campo de sus partidos.',
   teamsSearchLabel: 'Nombre o código del equipo',
   teamsSearchPlaceholder: 'p. ej. Brazil o BRA',
   teamsPrompt: 'Escribe el nombre o el código de un país para ver su equipo.',
@@ -1317,6 +1330,11 @@ const es: Messages = {
   teamsSnapshotNotice: 'Se muestran datos guardados, que pueden estar desactualizados.',
   teamsNumber: 'Equipo {number}',
   teamsResultCount: '{count} encontrado(s)',
+  teamsField: 'Campo n.º {number}',
+  teamsNoMatches: 'Aún no hay partidos programados.',
+  teamsRefine: 'Acota la búsqueda para ver los horarios de los partidos.',
+  matchRedAlliance: 'Alianza roja',
+  matchBlueAlliance: 'Alianza azul',
 }
 
 const ar: Messages = {
@@ -1732,7 +1750,8 @@ const ar: Messages = {
   jdSt_other: 'أخرى',
   jdSt_evaluated: 'تم تقييمها',
   teamsTitle: 'البحث عن فريق',
-  teamsSubtitle: 'ابحث عن فرق FGC 2026 باسم الدولة أو رمزها.',
+  teamsSubtitle:
+    'ابحث عن فريق FGC 2026 باسم الدولة أو رمزها لعرض مواعيد مبارياته وملاعبها.',
   teamsSearchLabel: 'اسم الفريق أو رمزه',
   teamsSearchPlaceholder: 'مثال: Brazil أو BRA',
   teamsPrompt: 'اكتب اسم دولة أو رمزها لعرض فريقها.',
@@ -1741,6 +1760,11 @@ const ar: Messages = {
   teamsSnapshotNotice: 'تُعرض بيانات محفوظة وقد تكون قديمة.',
   teamsNumber: 'الفريق {number}',
   teamsResultCount: 'تم العثور على {count}',
+  teamsField: 'الملعب رقم {number}',
+  teamsNoMatches: 'لا توجد مباريات مجدولة بعد.',
+  teamsRefine: 'ضيّق البحث لعرض مواعيد المباريات.',
+  matchRedAlliance: 'التحالف الأحمر',
+  matchBlueAlliance: 'التحالف الأزرق',
 }
 
 /** Mentor responses are stored as their English contract value; this maps them to messages. */

@@ -8,13 +8,14 @@ de-duplicated `matches[].participants[]`, named after their country (`Intl.Displ
 ```ts
 import { fetchTeams, filterTeams } from '@fgc/shared'
 
-const { teams, source } = await fetchTeams() // source: 'live' | 'snapshot'
+const { teams, matches, source } = await fetchTeams() // source: 'live' | 'snapshot'
+matchesForTeam(matches, 23) // that team's matches: time, field, alliances
 filterTeams(teams, 'Brazil') // by name, tag (prefix) or ISO-2 code; accent/case-insensitive
 ```
 
 - The request always sends `excludeMatchDetails=true` (the bare URL returned empty arrays);
   URL, query and headers live in `FGC_API_CONFIG` and can be overridden per call.
-- The live list is cached for 10 minutes; `forceRefresh: true` bypasses it and concurrent
+- The live list is cached for 2 minutes (the schedule and scores change during the event); `forceRefresh: true` bypasses it and concurrent
   callers share one request. Empty or failed results are never cached.
 - Empty data rejects with `FgcEmptyDataError`; network, non-200 and invalid JSON reject with
   `FgcApiError` (`status` when known). With `allowSnapshotFallback` (default) a non-empty
