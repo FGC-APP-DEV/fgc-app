@@ -206,7 +206,10 @@ export function TeamSearch({ title = true }: { title?: boolean }) {
     fetchTeams({ signal: controller.signal, forceRefresh: attempt > 0 })
       .then(setData)
       .catch(() => {
-        if (!controller.signal.aborted) setFailed(true)
+        if (controller.signal.aborted) return
+        // Never keep showing an earlier schedule as if it were current after a failed refresh.
+        setData(null)
+        setFailed(true)
       })
     return () => controller.abort()
   }, [attempt, searching])
