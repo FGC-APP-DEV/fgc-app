@@ -1,0 +1,97 @@
+{
+  "_note": "Synthetic, trimmed sample shaped like the observed API response (test data, not a capture). teamKeys for BRA, KOR, TUR and HPE follow the spec.",
+  "matches": [
+    {
+      "participants": [
+        {
+          "teamKey": 23,
+          "country": "BRA",
+          "countryCode": "br",
+          "surrogate": 0,
+          "station": 11
+        },
+        {
+          "teamKey": 93,
+          "country": "KOR",
+          "countryCode": "kr",
+          "surrogate": 0,
+          "station": 12
+        },
+        {
+          "teamKey": 170,
+          "country": "TUR",
+          "countryCode": "tr",
+          "surrogate": 1,
+          "station": 13
+        },
+        {
+          "teamKey": 78,
+          "country": "HPE",
+          "countryCode": "10",
+          "surrogate": 0,
+          "station": 21
+        },
+        {
+          "teamKey": 1,
+          "country": "CHI",
+          "countryCode": "cl",
+          "surrogate": 0,
+          "station": 22
+        },
+        {
+          "teamKey": 2,
+          "country": "GER",
+          "countryCode": "de",
+          "surrogate": 0,
+          "station": 23
+        }
+      ]
+    },
+    {
+      "participants": [
+        {
+          "teamKey": 23,
+          "country": "BRA",
+          "countryCode": "br",
+          "surrogate": 1,
+          "station": 21
+        },
+        {
+          "teamKey": 3,
+          "country": "BRU",
+          "countryCode": "bn",
+          "surrogate": 0,
+          "station": 22
+        },
+        {
+          "teamKey": 4,
+          "country": "CAN",
+          "countryCode": "ca",
+          "surrogate": 0,
+          "station": 23
+        },
+        {
+          "teamKey": 5,
+          "country": "KOS",
+          "countryCode": "xk",
+          "surrogate": 0,
+          "station": 11
+        },
+        {
+          "teamKey": 6,
+          "country": "UAE",
+          "countryCode": "ae",
+          "surrogate": 0,
+          "station": 12
+        },
+        {
+          "teamKey": 7,
+          "country": "CIV",
+          "countryCode": "ci",
+          "surrogate": 0,
+          "station": 13
+        }
+      ]
+    }
+  ]
+}

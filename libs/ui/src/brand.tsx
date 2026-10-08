@@ -9,7 +9,13 @@ import { LanguageMenu } from './language-menu'
 import { Body, Card, elevation, layout, radius, tokens } from './operations'
 
 /** Signed-out page frame: logo, event photo, the sign-in card(s) and the legal footer. */
-export function LoginShell({ children }: { children: React.ReactNode }) {
+export function LoginShell({
+  children,
+  maxWidth = 384,
+}: {
+  children: React.ReactNode
+  maxWidth?: number
+}) {
   return (
     <ScrollView
       style={layout.screen}
@@ -23,11 +29,11 @@ export function LoginShell({ children }: { children: React.ReactNode }) {
       }}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={{ width: '100%', maxWidth: 384, alignItems: 'flex-end' }}>
+      <View style={{ width: '100%', maxWidth, alignItems: 'flex-end' }}>
         <LanguageMenu />
       </View>
       <BrandLogo height={44} />
-      <View style={{ width: '100%', maxWidth: 384, gap: 32 }}>
+      <View style={{ width: '100%', maxWidth, gap: 32 }}>
         <View
           style={[
             {

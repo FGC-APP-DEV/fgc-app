@@ -419,6 +419,16 @@ const en = {
   jdSt_online: 'online',
   jdSt_other: 'other',
   jdSt_evaluated: 'evaluated',
+  teamsTitle: 'Find a team',
+  teamsSubtitle: 'Search the FGC 2026 teams by country name or code.',
+  teamsSearchLabel: 'Team name or code',
+  teamsSearchPlaceholder: 'e.g. Brazil or BRA',
+  teamsPrompt: 'Type a country name or code to see its team.',
+  teamsNoResults: 'No team matches “{query}”.',
+  teamsLoadError: 'The teams could not be loaded. Try again.',
+  teamsSnapshotNotice: 'Showing saved data, which may be out of date.',
+  teamsNumber: 'Team {number}',
+  teamsResultCount: '{count} found',
 }
 
 export type ModuleMessageKey = keyof typeof en
@@ -858,6 +868,16 @@ const fr: Messages = {
   jdSt_online: 'en ligne',
   jdSt_other: 'autre',
   jdSt_evaluated: 'évaluée',
+  teamsTitle: 'Trouver une équipe',
+  teamsSubtitle: 'Recherchez les équipes FGC 2026 par nom de pays ou code.',
+  teamsSearchLabel: 'Nom ou code de l’équipe',
+  teamsSearchPlaceholder: 'p. ex. Brazil ou BRA',
+  teamsPrompt: 'Saisissez un nom de pays ou un code pour afficher son équipe.',
+  teamsNoResults: 'Aucune équipe ne correspond à « {query} ».',
+  teamsLoadError: 'Impossible de charger les équipes. Réessayez.',
+  teamsSnapshotNotice: 'Données enregistrées affichées ; elles peuvent être obsolètes.',
+  teamsNumber: 'Équipe {number}',
+  teamsResultCount: '{count} trouvée(s)',
 }
 
 const es: Messages = {
@@ -1287,6 +1307,16 @@ const es: Messages = {
   jdSt_online: 'en línea',
   jdSt_other: 'otro',
   jdSt_evaluated: 'evaluada',
+  teamsTitle: 'Buscar un equipo',
+  teamsSubtitle: 'Busca los equipos de FGC 2026 por nombre o código de país.',
+  teamsSearchLabel: 'Nombre o código del equipo',
+  teamsSearchPlaceholder: 'p. ej. Brazil o BRA',
+  teamsPrompt: 'Escribe el nombre o el código de un país para ver su equipo.',
+  teamsNoResults: 'Ningún equipo coincide con «{query}».',
+  teamsLoadError: 'No se pudieron cargar los equipos. Inténtalo de nuevo.',
+  teamsSnapshotNotice: 'Se muestran datos guardados, que pueden estar desactualizados.',
+  teamsNumber: 'Equipo {number}',
+  teamsResultCount: '{count} encontrado(s)',
 }
 
 const ar: Messages = {
@@ -1701,6 +1731,16 @@ const ar: Messages = {
   jdSt_online: 'عبر الإنترنت',
   jdSt_other: 'أخرى',
   jdSt_evaluated: 'تم تقييمها',
+  teamsTitle: 'البحث عن فريق',
+  teamsSubtitle: 'ابحث عن فرق FGC 2026 باسم الدولة أو رمزها.',
+  teamsSearchLabel: 'اسم الفريق أو رمزه',
+  teamsSearchPlaceholder: 'مثال: Brazil أو BRA',
+  teamsPrompt: 'اكتب اسم دولة أو رمزها لعرض فريقها.',
+  teamsNoResults: 'لا يوجد فريق مطابق لـ «{query}».',
+  teamsLoadError: 'تعذر تحميل الفرق. حاول مرة أخرى.',
+  teamsSnapshotNotice: 'تُعرض بيانات محفوظة وقد تكون قديمة.',
+  teamsNumber: 'الفريق {number}',
+  teamsResultCount: 'تم العثور على {count}',
 }
 
 /** Mentor responses are stored as their English contract value; this maps them to messages. */
