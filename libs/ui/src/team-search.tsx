@@ -20,21 +20,20 @@ import {
   Heading,
   Loading,
   Notice,
+  getThemeMode,
   radius,
   tokens,
 } from './operations'
 
 function TeamRow({ team }: { team: FgcTeam }) {
-  const { t } = useI18n()
-  const flag = flagEmoji(team.iso2)
   return (
     <View
       accessible
-      accessibilityLabel={`${team.name}, ${team.code}, ${t('teamsNumber', { number: team.teamKey })}`}
+      accessibilityRole="header"
+      accessibilityLabel={team.name}
+      testID={`team-${team.teamKey}`}
       style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
+        justifyContent: 'center',
         minHeight: 56,
         paddingHorizontal: 14,
         paddingVertical: 8,
@@ -44,27 +43,29 @@ function TeamRow({ team }: { team: FgcTeam }) {
         backgroundColor: tokens.surfaceLow,
       }}
     >
-      <Text style={{ fontSize: 24, width: 32, textAlign: 'center' }}>{flag}</Text>
       <Text
         style={{
           fontFamily: 'InterBold',
           fontWeight: '700',
-          fontSize: 16,
-          minWidth: 48,
+          fontSize: 18,
           color: tokens.text,
         }}
       >
-        {team.code}
-      </Text>
-      <Text style={{ flex: 1, fontFamily: 'Inter', fontSize: 14, color: tokens.text }}>
         {team.name}
-      </Text>
-      <Text style={{ fontFamily: 'Inter', fontSize: 12, color: tokens.muted }}>
-        {t('teamsNumber', { number: team.teamKey })}
       </Text>
     </View>
   )
 }
+
+/** Score ink for an alliance, readable on the card in both themes. */
+const allianceInk = (side: 'red' | 'blue') =>
+  getThemeMode() === 'dark'
+    ? side === 'red'
+      ? '#F87171'
+      : '#60A5FA'
+    : side === 'red'
+      ? '#DC2626'
+      : '#2563EB'
 
 /** Above this many matching teams only the teams are listed, to keep the page readable. */
 const MAX_TEAMS_WITH_MATCHES = 5
@@ -161,8 +162,10 @@ function MatchRow({ match, highlight }: { match: FgcMatch; highlight: number }) 
         {when && <Text style={label}>{`${when.day}, ${when.time}`}</Text>}
         {!!field && <Text style={label}>{field}</Text>}
         {match.played && match.redScore !== null && match.blueScore !== null && (
-          <Text style={[label, { color: tokens.text, fontWeight: '700' }]}>
-            {`${match.redScore} – ${match.blueScore}`}
+          <Text style={[label, { fontWeight: '700' }]}>
+            <Text style={{ color: allianceInk('red') }}>{match.redScore}</Text>
+            {' – '}
+            <Text style={{ color: allianceInk('blue') }}>{match.blueScore}</Text>
           </Text>
         )}
       </View>
