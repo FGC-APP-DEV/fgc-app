@@ -132,6 +132,28 @@ describe('TeamSearch', () => {
     expect(container.textContent).toContain('Aland 5')
     expect(container.textContent).not.toContain('Ranking Match')
   })
+  it('titles the team with its country name only and colours each score by alliance', async () => {
+    mockFetchTeams.mockResolvedValue({
+      ...result(),
+      matches: [
+        {
+          ...match(8, '2026-10-08T11:31:00+09:00', 4, [bra], [kor]),
+          played: true,
+          redScore: 265,
+          blueScore: 436,
+        },
+      ],
+    })
+    await type('brazil')
+    const title = container.querySelector('[data-testid="team-23"]') as HTMLElement
+    expect(title.textContent).toBe('Brazil')
+    expect(container.textContent).not.toContain('Team 23')
+    const scores = [...container.querySelectorAll('span')].filter((el) =>
+      ['265', '436'].includes(el.textContent ?? ''),
+    )
+    expect(scores).toHaveLength(2)
+    expect(getComputedStyle(scores[0]).color).not.toBe(getComputedStyle(scores[1]).color)
+  })
   it('hides the list again when the input is cleared', async () => {
     mockFetchTeams.mockResolvedValue(result())
     await type('bra')
