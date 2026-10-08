@@ -3,6 +3,12 @@ import { test, expect, type Page } from '@playwright/test'
 const sample = {
   matches: [
     {
+      id: 20,
+      tournamentKey: 't2',
+      name: 'Ranking Match 20',
+      scheduledTime: '2026-10-08T12:03:00.000+09:00',
+      field: 4,
+      played: false,
       participants: [
         { teamKey: 23, country: 'BRA', countryCode: 'br', surrogate: 0, station: 11 },
         { teamKey: 93, country: 'KOR', countryCode: 'kr', surrogate: 0, station: 12 },
@@ -49,6 +55,9 @@ test('the landing page finds a team without signing in and lists nothing until t
   expect(requests).toHaveLength(0)
   await search(page).fill('  bRaZiL ')
   await expect(page.getByText('Team 23')).toBeVisible()
+  await expect(page.getByText('Ranking Match 20')).toBeVisible()
+  await expect(page.getByText('Thu, 12:03')).toBeVisible()
+  await expect(page.getByText('Field #4')).toBeVisible()
   await expect(page.getByText('Team 93')).toHaveCount(0)
   expect(requests).toHaveLength(1)
   expect(requests[0]).toContain('excludeMatchDetails=true')

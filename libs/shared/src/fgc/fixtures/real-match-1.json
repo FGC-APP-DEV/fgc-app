@@ -1,0 +1,103 @@
+{
+  "_note": "Match 1 exactly as captured from api.first.global (supplied by the owner).",
+  "matches": [
+    {
+      "eventKey": "FGC_2026-FGC-CMP",
+      "tournamentKey": "t2",
+      "id": 1,
+      "name": "Ranking Match 1",
+      "scheduledTime": "2026-10-08T11:15:00.900+09:00",
+      "actualStartTime": "",
+      "cycleTime": 0,
+      "redScore": 72,
+      "redMinPen": 0,
+      "redMajPen": 0,
+      "blueScore": 42,
+      "blueMinPen": 0,
+      "blueMajPen": 0,
+      "updatedAtUtc": "2026-10-08T02:27:47.081Z",
+      "participants": [
+        {
+          "eventKey": "FGC_2026-FGC-CMP",
+          "tournamentKey": "t2",
+          "id": 1,
+          "station": 11,
+          "teamKey": 150,
+          "disqualified": 0,
+          "cardStatus": 0,
+          "surrogate": 0,
+          "noShow": 0,
+          "country": "SLE",
+          "countryCode": "sl"
+        },
+        {
+          "eventKey": "FGC_2026-FGC-CMP",
+          "tournamentKey": "t2",
+          "id": 1,
+          "station": 12,
+          "teamKey": 8,
+          "disqualified": 0,
+          "cardStatus": 0,
+          "surrogate": 0,
+          "noShow": 0,
+          "country": "ARU",
+          "countryCode": "aw"
+        },
+        {
+          "eventKey": "FGC_2026-FGC-CMP",
+          "tournamentKey": "t2",
+          "id": 1,
+          "station": 13,
+          "teamKey": 1,
+          "disqualified": 0,
+          "cardStatus": 0,
+          "surrogate": 0,
+          "noShow": 0,
+          "country": "AFG",
+          "countryCode": "af"
+        },
+        {
+          "eventKey": "FGC_2026-FGC-CMP",
+          "tournamentKey": "t2",
+          "id": 1,
+          "station": 21,
+          "teamKey": 5,
+          "disqualified": 0,
+          "cardStatus": 0,
+          "surrogate": 0,
+          "noShow": 0,
+          "country": "ANG",
+          "countryCode": "ao"
+        },
+        {
+          "eventKey": "FGC_2026-FGC-CMP",
+          "tournamentKey": "t2",
+          "id": 1,
+          "station": 22,
+          "teamKey": 148,
+          "disqualified": 0,
+          "cardStatus": 0,
+          "surrogate": 0,
+          "noShow": 0,
+          "country": "SRB",
+          "countryCode": "rs"
+        },
+        {
+          "eventKey": "FGC_2026-FGC-CMP",
+          "tournamentKey": "t2",
+          "id": 1,
+          "station": 23,
+          "teamKey": 127,
+          "disqualified": 0,
+          "cardStatus": 0,
+          "surrogate": 0,
+          "noShow": 0,
+          "country": "NOR",
+          "countryCode": "no"
+        }
+      ],
+      "played": true,
+      "field": 1
+    }
+  ]
+}

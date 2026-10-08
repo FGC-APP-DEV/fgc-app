@@ -22,8 +22,34 @@ jest.mock('@fgc/shared', () => ({
 }))
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
+const bra = { teamKey: 23, code: 'BRA', iso2: 'br' }
+const kor = { teamKey: 93, code: 'KOR', iso2: 'kr' }
+const arg = { teamKey: 9, code: 'ARG', iso2: 'ar' }
+const match = (
+  id: number,
+  scheduledTime: string,
+  field: number,
+  red: object[],
+  blue: object[],
+) =>
+  ({
+    key: `t2:${id}`,
+    id,
+    name: `Ranking Match ${id}`,
+    scheduledTime,
+    field,
+    played: false,
+    redScore: null,
+    blueScore: null,
+    red,
+    blue,
+  }) as FgcTeamsResult['matches'][number]
 const result = (source: FgcTeamsResult['source'] = 'live'): FgcTeamsResult => ({
   source,
+  matches: [
+    match(20, '2026-10-08T12:03:00.000+09:00', 4, [bra, kor], [arg]),
+    match(7, '2026-10-08T11:15:00.900+09:00', 1, [arg], [kor]),
+  ],
   fetchedAt: '2026-10-08T00:00:00.000Z',
   teams: [
     { teamKey: 23, code: 'BRA', iso2: 'br', name: 'Brazil' },
@@ -73,6 +99,38 @@ describe('TeamSearch', () => {
     expect(container.textContent).toContain('South Korea')
     expect(container.textContent).not.toContain('Brazil')
     expect(mockFetchTeams).toHaveBeenCalledTimes(1)
+  })
+  it('shows each match of the team with its time and field, earliest first', async () => {
+    mockFetchTeams.mockResolvedValue(result())
+    await type('brazil')
+    expect(container.textContent).toContain('Ranking Match 20')
+    expect(container.textContent).toContain('Thu, 12:03')
+    expect(container.textContent).toContain('Field #4')
+    expect(container.textContent).not.toContain('Ranking Match 7')
+    await type('kor')
+    const text = container.textContent ?? ''
+    expect(text.indexOf('Ranking Match 7')).toBeGreaterThan(-1)
+    expect(text.indexOf('Ranking Match 7')).toBeLessThan(text.indexOf('Ranking Match 20'))
+    expect(text).toContain('Thu, 11:15')
+    expect(text).toContain('Field #1')
+  })
+  it('says when a team has no matches yet', async () => {
+    mockFetchTeams.mockResolvedValue({ ...result(), matches: [] })
+    await type('brazil')
+    expect(container.textContent).toContain('No matches scheduled yet.')
+  })
+  it('lists only the teams, with a hint, when too many teams match', async () => {
+    const many = Array.from({ length: 6 }, (_, i) => ({
+      teamKey: 100 + i,
+      code: `AA${i}`,
+      iso2: 'aa',
+      name: `Aland ${i}`,
+    }))
+    mockFetchTeams.mockResolvedValue({ ...result(), teams: many })
+    await type('aland')
+    expect(container.textContent).toContain('Narrow your search')
+    expect(container.textContent).toContain('Aland 5')
+    expect(container.textContent).not.toContain('Ranking Match')
   })
   it('hides the list again when the input is cleared', async () => {
     mockFetchTeams.mockResolvedValue(result())

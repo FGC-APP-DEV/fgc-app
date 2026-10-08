@@ -1,11 +1,15 @@
 import fixture from './fixtures/sample-matches.json'
+import realMatch from './fixtures/real-match-1.json'
 import {
   FgcApiError,
   FgcEmptyDataError,
+  extractMatches,
   extractTeams,
+  formatMatchTime,
   flagEmoji,
   fetchTeams,
   filterTeams,
+  matchesForTeam,
   resetFgcTeamsCache,
   type FgcTeam,
   type FgcTeamsSnapshot,
@@ -163,7 +167,7 @@ describe('fetchTeams', () => {
       fetchTeams({ fetchImpl, snapshot: { generatedAt: '', teams: [] } }),
     ).rejects.toMatchObject({ status: 503 })
   })
-  it('caches for 10 minutes and forceRefresh bypasses the cache', async () => {
+  it('caches for 2 minutes and forceRefresh bypasses the cache', async () => {
     const fetchImpl = jest.fn(async () => json(fixture))
     const opts = { fetchImpl: fetchImpl as unknown as typeof fetch }
     await fetchTeams(opts)
@@ -172,7 +176,7 @@ describe('fetchTeams', () => {
     await fetchTeams({ ...opts, forceRefresh: true })
     expect(fetchImpl).toHaveBeenCalledTimes(2)
     const now = Date.now()
-    const clock = jest.spyOn(Date, 'now').mockReturnValue(now + 10 * 60 * 1000 + 1)
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(now + 2 * 60 * 1000 + 1)
     await fetchTeams(opts)
     clock.mockRestore()
     expect(fetchImpl).toHaveBeenCalledTimes(3)
@@ -203,5 +207,84 @@ describe('flagEmoji', () => {
     expect(flagEmoji('KR')).toBe('🇰🇷')
     expect(flagEmoji('10')).toBe('')
     expect(flagEmoji('')).toBe('')
+  })
+})
+
+describe('extractMatches', () => {
+  const [match] = extractMatches(realMatch)
+  it('reads the schedule of a real API match', () => {
+    expect(match).toMatchObject({
+      key: 't2:1',
+      id: 1,
+      name: 'Ranking Match 1',
+      scheduledTime: '2026-10-08T11:15:00.900+09:00',
+      field: 1,
+      played: true,
+      redScore: 72,
+      blueScore: 42,
+    })
+  })
+  it('splits the alliances by station, in station order', () => {
+    expect(match.red.map((t) => t.code)).toEqual(['SLE', 'ARU', 'AFG'])
+    expect(match.blue.map((t) => t.code)).toEqual(['ANG', 'SRB', 'NOR'])
+    expect(match.red[0]).toEqual({ teamKey: 150, code: 'SLE', iso2: 'sl' })
+  })
+  it('has no scores until the match is played, and tolerates missing fields', () => {
+    const [unplayed] = extractMatches({
+      matches: [
+        {
+          id: 2,
+          played: false,
+          redScore: 0,
+          blueScore: 0,
+          participants: [{ teamKey: 1, country: 'AFG', countryCode: 'af', station: 11 }],
+        },
+      ],
+    })
+    expect(unplayed).toMatchObject({
+      name: 'Match 2',
+      scheduledTime: '',
+      field: null,
+      redScore: null,
+      blueScore: null,
+    })
+    expect(
+      extractMatches({ matches: [{ id: 'x' }, null, { id: 3, participants: [] }] }),
+    ).toEqual([])
+    expect(extractMatches(null)).toEqual([])
+  })
+  it('orders matches by time and finds the ones a team plays', () => {
+    const at = (id: number, scheduledTime: string, teamKey: number) => ({
+      id,
+      scheduledTime,
+      participants: [{ teamKey, country: 'AFG', countryCode: 'af', station: 11 }],
+    })
+    const list = extractMatches({
+      matches: [
+        at(2, '2026-10-08T12:03:00+09:00', 1),
+        at(1, '2026-10-08T11:15:00+09:00', 1),
+        at(3, '2026-10-08T11:30:00+09:00', 2),
+      ],
+    })
+    expect(list.map((m) => m.id)).toEqual([1, 3, 2])
+    expect(matchesForTeam(list, 1).map((m) => m.id)).toEqual([1, 2])
+    expect(matchesForTeam(list, 99)).toEqual([])
+  })
+})
+
+describe('formatMatchTime', () => {
+  it('shows the event wall-clock time whatever the viewer time zone', () => {
+    expect(formatMatchTime('2026-10-08T11:15:00.900+09:00')).toEqual({
+      day: 'Thu',
+      time: '11:15',
+    })
+    expect(formatMatchTime('2026-10-10T00:05:00+09:00')).toEqual({
+      day: 'Sat',
+      time: '00:05',
+    })
+  })
+  it('returns null for anything else', () => {
+    expect(formatMatchTime('')).toBeNull()
+    expect(formatMatchTime('soon')).toBeNull()
   })
 })

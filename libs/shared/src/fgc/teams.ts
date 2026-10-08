@@ -15,8 +15,35 @@ export interface FgcTeam {
   name: string
 }
 
+/** A team as it appears in one match. */
+export interface FgcMatchTeam {
+  teamKey: number
+  code: string
+  iso2: string
+}
+
+export interface FgcMatch {
+  /** Unique across tournaments: `${tournamentKey}:${id}`. */
+  key: string
+  id: number
+  /** e.g. "Ranking Match 20". */
+  name: string
+  /** As sent by the API, with the event's UTC offset, e.g. 2026-10-08T11:15:00.900+09:00. */
+  scheduledTime: string
+  field: number | null
+  played: boolean
+  /** Null until the match is played. */
+  redScore: number | null
+  blueScore: number | null
+  /** Stations 11-13, ordered by station. */
+  red: FgcMatchTeam[]
+  /** Stations 21-23, ordered by station. */
+  blue: FgcMatchTeam[]
+}
+
 export interface FgcTeamsResult {
   teams: FgcTeam[]
+  matches: FgcMatch[]
   source: 'live' | 'snapshot'
   /** ISO timestamp of the live fetch, or of the snapshot. */
   fetchedAt: string
@@ -32,6 +59,7 @@ export interface FgcApiConfig {
 export interface FgcTeamsSnapshot {
   generatedAt: string
   teams: FgcTeam[]
+  matches?: FgcMatch[]
 }
 
 export interface FetchTeamsOptions {
@@ -69,7 +97,8 @@ export const FGC_API_CONFIG: FgcApiConfig = {
   query: { excludeMatchDetails: 'true' },
 }
 
-export const FGC_TEAMS_CACHE_TTL_MS = 10 * 60 * 1000
+/** Short, because the schedule and scores change while the event runs. */
+export const FGC_TEAMS_CACHE_TTL_MS = 2 * 60 * 1000
 const REQUEST_TIMEOUT_MS = 15_000
 
 /** Names for codes `Intl.DisplayNames` rejects or does not know in every runtime. */
@@ -100,6 +129,34 @@ function createDisplayNames(): Intl.DisplayNames | null {
 const byName = (a: FgcTeam, b: FgcTeam) =>
   a.name.localeCompare(b.name, 'en') || a.teamKey - b.teamKey
 
+interface Participant {
+  teamKey: number
+  code: string
+  iso2: string
+  station: number | null
+}
+
+function readParticipant(participant: unknown): Participant | null {
+  const p = participant as Record<string, unknown> | null
+  if (!p || typeof p !== 'object') return null
+  const { teamKey, country, countryCode, station } = p
+  if (typeof teamKey !== 'number' || !Number.isFinite(teamKey)) return null
+  if (typeof country !== 'string' || typeof countryCode !== 'string') return null
+  const code = country.trim().toUpperCase()
+  if (!code) return null
+  return {
+    teamKey,
+    code,
+    iso2: countryCode.trim().toLowerCase(),
+    station: typeof station === 'number' ? station : null,
+  }
+}
+
+const participantsOf = (match: unknown): unknown[] => {
+  const list = (match as { participants?: unknown } | null)?.participants
+  return Array.isArray(list) ? list : []
+}
+
 /** Pure: derives the unique, name-sorted teams from an API payload. Bad entries are skipped. */
 export function extractTeams(payload: unknown): FgcTeam[] {
   const matches = (payload as { matches?: unknown } | null | undefined)?.matches
@@ -107,22 +164,92 @@ export function extractTeams(payload: unknown): FgcTeam[] {
   const names = createDisplayNames()
   const seen = new Map<number, FgcTeam>()
   for (const match of matches) {
-    const participants = (match as { participants?: unknown } | null)?.participants
-    if (!Array.isArray(participants)) continue
-    for (const participant of participants) {
-      const p = participant as Record<string, unknown> | null
-      if (!p || typeof p !== 'object') continue
-      const { teamKey, country, countryCode } = p
-      if (typeof teamKey !== 'number' || !Number.isFinite(teamKey)) continue
-      if (typeof country !== 'string' || typeof countryCode !== 'string') continue
-      if (seen.has(teamKey)) continue
-      const code = country.trim().toUpperCase()
-      const iso2 = countryCode.trim().toLowerCase()
-      if (!code) continue
-      seen.set(teamKey, { teamKey, code, iso2, name: regionName(names, iso2) ?? code })
+    for (const participant of participantsOf(match)) {
+      const p = readParticipant(participant)
+      if (!p || seen.has(p.teamKey)) continue
+      seen.set(p.teamKey, {
+        teamKey: p.teamKey,
+        code: p.code,
+        iso2: p.iso2,
+        name: regionName(names, p.iso2) ?? p.code,
+      })
     }
   }
   return [...seen.values()].sort(byName)
+}
+
+const toScore = (value: unknown) =>
+  typeof value === 'number' && Number.isFinite(value) ? value : null
+
+const byTime = (a: FgcMatch, b: FgcMatch) =>
+  a.scheduledTime.localeCompare(b.scheduledTime) || a.id - b.id
+
+/** Pure: the schedule, in time order. Matches without a usable id or any valid team are skipped. */
+export function extractMatches(payload: unknown): FgcMatch[] {
+  const matches = (payload as { matches?: unknown } | null | undefined)?.matches
+  if (!Array.isArray(matches)) return []
+  const out: FgcMatch[] = []
+  for (const raw of matches) {
+    const m = raw as Record<string, unknown> | null
+    if (!m || typeof m !== 'object' || typeof m.id !== 'number') continue
+    const members = participantsOf(m)
+      .map(readParticipant)
+      .filter((p): p is Participant => p !== null)
+      .sort((a, b) => (a.station ?? 0) - (b.station ?? 0))
+    if (!members.length) continue
+    const side = (tens: number) =>
+      members
+        .filter((p) => p.station !== null && Math.floor(p.station / 10) === tens)
+        .map(({ teamKey, code, iso2 }) => ({ teamKey, code, iso2 }))
+    const played = m.played === true
+    out.push({
+      key: `${typeof m.tournamentKey === 'string' ? m.tournamentKey : ''}:${m.id}`,
+      id: m.id,
+      name: typeof m.name === 'string' && m.name ? m.name : `Match ${m.id}`,
+      scheduledTime: typeof m.scheduledTime === 'string' ? m.scheduledTime : '',
+      field: typeof m.field === 'number' ? m.field : null,
+      played,
+      redScore: played ? toScore(m.redScore) : null,
+      blueScore: played ? toScore(m.blueScore) : null,
+      red: side(1),
+      blue: side(2),
+    })
+  }
+  return out.sort(byTime)
+}
+
+/** Matches a team plays in, in time order. */
+export function matchesForTeam(matches: FgcMatch[], teamKey: number): FgcMatch[] {
+  return matches
+    .filter(
+      (m) =>
+        m.red.some((t) => t.teamKey === teamKey) ||
+        m.blue.some((t) => t.teamKey === teamKey),
+    )
+    .sort(byTime)
+}
+
+/**
+ * Day and time of day exactly as written in `scheduledTime` (the event's local time), so the
+ * viewer's own time zone never shifts it. Null when the value is not an ISO date-time.
+ */
+export function formatMatchTime(
+  scheduledTime: string,
+  locale = 'en',
+): { day: string; time: string } | null {
+  const parts = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(scheduledTime)
+  if (!parts) return null
+  const [, year, month, date, hour, minute] = parts
+  const at = new Date(Date.UTC(Number(year), Number(month) - 1, Number(date)))
+  let day: string
+  try {
+    day = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(
+      at,
+    )
+  } catch {
+    day = new Intl.DateTimeFormat('en', { weekday: 'short', timeZone: 'UTC' }).format(at)
+  }
+  return { day, time: `${hour}:${minute}` }
 }
 
 const fold = (value: string) =>
@@ -150,8 +277,9 @@ export function filterTeams(teams: FgcTeam[], query: string): FgcTeam[] {
     .map((entry) => entry.team)
 }
 
-let cache: { teams: FgcTeam[]; fetchedAt: string; expiresAt: number } | null = null
-let inFlight: Promise<{ teams: FgcTeam[]; fetchedAt: string }> | null = null
+type Live = { teams: FgcTeam[]; matches: FgcMatch[]; fetchedAt: string }
+let cache: (Live & { expiresAt: number }) | null = null
+let inFlight: Promise<Live> | null = null
 
 /** Test helper: forgets the cached list and any in-flight request. */
 export function resetFgcTeamsCache() {
@@ -166,10 +294,7 @@ function requestUrl(config: FgcApiConfig) {
   return url.toString()
 }
 
-async function requestLive(
-  fetchImpl: typeof fetch,
-  config: FgcApiConfig,
-): Promise<{ teams: FgcTeam[]; fetchedAt: string }> {
+async function requestLive(fetchImpl: typeof fetch, config: FgcApiConfig): Promise<Live> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   let response: Response
@@ -197,7 +322,7 @@ async function requestLive(
   }
   const teams = extractTeams(payload)
   if (!teams.length) throw new FgcEmptyDataError()
-  return { teams, fetchedAt: new Date().toISOString() }
+  return { teams, matches: extractMatches(payload), fetchedAt: new Date().toISOString() }
 }
 
 /** Each caller can leave on its own signal without cancelling the request others share. */
@@ -216,13 +341,18 @@ function untilAborted<T>(work: Promise<T>, signal?: AbortSignal): Promise<T> {
 }
 
 /**
- * Live teams (cached 10 minutes, shared between concurrent callers), or the bundled snapshot
+ * Live teams and schedule (cached 2 minutes, shared between concurrent callers), or the bundled snapshot
  * when the live call fails or is empty. Only a successful non-empty live result is cached.
  */
 export async function fetchTeams(opts: FetchTeamsOptions = {}): Promise<FgcTeamsResult> {
   const { signal, forceRefresh = false, allowSnapshotFallback = true } = opts
   if (!forceRefresh && cache && cache.expiresAt > Date.now())
-    return { teams: cache.teams, source: 'live', fetchedAt: cache.fetchedAt }
+    return {
+      teams: cache.teams,
+      matches: cache.matches,
+      source: 'live',
+      fetchedAt: cache.fetchedAt,
+    }
   if (!inFlight) {
     const config: FgcApiConfig = {
       ...FGC_API_CONFIG,
@@ -242,13 +372,19 @@ export async function fetchTeams(opts: FetchTeamsOptions = {}): Promise<FgcTeams
   }
   try {
     const live = await untilAborted(inFlight, signal)
-    return { teams: live.teams, source: 'live', fetchedAt: live.fetchedAt }
+    return {
+      teams: live.teams,
+      matches: live.matches,
+      source: 'live',
+      fetchedAt: live.fetchedAt,
+    }
   } catch (e) {
     if (signal?.aborted) throw e
     const snapshot = opts.snapshot ?? (snapshotData as FgcTeamsSnapshot)
     if (allowSnapshotFallback && snapshot.teams.length)
       return {
         teams: [...snapshot.teams].sort(byName),
+        matches: snapshot.matches ?? [],
         source: 'snapshot',
         fetchedAt: snapshot.generatedAt,
       }

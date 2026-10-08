@@ -4,6 +4,10 @@ import {
   fetchTeams,
   filterTeams,
   flagEmoji,
+  formatMatchTime,
+  matchesForTeam,
+  type FgcMatch,
+  type FgcMatchTeam,
   type FgcTeam,
   type FgcTeamsResult,
 } from '@fgc/shared'
@@ -62,9 +66,130 @@ function TeamRow({ team }: { team: FgcTeam }) {
   )
 }
 
+/** Above this many matching teams only the teams are listed, to keep the page readable. */
+const MAX_TEAMS_WITH_MATCHES = 5
+
+function Alliance({
+  teams,
+  side,
+  highlight,
+}: {
+  teams: FgcMatchTeam[]
+  side: 'red' | 'blue'
+  highlight: number
+}) {
+  const { t } = useI18n()
+  return (
+    <View
+      accessibilityLabel={`${t(side === 'red' ? 'matchRedAlliance' : 'matchBlueAlliance')}: ${teams
+        .map((team) => team.code)
+        .join(', ')}`}
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        gap: 4,
+        minHeight: 36,
+        paddingHorizontal: 6,
+        backgroundColor:
+          side === 'red' ? 'rgba(220, 38, 38, 0.14)' : 'rgba(59, 130, 246, 0.16)',
+      }}
+    >
+      {teams.map((team) => (
+        <View
+          key={team.teamKey}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+        >
+          <Text style={{ fontSize: 14 }}>{flagEmoji(team.iso2)}</Text>
+          <Text
+            style={{
+              fontFamily: team.teamKey === highlight ? 'InterBold' : 'Inter',
+              fontWeight: team.teamKey === highlight ? '700' : '400',
+              fontSize: 13,
+              color: tokens.text,
+              textDecorationLine: team.teamKey === highlight ? 'underline' : 'none',
+            }}
+          >
+            {team.code}
+          </Text>
+        </View>
+      ))}
+    </View>
+  )
+}
+
+function MatchRow({ match, highlight }: { match: FgcMatch; highlight: number }) {
+  const { t, locale } = useI18n()
+  const when = formatMatchTime(match.scheduledTime, locale)
+  const field = match.field === null ? '' : t('teamsField', { number: match.field })
+  const label = {
+    fontFamily: 'Inter',
+    fontSize: 12,
+    color: tokens.muted,
+    textAlign: 'center',
+  } as const
+  return (
+    <View
+      accessible
+      accessibilityLabel={[
+        match.name,
+        when ? `${when.day} ${when.time}` : '',
+        field,
+        `${t('matchRedAlliance')}: ${match.red.map((x) => x.code).join(', ')}`,
+        `${t('matchBlueAlliance')}: ${match.blue.map((x) => x.code).join(', ')}`,
+      ]
+        .filter(Boolean)
+        .join(', ')}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        borderRadius: radius.control,
+        borderWidth: 1,
+        borderColor: tokens.border,
+        backgroundColor: tokens.surfaceLow,
+        overflow: 'hidden',
+      }}
+    >
+      <View style={{ width: 68, justifyContent: 'center', padding: 6 }}>
+        <Text style={label}>{match.name}</Text>
+      </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Alliance teams={match.red} side="red" highlight={highlight} />
+        <Alliance teams={match.blue} side="blue" highlight={highlight} />
+      </View>
+      <View style={{ width: 76, justifyContent: 'center', padding: 6, gap: 2 }}>
+        {when && <Text style={label}>{`${when.day}, ${when.time}`}</Text>}
+        {!!field && <Text style={label}>{field}</Text>}
+        {match.played && match.redScore !== null && match.blueScore !== null && (
+          <Text style={[label, { color: tokens.text, fontWeight: '700' }]}>
+            {`${match.redScore} – ${match.blueScore}`}
+          </Text>
+        )}
+      </View>
+    </View>
+  )
+}
+
+function TeamResult({ team, matches }: { team: FgcTeam; matches: FgcMatch[] | null }) {
+  const { t } = useI18n()
+  return (
+    <View style={{ gap: 8 }}>
+      <TeamRow team={team} />
+      {matches &&
+        (matches.length === 0 ? (
+          <Body>{t('teamsNoMatches')}</Body>
+        ) : (
+          matches.map((match) => (
+            <MatchRow key={match.key} match={match} highlight={team.teamKey} />
+          ))
+        ))}
+    </View>
+  )
+}
+
 /**
  * Team lookup by country name or code. Nothing is listed until something is typed; the list is
- * loaded on first input (cached by the data module) and filtered in memory on every keystroke.
+ * loaded when a search starts (cached by the data module) and filtered in memory on every keystroke.
  */
 export function TeamSearch({ title = true }: { title?: boolean }) {
   const { t } = useI18n()
@@ -72,10 +197,10 @@ export function TeamSearch({ title = true }: { title?: boolean }) {
   const [data, setData] = useState<FgcTeamsResult | null>(null)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
-  // The list is requested on first input, so the landing page makes no call until it is used.
-  const [started, setStarted] = useState(false)
+  const searching = query.trim().length > 0
+  // Requested when a search starts (never on page load); the data module's cache makes repeats free.
   useEffect(() => {
-    if (!started) return
+    if (!searching) return
     const controller = new AbortController()
     setFailed(false)
     fetchTeams({ signal: controller.signal, forceRefresh: attempt > 0 })
@@ -84,9 +209,8 @@ export function TeamSearch({ title = true }: { title?: boolean }) {
         if (!controller.signal.aborted) setFailed(true)
       })
     return () => controller.abort()
-  }, [attempt, started])
+  }, [attempt, searching])
   const retry = useCallback(() => setAttempt((n) => n + 1), [])
-  const searching = query.trim().length > 0
   const matches = useMemo(
     () => (searching && data ? filterTeams(data.teams, query) : []),
     [searching, data, query],
@@ -103,10 +227,7 @@ export function TeamSearch({ title = true }: { title?: boolean }) {
         label={t('teamsSearchLabel')}
         icon="search"
         value={query}
-        onChangeText={(value) => {
-          setQuery(value)
-          if (value.trim()) setStarted(true)
-        }}
+        onChangeText={setQuery}
         placeholder={t('teamsSearchPlaceholder')}
         autoCapitalize="none"
         autoCorrect={false}
@@ -130,8 +251,17 @@ export function TeamSearch({ title = true }: { title?: boolean }) {
               <Text style={{ fontFamily: 'Inter', fontSize: 12, color: tokens.muted }}>
                 {t('teamsResultCount', { count: matches.length })}
               </Text>
+              {matches.length > MAX_TEAMS_WITH_MATCHES && <Body>{t('teamsRefine')}</Body>}
               {matches.map((team) => (
-                <TeamRow key={team.teamKey} team={team} />
+                <TeamResult
+                  key={team.teamKey}
+                  team={team}
+                  matches={
+                    matches.length > MAX_TEAMS_WITH_MATCHES
+                      ? null
+                      : matchesForTeam(data.matches, team.teamKey)
+                  }
+                />
               ))}
             </>
           )}
